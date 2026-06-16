@@ -1,7 +1,551 @@
-<html>
-<head><meta charset="utf-8" /></head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Falcon Language Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.plot.ly/plotly-3.0.0.min.js" charset="utf-8"></script>
+<style>
+:root {
+  --bg:        #0D1117;
+  --surface:   #161B22;
+  --surface2:  #21262D;
+  --border:    #30363D;
+  --text:      #C9D1D9;
+  --muted:     #8B949E;
+  --accent:    #58A6FF;
+  --green:     #3FB950;
+  --yellow:    #D29922;
+  --radius:    10px;
+  --sb-w:      360px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── Header ── */
+header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 20px;
+  height: 52px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  z-index: 10;
+}
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  color: white;
+  text-decoration: none;
+}
+.logo-icon {
+  width: 26px; height: 26px;
+  background: linear-gradient(135deg, #58A6FF 0%, #7C6AF7 100%);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+}
+.header-sep { color: var(--border); font-size: 18px; }
+.header-sub { color: var(--muted); font-size: 12px; font-weight: 400; }
+.hspacer { flex: 1; }
+.header-chip {
+  font-size: 11px; color: var(--muted);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 3px 10px;
+}
+
+/* ── Stats bar ── */
+.stats-bar {
+  display: flex;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.stat {
+  flex: 1;
+  padding: 10px 18px;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.stat:last-child { border-right: none; }
+.stat-val {
+  font-size: 20px;
+  font-weight: 700;
+  color: white;
+  line-height: 1;
+}
+.stat-lbl {
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ── Main layout ── */
+.main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── Map column ── */
+.map-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* ── Filter bar ── */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+.filter-lbl {
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding-right: 4px;
+}
+.pill {
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  transition: all 0.15s ease;
+}
+.pill:hover { border-color: var(--accent); color: var(--accent); }
+.pill.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+/* ── Map container ── */
+#map {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+}
+
+/* ── Legend ── */
+.legend-bar {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 14px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  overflow: hidden;
+}
+.legend-ttl {
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-right: 4px;
+  white-space: nowrap;
+}
+.legend-chip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--text);
+  padding: 3px 8px;
+  border-radius: 5px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.legend-chip:hover { border-color: var(--accent); }
+.legend-dot {
+  width: 9px; height: 9px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  width: var(--sb-w);
+  flex-shrink: 0;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: width 0.22s cubic-bezier(.4,0,.2,1),
+              opacity 0.22s ease;
+}
+.sidebar.hidden {
+  width: 0;
+  opacity: 0;
+  border-left: none;
+  pointer-events: none;
+}
+.sb-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px 12px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.sb-title { font-size: 15px; font-weight: 600; color: white; }
+.sb-close {
+  width: 24px; height: 24px;
+  border-radius: 6px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px;
+  color: var(--muted);
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+.sb-close:hover { color: white; border-color: var(--muted); }
+.sb-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.sb-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--muted);
+  text-align: center;
+  padding: 20px;
+}
+.sb-empty-icon { font-size: 36px; opacity: 0.35; }
+.sb-empty p { font-size: 13px; line-height: 1.6; }
+
+/* ── Language card ── */
+.lc {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  transition: border-color 0.15s;
+}
+.lc:hover { border-color: #444D57; }
+.lc-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+.lc-name { font-size: 13px; font-weight: 600; color: white; }
+.badge {
+  font-size: 10px; font-weight: 500;
+  padding: 2px 7px;
+  border-radius: 10px;
+}
+.badge-win  { background:rgba(63,185,80,.15); color:#3FB950; border:1px solid rgba(63,185,80,.25); }
+.badge-g4   { background:rgba(88,166,255,.12); color:#58A6FF; border:1px solid rgba(88,166,255,.2); }
+.badge-none { background:rgba(139,148,158,.1); color:var(--muted); border:1px solid var(--border); }
+.lc-model   { font-size: 11px; color: var(--muted); margin-bottom: 10px; }
+.metrics    { display: flex; flex-direction: column; gap: 7px; }
+.m-row      { display: flex; flex-direction: column; gap: 3px; }
+.m-labels   { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); }
+.m-labels span:last-child { color: var(--text); font-weight: 500; }
+.m-bar      { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+.m-fill     { height: 100%; border-radius: 2px; transition: width .5s cubic-bezier(.4,0,.2,1); }
+.fill-g4    { background: #4A90D9; }
+.fill-cand  { background: #3FB950; }
+.fill-vcov  { background: #9B5DE5; }
+.fill-rt    { background: #2EC4B6; }
+.divider    { height: 1px; background: var(--border); margin: 2px 0; }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ── Responsive ── */
+@media (max-width: 860px) {
+  .stats-bar { display: none; }
+  .sidebar {
+    position: absolute; right: 0; top: 52px; bottom: 0;
+    z-index: 20;
+    box-shadow: -8px 0 30px rgba(0,0,0,.6);
+  }
+  .header-sub, .header-chip { display: none; }
+}
+</style>
+</head>
 <body>
-    <div>                        <script type="text/javascript">window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
-        <script charset="utf-8" src="https://cdn.plot.ly/plotly-3.1.0.min.js" integrity="sha256-Ei4740bWZhaUTQuD6q9yQlgVCMPBz6CZWhevDYPv93A=" crossorigin="anonymous"></script>                <div id="7668fc11-5c2c-420f-ae8d-1e4c787f9c59" class="plotly-graph-div" style="height:620px; width:100%;"></div>            <script type="text/javascript">                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("7668fc11-5c2c-420f-ae8d-1e4c787f9c59")) {                    Plotly.newPlot(                        "7668fc11-5c2c-420f-ae8d-1e4c787f9c59",                        [{"colorscale":[[0.0,"#5B9BD5"],[1.0,"#5B9BD5"]],"customdata":[["\u003cb\u003eBengali\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 1.683 \u2192 8.021 | VCov 58.02% | RT 100.0%","Bengali"],["\u003cb\u003ePunjabi\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 2.82 \u2192 7.758 | VCov 67.33% | RT 43.38%\u003cbr\u003e\u003cb\u003eUrdu\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 1.489 \u2192 3.02 | VCov 91.11% | RT 100.0%","Punjabi, Urdu"],["\u003cb\u003eNepali\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 2.216 \u2192 2.48 | VCov 100.0% | RT 100.0%","Nepali"],["\u003cb\u003ePersian\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 1.679 \u2192 5.138 | VCov 53.49% | RT 100.0%","Persian"],["\u003cb\u003ePersian\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 1.679 \u2192 5.138 | VCov 53.49% | RT 100.0%","Persian"],["\u003cb\u003eTurkish\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 2.109 \u2192 2.547 | VCov 100.0% | RT 100.0%","Turkish"],["\u003cb\u003eAzerbaijani\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 2.873 \u2192 3.553 | VCov 97.09% | RT 100.0%","Azerbaijani"],["\u003cb\u003eUzbek\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 2.839 \u2192 3.515 | VCov 100.0% | RT 100.0%","Uzbek"],["\u003cb\u003eKazakh\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 3.184 \u2192 4.831 | VCov 91.3% | RT 100.0%","Kazakh"],["\u003cb\u003eChinese\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 14.132 \u2192 13.184 | VCov 10.85% | RT 100.0%","Chinese"],["\u003cb\u003eChinese\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 14.132 \u2192 13.184 | VCov 10.85% | RT 100.0%","Chinese"],["\u003cb\u003eJapanese\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 30.432 \u2192 25.627 | VCov 71.3% | RT 100.0%","Japanese"],["\u003cb\u003eVietnamese\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 1.21 \u2192 1.29 | VCov 100.0% | RT 100.0%","Vietnamese"],["\u003cb\u003eThai\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 10.084 \u2192 16.315 | VCov 98.77% | RT 100.0%","Thai"],["\u003cb\u003eIndonesian\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 1.575 \u2192 2.146 | VCov 100.0% | RT 100.0%","Indonesian"],["\u003cb\u003eBurmese\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 6.136 \u2192 10.719 | VCov 91.5% | RT 100.0%","Burmese"],["\u003cb\u003eKhmer\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 12.747 \u2192 14.511 | VCov 75.14% | RT 0.0%","Khmer"],["\u003cb\u003eHausa\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 1.864 \u2192 2.13 | VCov 93.46% | RT 100.0%\u003cbr\u003e\u003cb\u003eYoruba\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 2.588 \u2192 2.934 | VCov 96.09% | RT 100.0%\u003cbr\u003e\u003cb\u003eIgbo\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 2.358 \u2192 2.688 | VCov 95.0% | RT 100.0%","Hausa, Yoruba, Igbo"],["\u003cb\u003eHausa\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 1.864 \u2192 2.13 | VCov 93.46% | RT 100.0%","Hausa"],["\u003cb\u003eZulu\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 3.384 \u2192 3.754 | VCov 100.0% | RT 100.0%\u003cbr\u003e\u003cb\u003eXhosa\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 3.302 \u2192 3.567 | VCov 100.0% | RT 100.0%","Zulu, Xhosa"],["\u003cb\u003eWolof\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 1.921 \u2192 2.103 | VCov 100.0% | RT 100.0%","Wolof"],["\u003cb\u003eGerman\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 1.655 \u2192 2.18 | VCov 81.48% | RT 100.0%","German"],["\u003cb\u003eGerman\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 1.655 \u2192 2.18 | VCov 81.48% | RT 100.0%","German"],["\u003cb\u003eSpanish\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 1.347 \u2192 1.354 | VCov 85.58% | RT 100.0%","Spanish"],["\u003cb\u003ePortuguese\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 1.453 \u2192 1.709 | VCov 100.0% | RT 100.0%","Portuguese"],["\u003cb\u003ePortuguese\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 1.453 \u2192 1.709 | VCov 100.0% | RT 100.0%","Portuguese"],["\u003cb\u003ePortuguese\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 1.453 \u2192 1.709 | VCov 100.0% | RT 100.0%","Portuguese"],["\u003cb\u003eItalian\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 1.535 \u2192 1.831 | VCov 100.0% | RT 100.0%","Italian"],["\u003cb\u003eDutch\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 1.63 \u2192 2.325 | VCov 94.34% | RT 100.0%","Dutch"],["\u003cb\u003ePolish\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 2.096 \u2192 2.924 | VCov 81.13% | RT 100.0%","Polish"],["\u003cb\u003eRussian\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 1.884 \u2192 2.13 | VCov 98.67% | RT 100.0%","Russian"],["\u003cb\u003eRussian\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 1.884 \u2192 2.13 | VCov 98.67% | RT 100.0%","Russian"],["\u003cb\u003eUkrainian\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 2.273 \u2192 2.273 | VCov 100.0% | RT 100.0%","Ukrainian"],["\u003cb\u003eRomanian\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 1.8 \u2192 2.192 | VCov 77.68% | RT 4.15%","Romanian"],["\u003cb\u003eRomanian\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 1.8 \u2192 2.192 | VCov 77.68% | RT 4.15%","Romanian"],["\u003cb\u003eLat.Am. Spanish\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 1.347 \u2192 1.604 | VCov 100.0% | RT 100.0%","Lat.Am. Spanish"],["\u003cb\u003eLat.Am. Spanish\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 1.347 \u2192 1.604 | VCov 100.0% | RT 100.0%","Lat.Am. Spanish"],["\u003cb\u003eLat.Am. Spanish\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 1.347 \u2192 1.604 | VCov 100.0% | RT 100.0%","Lat.Am. Spanish"],["\u003cb\u003eLat.Am. Spanish\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 1.347 \u2192 1.604 | VCov 100.0% | RT 100.0%","Lat.Am. Spanish"],["\u003cb\u003eLat.Am. Spanish\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 1.347 \u2192 1.604 | VCov 100.0% | RT 100.0%","Lat.Am. Spanish"],["\u003cb\u003eLat.Am. Spanish\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 1.347 \u2192 1.604 | VCov 100.0% | RT 100.0%","Lat.Am. Spanish"],["\u003cb\u003eLat.Am. Spanish\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 1.347 \u2192 1.604 | VCov 100.0% | RT 100.0%","Lat.Am. Spanish"],["\u003cb\u003eLat.Am. Spanish\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 1.347 \u2192 1.604 | VCov 100.0% | RT 100.0%","Lat.Am. Spanish"],["\u003cb\u003eLat.Am. Spanish\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 1.347 \u2192 1.604 | VCov 100.0% | RT 100.0%","Lat.Am. Spanish"],["\u003cb\u003eLat.Am. Spanish\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 1.347 \u2192 1.604 | VCov 100.0% | RT 100.0%","Lat.Am. Spanish"],["\u003cb\u003eLat.Am. Spanish\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 1.347 \u2192 1.604 | VCov 100.0% | RT 100.0%","Lat.Am. Spanish"],["\u003cb\u003eLat.Am. Spanish\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 1.347 \u2192 1.604 | VCov 100.0% | RT 100.0%","Lat.Am. Spanish"],["\u003cb\u003eLat.Am. Spanish\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 1.347 \u2192 1.604 | VCov 100.0% | RT 100.0%","Lat.Am. Spanish"],["\u003cb\u003eLat.Am. Spanish\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 1.347 \u2192 1.604 | VCov 100.0% | RT 100.0%","Lat.Am. Spanish"],["\u003cb\u003eLat.Am. Spanish\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 1.347 \u2192 1.604 | VCov 100.0% | RT 100.0%","Lat.Am. Spanish"],["\u003cb\u003eLat.Am. Spanish\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 1.347 \u2192 1.604 | VCov 100.0% | RT 100.0%","Lat.Am. Spanish"],["\u003cb\u003eLat.Am. Spanish\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 1.347 \u2192 1.604 | VCov 100.0% | RT 100.0%","Lat.Am. Spanish"]],"geo":"geo","hovertemplate":"\u003cb\u003e%{customdata[1]}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003e%{customdata[0]}\u003cextra\u003e\u003c\u002fextra\u003e","locations":["BGD","PAK","NPL","IRN","AFG","TUR","AZE","UZB","KAZ","CHN","TWN","JPN","VNM","THA","IDN","MMR","KHM","NGA","NER","ZAF","SEN","DEU","AUT","ESP","PRT","AGO","MOZ","ITA","NLD","POL","RUS","BLR","UKR","ROU","MDA","MEX","COL","ARG","VEN","CHL","ECU","GTM","CUB","BOL","DOM","HND","PRY","SLV","NIC","CRI","PAN","URY"],"name":"Gemma-4","showlegend":true,"showscale":false,"z":[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],"type":"choropleth","marker":{"line":{"color":"white","width":0.4}}},{"colorscale":[[0.0,"#D6D6D6"],[1.0,"#D6D6D6"]],"customdata":[["\u003cb\u003eTagalog\u003c\u002fb\u003e: No candidate tested (G4 fertility 1.84)","Tagalog"],["\u003cb\u003eSomali\u003c\u002fb\u003e: No candidate tested (G4 fertility 2.246)","Somali"],["\u003cb\u003eShona\u003c\u002fb\u003e: No candidate tested (G4 fertility 2.927)","Shona"],["\u003cb\u003eQuechua\u003c\u002fb\u003e: No candidate tested (G4 fertility 3.147)","Quechua"],["\u003cb\u003eHaitian Creole\u003c\u002fb\u003e: No candidate tested (G4 fertility 1.796)","Haitian Creole"],["\u003cb\u003eSamoan\u003c\u002fb\u003e: No candidate tested (G4 fertility 1.821)","Samoan"]],"geo":"geo","hovertemplate":"\u003cb\u003e%{customdata[1]}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003e%{customdata[0]}\u003cextra\u003e\u003c\u002fextra\u003e","locations":["PHL","SOM","ZWE","PER","HTI","WSM"],"name":"No Candidate Tested","showlegend":true,"showscale":false,"z":[1,1,1,1,1,1],"type":"choropleth","marker":{"line":{"color":"white","width":0.4}}},{"colorscale":[[0.0,"#FFD700"],[1.0,"#FFD700"]],"customdata":[["\u003cb\u003eHindi\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 1.385 \u2192 1.823 | VCov 60.81% | RT 100.0%\u003cbr\u003e\u003cb\u003eTamil\u003c\u002fb\u003e \u2705: Tamil-Mistral-7B\u003cbr\u003e&nbsp;&nbsp;Fertility 2.374 \u2192 1.734 | VCov 86.61% | RT 100.0%\u003cbr\u003e\u003cb\u003eTelugu\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 2.843 \u2192 19.59 | VCov 50.0% | RT 100.0%\u003cbr\u003e\u003cb\u003eKannada\u003c\u002fb\u003e \u2705: Ambari-7B\u003cbr\u003e&nbsp;&nbsp;Fertility 3.241 \u2192 2.736 | VCov 81.69% | RT 100.0%\u003cbr\u003e\u003cb\u003eMalayalam\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 3.357 \u2192 5.875 | VCov 100.0% | RT 100.0%\u003cbr\u003e\u003cb\u003eMarathi\u003c\u002fb\u003e \u2705: MahaMarathi-7B\u003cbr\u003e&nbsp;&nbsp;Fertility 1.987 \u2192 1.638 | VCov 84.87% | RT 100.0%\u003cbr\u003e\u003cb\u003eGujarati\u003c\u002fb\u003e \u2705: Gujju-Llama-7B\u003cbr\u003e&nbsp;&nbsp;Fertility 2.415 \u2192 2.033 | VCov 82.98% | RT 100.0%\u003cbr\u003e\u003cb\u003eOdia\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 4.852 \u2192 13.654 | VCov 56.44% | RT 75.69%\u003cbr\u003e\u003cb\u003eAssamese\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 2.819 \u2192 1.42 | VCov 93.17% | RT 25.89%\u003cbr\u003e\u003cb\u003eMaithili\u003c\u002fb\u003e: No candidate tested (G4 fertility 1.806)","Hindi, Tamil, Telugu, Kannada, Malayalam, Marathi, Gujarati, Odia, Assamese, Maithili"]],"geo":"geo","hovertemplate":"\u003cb\u003e%{customdata[1]}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003e%{customdata[0]}\u003cextra\u003e\u003c\u002fextra\u003e","locations":["IND"],"name":"Multiple Winners","showlegend":true,"showscale":false,"z":[1],"type":"choropleth","marker":{"line":{"color":"white","width":0.4}}},{"colorscale":[[0.0,"#FF6B35"],[1.0,"#FF6B35"]],"customdata":[["\u003cb\u003eTamil\u003c\u002fb\u003e \u2705: Tamil-Mistral-7B\u003cbr\u003e&nbsp;&nbsp;Fertility 2.374 \u2192 1.734 | VCov 86.61% | RT 100.0%\u003cbr\u003e\u003cb\u003eSinhala\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 2.997 \u2192 11.324 | VCov 52.38% | RT 100.0%","Tamil, Sinhala"],["\u003cb\u003eTamil\u003c\u002fb\u003e \u2705: Tamil-Mistral-7B\u003cbr\u003e&nbsp;&nbsp;Fertility 2.374 \u2192 1.734 | VCov 86.61% | RT 100.0%","Tamil"]],"geo":"geo","hovertemplate":"\u003cb\u003e%{customdata[1]}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003e%{customdata[0]}\u003cextra\u003e\u003c\u002fextra\u003e","locations":["LKA","SGP"],"name":"Tamil-Mistral-7B","showlegend":true,"showscale":false,"z":[1,1],"type":"choropleth","marker":{"line":{"color":"white","width":0.4}}},{"colorscale":[[0.0,"#9B5DE5"],[1.0,"#9B5DE5"]],"customdata":[["\u003cb\u003eArabic\u003c\u002fb\u003e \u2705: Jais-2-8B\u003cbr\u003e&nbsp;&nbsp;Fertility 2.031 \u2192 1.462 | VCov 86.82% | RT 100.0%","Arabic"],["\u003cb\u003eArabic\u003c\u002fb\u003e \u2705: Jais-2-8B\u003cbr\u003e&nbsp;&nbsp;Fertility 2.031 \u2192 1.462 | VCov 86.82% | RT 100.0%","Arabic"],["\u003cb\u003eArabic\u003c\u002fb\u003e \u2705: Jais-2-8B\u003cbr\u003e&nbsp;&nbsp;Fertility 2.031 \u2192 1.462 | VCov 86.82% | RT 100.0%","Arabic"],["\u003cb\u003eArabic\u003c\u002fb\u003e \u2705: Jais-2-8B\u003cbr\u003e&nbsp;&nbsp;Fertility 2.031 \u2192 1.462 | VCov 86.82% | RT 100.0%","Arabic"],["\u003cb\u003eArabic\u003c\u002fb\u003e \u2705: Jais-2-8B\u003cbr\u003e&nbsp;&nbsp;Fertility 2.031 \u2192 1.462 | VCov 86.82% | RT 100.0%\u003cbr\u003e\u003cb\u003eKurdish\u003c\u002fb\u003e: Gemma-4\u003cbr\u003e&nbsp;&nbsp;Fertility 2.358 \u2192 2.486 | VCov 96.19% | RT 100.0%","Arabic, Kurdish"],["\u003cb\u003eArabic\u003c\u002fb\u003e \u2705: Jais-2-8B\u003cbr\u003e&nbsp;&nbsp;Fertility 2.031 \u2192 1.462 | VCov 86.82% | RT 100.0%","Arabic"],["\u003cb\u003eArabic\u003c\u002fb\u003e \u2705: Jais-2-8B\u003cbr\u003e&nbsp;&nbsp;Fertility 2.031 \u2192 1.462 | VCov 86.82% | RT 100.0%","Arabic"],["\u003cb\u003eArabic\u003c\u002fb\u003e \u2705: Jais-2-8B\u003cbr\u003e&nbsp;&nbsp;Fertility 2.031 \u2192 1.462 | VCov 86.82% | RT 100.0%","Arabic"],["\u003cb\u003eArabic\u003c\u002fb\u003e \u2705: Jais-2-8B\u003cbr\u003e&nbsp;&nbsp;Fertility 2.031 \u2192 1.462 | VCov 86.82% | RT 100.0%","Arabic"],["\u003cb\u003eArabic\u003c\u002fb\u003e \u2705: Jais-2-8B\u003cbr\u003e&nbsp;&nbsp;Fertility 2.031 \u2192 1.462 | VCov 86.82% | RT 100.0%","Arabic"],["\u003cb\u003eArabic\u003c\u002fb\u003e \u2705: Jais-2-8B\u003cbr\u003e&nbsp;&nbsp;Fertility 2.031 \u2192 1.462 | VCov 86.82% | RT 100.0%","Arabic"],["\u003cb\u003eArabic\u003c\u002fb\u003e \u2705: Jais-2-8B\u003cbr\u003e&nbsp;&nbsp;Fertility 2.031 \u2192 1.462 | VCov 86.82% | RT 100.0%","Arabic"],["\u003cb\u003eArabic\u003c\u002fb\u003e \u2705: Jais-2-8B\u003cbr\u003e&nbsp;&nbsp;Fertility 2.031 \u2192 1.462 | VCov 86.82% | RT 100.0%","Arabic"],["\u003cb\u003eArabic\u003c\u002fb\u003e \u2705: Jais-2-8B\u003cbr\u003e&nbsp;&nbsp;Fertility 2.031 \u2192 1.462 | VCov 86.82% | RT 100.0%","Arabic"],["\u003cb\u003eArabic\u003c\u002fb\u003e \u2705: Jais-2-8B\u003cbr\u003e&nbsp;&nbsp;Fertility 2.031 \u2192 1.462 | VCov 86.82% | RT 100.0%","Arabic"],["\u003cb\u003eArabic\u003c\u002fb\u003e \u2705: Jais-2-8B\u003cbr\u003e&nbsp;&nbsp;Fertility 2.031 \u2192 1.462 | VCov 86.82% | RT 100.0%","Arabic"],["\u003cb\u003eArabic\u003c\u002fb\u003e \u2705: Jais-2-8B\u003cbr\u003e&nbsp;&nbsp;Fertility 2.031 \u2192 1.462 | VCov 86.82% | RT 100.0%","Arabic"],["\u003cb\u003eArabic\u003c\u002fb\u003e \u2705: Jais-2-8B\u003cbr\u003e&nbsp;&nbsp;Fertility 2.031 \u2192 1.462 | VCov 86.82% | RT 100.0%","Arabic"]],"geo":"geo","hovertemplate":"\u003cb\u003e%{customdata[1]}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003e%{customdata[0]}\u003cextra\u003e\u003c\u002fextra\u003e","locations":["SAU","EGY","DZA","SDN","IRQ","MAR","YEM","SYR","TUN","JOR","LBY","LBN","ARE","OMN","KWT","QAT","BHR","MRT"],"name":"Jais-2-8B","showlegend":true,"showscale":false,"z":[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],"type":"choropleth","marker":{"line":{"color":"white","width":0.4}}},{"colorscale":[[0.0,"#C77DFF"],[1.0,"#C77DFF"]],"customdata":[["\u003cb\u003eHebrew\u003c\u002fb\u003e \u2705: DictaLM-2.0-7B\u003cbr\u003e&nbsp;&nbsp;Fertility 2.706 \u2192 2.642 | VCov 83.33% | RT 100.0%","Hebrew"]],"geo":"geo","hovertemplate":"\u003cb\u003e%{customdata[1]}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003e%{customdata[0]}\u003cextra\u003e\u003c\u002fextra\u003e","locations":["ISR"],"name":"DictaLM-2.0-7B","showlegend":true,"showscale":false,"z":[1],"type":"choropleth","marker":{"line":{"color":"white","width":0.4}}},{"colorscale":[[0.0,"#00B4D8"],[1.0,"#00B4D8"]],"customdata":[["\u003cb\u003eKorean\u003c\u002fb\u003e \u2705: Polyglot-Ko-12B\u003cbr\u003e&nbsp;&nbsp;Fertility 2.415 \u2192 2.199 | VCov 93.26% | RT 100.0%","Korean"]],"geo":"geo","hovertemplate":"\u003cb\u003e%{customdata[1]}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003e%{customdata[0]}\u003cextra\u003e\u003c\u002fextra\u003e","locations":["KOR"],"name":"Polyglot-Ko-12B","showlegend":true,"showscale":false,"z":[1],"type":"choropleth","marker":{"line":{"color":"white","width":0.4}}},{"colorscale":[[0.0,"#0096C7"],[1.0,"#0096C7"]],"customdata":[["\u003cb\u003eMalay\u003c\u002fb\u003e \u2705: MaLLaM-5B\u003cbr\u003e&nbsp;&nbsp;Fertility 1.632 \u2192 1.417 | VCov 84.76% | RT 100.0%","Malay"],["\u003cb\u003eMalay\u003c\u002fb\u003e \u2705: MaLLaM-5B\u003cbr\u003e&nbsp;&nbsp;Fertility 1.632 \u2192 1.417 | VCov 84.76% | RT 100.0%","Malay"]],"geo":"geo","hovertemplate":"\u003cb\u003e%{customdata[1]}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003e%{customdata[0]}\u003cextra\u003e\u003c\u002fextra\u003e","locations":["MYS","BRN"],"name":"MaLLaM-5B","showlegend":true,"showscale":false,"z":[1,1],"type":"choropleth","marker":{"line":{"color":"white","width":0.4}}},{"colorscale":[[0.0,"#52B788"],[1.0,"#52B788"]],"customdata":[["\u003cb\u003eSwahili\u003c\u002fb\u003e \u2705: Swahili-Gemma-7B\u003cbr\u003e&nbsp;&nbsp;Fertility 2.087 \u2192 2.047 | VCov 100.0% | RT 100.0%","Swahili"],["\u003cb\u003eSwahili\u003c\u002fb\u003e \u2705: Swahili-Gemma-7B\u003cbr\u003e&nbsp;&nbsp;Fertility 2.087 \u2192 2.047 | VCov 100.0% | RT 100.0%","Swahili"],["\u003cb\u003eSwahili\u003c\u002fb\u003e \u2705: Swahili-Gemma-7B\u003cbr\u003e&nbsp;&nbsp;Fertility 2.087 \u2192 2.047 | VCov 100.0% | RT 100.0%","Swahili"],["\u003cb\u003eSwahili\u003c\u002fb\u003e \u2705: Swahili-Gemma-7B\u003cbr\u003e&nbsp;&nbsp;Fertility 2.087 \u2192 2.047 | VCov 100.0% | RT 100.0%","Swahili"]],"geo":"geo","hovertemplate":"\u003cb\u003e%{customdata[1]}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003e%{customdata[0]}\u003cextra\u003e\u003c\u002fextra\u003e","locations":["KEN","TZA","UGA","RWA"],"name":"Swahili-Gemma-7B","showlegend":true,"showscale":false,"z":[1,1,1,1],"type":"choropleth","marker":{"line":{"color":"white","width":0.4}}},{"colorscale":[[0.0,"#1B4332"],[1.0,"#1B4332"]],"customdata":[["\u003cb\u003eAmharic\u003c\u002fb\u003e \u2705: Walia-LLM-7B\u003cbr\u003e&nbsp;&nbsp;Fertility 3.032 \u2192 1.623 | VCov 88.0% | RT 100.0%","Amharic"]],"geo":"geo","hovertemplate":"\u003cb\u003e%{customdata[1]}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003e%{customdata[0]}\u003cextra\u003e\u003c\u002fextra\u003e","locations":["ETH"],"name":"Walia-LLM-7B","showlegend":true,"showscale":false,"z":[1],"type":"choropleth","marker":{"line":{"color":"white","width":0.4}}},{"colorscale":[[0.0,"#3D5A80"],[1.0,"#3D5A80"]],"customdata":[["\u003cb\u003eFrench\u003c\u002fb\u003e \u2705: Lucie-7B\u003cbr\u003e&nbsp;&nbsp;Fertility 1.49 \u2192 1.427 | VCov 82.2% | RT 100.0%","French"],["\u003cb\u003eFrench\u003c\u002fb\u003e \u2705: Lucie-7B\u003cbr\u003e&nbsp;&nbsp;Fertility 1.49 \u2192 1.427 | VCov 82.2% | RT 100.0%","French"],["\u003cb\u003eFrench\u003c\u002fb\u003e \u2705: Lucie-7B\u003cbr\u003e&nbsp;&nbsp;Fertility 1.49 \u2192 1.427 | VCov 82.2% | RT 100.0%","French"],["\u003cb\u003eFrench\u003c\u002fb\u003e \u2705: Lucie-7B\u003cbr\u003e&nbsp;&nbsp;Fertility 1.49 \u2192 1.427 | VCov 82.2% | RT 100.0%","French"],["\u003cb\u003eFrench\u003c\u002fb\u003e \u2705: Lucie-7B\u003cbr\u003e&nbsp;&nbsp;Fertility 1.49 \u2192 1.427 | VCov 82.2% | RT 100.0%","French"]],"geo":"geo","hovertemplate":"\u003cb\u003e%{customdata[1]}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003e%{customdata[0]}\u003cextra\u003e\u003c\u002fextra\u003e","locations":["FRA","BEL","LUX","CAN","CHE"],"name":"Lucie-7B","showlegend":true,"showscale":false,"z":[1,1,1,1,1],"type":"choropleth","marker":{"line":{"color":"white","width":0.4}}},{"colorscale":[[0.0,"#98C1D9"],[1.0,"#98C1D9"]],"customdata":[["\u003cb\u003eSwedish\u003c\u002fb\u003e \u2705: Viking-7B\u003cbr\u003e&nbsp;&nbsp;Fertility 1.841 \u2192 1.474 | VCov 100.0% | RT 100.0%","Swedish"]],"geo":"geo","hovertemplate":"\u003cb\u003e%{customdata[1]}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003e%{customdata[0]}\u003cextra\u003e\u003c\u002fextra\u003e","locations":["SWE"],"name":"Viking-7B","showlegend":true,"showscale":false,"z":[1],"type":"choropleth","marker":{"line":{"color":"white","width":0.4}}},{"colorscale":[[0.0,"#293241"],[1.0,"#293241"]],"customdata":[["\u003cb\u003eCzech\u003c\u002fb\u003e \u2705: CSMPT-7B\u003cbr\u003e&nbsp;&nbsp;Fertility 2.157 \u2192 1.407 | VCov 96.52% | RT 100.0%","Czech"]],"geo":"geo","hovertemplate":"\u003cb\u003e%{customdata[1]}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003e%{customdata[0]}\u003cextra\u003e\u003c\u002fextra\u003e","locations":["CZE"],"name":"CSMPT-7B","showlegend":true,"showscale":false,"z":[1],"type":"choropleth","marker":{"line":{"color":"white","width":0.4}}},{"colorscale":[[0.0,"#457B9D"],[1.0,"#457B9D"]],"customdata":[["\u003cb\u003eGreek\u003c\u002fb\u003e \u2705: Meltemi-7B\u003cbr\u003e&nbsp;&nbsp;Fertility 2.472 \u2192 1.397 | VCov 95.42% | RT 100.0%","Greek"],["\u003cb\u003eGreek\u003c\u002fb\u003e \u2705: Meltemi-7B\u003cbr\u003e&nbsp;&nbsp;Fertility 2.472 \u2192 1.397 | VCov 95.42% | RT 100.0%","Greek"]],"geo":"geo","hovertemplate":"\u003cb\u003e%{customdata[1]}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003e%{customdata[0]}\u003cextra\u003e\u003c\u002fextra\u003e","locations":["GRC","CYP"],"name":"Meltemi-7B","showlegend":true,"showscale":false,"z":[1,1],"type":"choropleth","marker":{"line":{"color":"white","width":0.4}}},{"colorscale":[[0.0,"#E76F51"],[1.0,"#E76F51"]],"customdata":[["\u003cb\u003eBrazilian Portuguese\u003c\u002fb\u003e \u2705: Tucano-2b4\u003cbr\u003e&nbsp;&nbsp;Fertility 1.453 \u2192 1.252 | VCov 86.84% | RT 99.31%","Brazilian Portuguese"]],"geo":"geo","hovertemplate":"\u003cb\u003e%{customdata[1]}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003e%{customdata[0]}\u003cextra\u003e\u003c\u002fextra\u003e","locations":["BRA"],"name":"Tucano-2b4","showlegend":true,"showscale":false,"z":[1],"type":"choropleth","marker":{"line":{"color":"white","width":0.4}}},{"colorscale":[[0.0,"#2EC4B6"],[1.0,"#2EC4B6"]],"customdata":[["\u003cb\u003eM\u0101ori\u003c\u002fb\u003e \u2705: Goldfish-mri-39M\u003cbr\u003e&nbsp;&nbsp;Fertility 1.825 \u2192 1.22 | VCov 92.47% | RT 99.7%","M\u0101ori"]],"geo":"geo","hovertemplate":"\u003cb\u003e%{customdata[1]}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003e%{customdata[0]}\u003cextra\u003e\u003c\u002fextra\u003e","locations":["NZL"],"name":"Goldfish-mri-39M","showlegend":true,"showscale":false,"z":[1],"type":"choropleth","marker":{"line":{"color":"white","width":0.4}}},{"colorscale":[[0.0,"#CBF3F0"],[1.0,"#CBF3F0"]],"customdata":[["\u003cb\u003eTok Pisin\u003c\u002fb\u003e \u2705: Goldfish-tpi-125M\u003cbr\u003e&nbsp;&nbsp;Fertility 1.644 \u2192 1.311 | VCov 83.02% | RT 98.42%","Tok Pisin"]],"geo":"geo","hovertemplate":"\u003cb\u003e%{customdata[1]}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003e%{customdata[0]}\u003cextra\u003e\u003c\u002fextra\u003e","locations":["PNG"],"name":"Goldfish-tpi-125M","showlegend":true,"showscale":false,"z":[1],"type":"choropleth","marker":{"line":{"color":"white","width":0.4}}}],                        {"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"contourcarpet":[{"type":"contourcarpet","colorbar":{"outlinewidth":0,"ticks":""}}],"contour":[{"type":"contour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"surface":[{"type":"surface","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"mesh3d":[{"type":"mesh3d","colorbar":{"outlinewidth":0,"ticks":""}}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"parcoords":[{"type":"parcoords","line":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolargl":[{"type":"scatterpolargl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"scattergeo":[{"type":"scattergeo","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolar":[{"type":"scatterpolar","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"scattergl":[{"type":"scattergl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatter3d":[{"type":"scatter3d","line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermap":[{"type":"scattermap","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermapbox":[{"type":"scattermapbox","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterternary":[{"type":"scatterternary","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattercarpet":[{"type":"scattercarpet","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}],"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"pie":[{"automargin":true,"type":"pie"}]},"layout":{"autotypenumbers":"strict","colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"hovermode":"closest","hoverlabel":{"align":"left"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"bgcolor":"#E5ECF6","angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"ternary":{"bgcolor":"#E5ECF6","aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]]},"xaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"yaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"geo":{"bgcolor":"white","landcolor":"#E5ECF6","subunitcolor":"white","showland":true,"showlakes":true,"lakecolor":"white"},"title":{"x":0.05},"mapbox":{"style":"light"}}},"geo":{"domain":{"x":[0.0,1.0],"y":[0.0,1.0]},"projection":{"type":"natural earth"},"center":{},"showframe":false,"showcoastlines":true,"coastlinecolor":"#AAAAAA","showland":true,"landcolor":"#F0F0F0","showocean":true,"oceancolor":"#E8F4FD","showlakes":true,"lakecolor":"#E8F4FD","bgcolor":"white"},"legend":{"title":{"text":"Best tokenizer"},"tracegroupgap":0,"font":{"size":11},"orientation":"v","x":1.01,"y":0.5},"title":{"text":"Best Tokenizer per Language \u2014 Global Evaluation (FLORES-200)","font":{"size":18},"x":0.5},"margin":{"l":0,"r":220,"t":60,"b":0},"paper_bgcolor":"white","height":620},                        {"responsive": true}                    )                };            </script>        </div>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🌍</div>
+    Falcon Language Map
+  </div>
+  <span class="header-sep">/</span>
+  <span class="header-sub">Tokenizer Evaluation · FLORES-200</span>
+  <div class="hspacer"></div>
+  <span class="header-chip">63 languages · 100 countries</span>
+</header>
+
+<div class="stats-bar">
+  <div class="stat">
+    <span class="stat-val">63</span>
+    <span class="stat-lbl">Languages Evaluated</span>
+  </div>
+  <div class="stat">
+    <span class="stat-val" style="color:var(--green)">17</span>
+    <span class="stat-lbl">Candidates Beat Gemma-4</span>
+  </div>
+  <div class="stat">
+    <span class="stat-val">100</span>
+    <span class="stat-lbl">Countries Mapped</span>
+  </div>
+  <div class="stat">
+    <span class="stat-val">3</span>
+    <span class="stat-lbl">Baselines (G4 · BLOOM · mT5)</span>
+  </div>
+  <div class="stat">
+    <span class="stat-val">~1 012</span>
+    <span class="stat-lbl">Sentences per Language</span>
+  </div>
+</div>
+
+<div class="main">
+  <div class="map-col">
+    <div class="filter-bar">
+      <span class="filter-lbl">Region</span>
+      <button class="pill active" onclick="setRegion('All',this)">All</button>
+      <button class="pill" onclick="setRegion('Indic',this)">Indic</button>
+      <button class="pill" onclick="setRegion('Middle East',this)">Middle East</button>
+      <button class="pill" onclick="setRegion('East Asia',this)">East Asia</button>
+      <button class="pill" onclick="setRegion('SEA',this)">SEA</button>
+      <button class="pill" onclick="setRegion('Africa',this)">Africa</button>
+      <button class="pill" onclick="setRegion('Europe',this)">Europe</button>
+      <button class="pill" onclick="setRegion('Americas',this)">Americas</button>
+      <button class="pill" onclick="setRegion('Oceania',this)">Oceania</button>
+    </div>
+    <div id="map"></div>
+    <div class="legend-bar">
+      <span class="legend-ttl">Legend</span>
+      <div class="legend-item"><div class="legend-dot" style="background:#4A90D9"></div><span>Gemma-4</span></div><div class="legend-item"><div class="legend-dot" style="background:#3D3D50"></div><span>No Candidate Tested</span></div><div class="legend-item"><div class="legend-dot" style="background:#F5A623"></div><span>Multiple Winners</span></div><div class="legend-item"><div class="legend-dot" style="background:#FF6B35"></div><span>Tamil-Mistral-7B</span></div><div class="legend-item"><div class="legend-dot" style="background:#9B5DE5"></div><span>Jais-2-8B</span></div><div class="legend-item"><div class="legend-dot" style="background:#C77DFF"></div><span>DictaLM-2.0-7B</span></div><div class="legend-item"><div class="legend-dot" style="background:#00B4D8"></div><span>Polyglot-Ko-12B</span></div><div class="legend-item"><div class="legend-dot" style="background:#0096C7"></div><span>MaLLaM-5B</span></div><div class="legend-item"><div class="legend-dot" style="background:#52B788"></div><span>Swahili-Gemma-7B</span></div><div class="legend-item"><div class="legend-dot" style="background:#2D6A4F"></div><span>Walia-LLM-7B</span></div><div class="legend-item"><div class="legend-dot" style="background:#3D5A80"></div><span>Lucie-7B</span></div><div class="legend-item"><div class="legend-dot" style="background:#98C1D9"></div><span>Viking-7B</span></div><div class="legend-item"><div class="legend-dot" style="background:#A8DADC"></div><span>CSMPT-7B</span></div><div class="legend-item"><div class="legend-dot" style="background:#457B9D"></div><span>Meltemi-7B</span></div><div class="legend-item"><div class="legend-dot" style="background:#E76F51"></div><span>Tucano-2b4</span></div><div class="legend-item"><div class="legend-dot" style="background:#2EC4B6"></div><span>Goldfish-mri-39M</span></div><div class="legend-item"><div class="legend-dot" style="background:#80CED7"></div><span>Goldfish-tpi-125M</span></div>
+    </div>
+  </div>
+
+  <div class="sidebar hidden" id="sb">
+    <div class="sb-header">
+      <span class="sb-title" id="sb-title">—</span>
+      <div class="sb-close" onclick="closeSB()">✕</div>
+    </div>
+    <div class="sb-body" id="sb-body">
+      <div class="sb-empty">
+        <div class="sb-empty-icon">🗺️</div>
+        <p>Click any country on the map<br>to see language details</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const COUNTRIES   = [{"iso3": "IND", "country_name": "India", "best_model": "Multiple Winners", "region": "Indic", "lang_details": [{"language": "Hindi", "best": "Gemma-4", "candidate": "Airavata-7B", "g4_fertility": 1.385, "g4_vcov": 100.0, "cand_fertility": 1.823, "vcov": 60.81, "rt": 100.0, "bfr": 3.99}, {"language": "Tamil", "best": "Tamil-Mistral-7B", "candidate": "Tamil-Mistral-7B", "g4_fertility": 2.374, "g4_vcov": 100.0, "cand_fertility": 1.734, "vcov": 86.61, "rt": 100.0, "bfr": 0.0}, {"language": "Telugu", "best": "Gemma-4", "candidate": "Telugu-Llama2-7B", "g4_fertility": 2.843, "g4_vcov": 99.35, "cand_fertility": 19.59, "vcov": 50.0, "rt": 100.0, "bfr": 90.6}, {"language": "Kannada", "best": "Ambari-7B", "candidate": "Ambari-7B", "g4_fertility": 3.241, "g4_vcov": 100.0, "cand_fertility": 2.736, "vcov": 81.69, "rt": 100.0, "bfr": 0.0}, {"language": "Malayalam", "best": "Gemma-4", "candidate": "MalayaLLM-Gemma-9B", "g4_fertility": 3.357, "g4_vcov": 100.0, "cand_fertility": 5.875, "vcov": 100.0, "rt": 100.0, "bfr": 0.0}, {"language": "Marathi", "best": "MahaMarathi-7B", "candidate": "MahaMarathi-7B", "g4_fertility": 1.987, "g4_vcov": 100.0, "cand_fertility": 1.638, "vcov": 84.87, "rt": 100.0, "bfr": 0.0}, {"language": "Gujarati", "best": "Gujju-Llama-7B", "candidate": "Gujju-Llama-7B", "g4_fertility": 2.415, "g4_vcov": 99.29, "cand_fertility": 2.033, "vcov": 82.98, "rt": 100.0, "bfr": 0.0}, {"language": "Odia", "best": "Gemma-4", "candidate": "Qwen-Odia-7B", "g4_fertility": 4.852, "g4_vcov": 96.32, "cand_fertility": 13.654, "vcov": 56.44, "rt": 75.69, "bfr": 25.78}, {"language": "Assamese", "best": "Gemma-4", "candidate": "Goldfish-ASM-125M", "g4_fertility": 2.819, "g4_vcov": 99.38, "cand_fertility": 1.42, "vcov": 93.17, "rt": 25.89, "bfr": 0.0}, {"language": "Maithili", "best": "No Candidate Tested", "candidate": "—", "g4_fertility": 1.806, "g4_vcov": 100.0, "cand_fertility": null, "vcov": null, "rt": null, "bfr": null}], "idx": 0, "z": 2}, {"iso3": "BGD", "country_name": "Bangladesh", "best_model": "Gemma-4", "region": "Indic", "lang_details": [{"language": "Bengali", "best": "Gemma-4", "candidate": "BanglaLLama-3.1-8B", "g4_fertility": 1.683, "g4_vcov": 100.0, "cand_fertility": 8.021, "vcov": 58.02, "rt": 100.0, "bfr": 16.93}], "idx": 1, "z": 0}, {"iso3": "LKA", "country_name": "Sri Lanka", "best_model": "Tamil-Mistral-7B", "region": "Indic", "lang_details": [{"language": "Tamil", "best": "Tamil-Mistral-7B", "candidate": "Tamil-Mistral-7B", "g4_fertility": 2.374, "g4_vcov": 100.0, "cand_fertility": 1.734, "vcov": 86.61, "rt": 100.0, "bfr": 0.0}, {"language": "Sinhala", "best": "Gemma-4", "candidate": "llama3-sinhala-8B", "g4_fertility": 2.997, "g4_vcov": 98.64, "cand_fertility": 11.324, "vcov": 52.38, "rt": 100.0, "bfr": 28.31}], "idx": 2, "z": 3}, {"iso3": "SGP", "country_name": "Singapore", "best_model": "Tamil-Mistral-7B", "region": "Indic", "lang_details": [{"language": "Tamil", "best": "Tamil-Mistral-7B", "candidate": "Tamil-Mistral-7B", "g4_fertility": 2.374, "g4_vcov": 100.0, "cand_fertility": 1.734, "vcov": 86.61, "rt": 100.0, "bfr": 0.0}], "idx": 3, "z": 3}, {"iso3": "PAK", "country_name": "Pakistan", "best_model": "Gemma-4", "region": "Indic", "lang_details": [{"language": "Punjabi", "best": "Gemma-4", "candidate": "Dhee-Qwen3-Punjabi-2B", "g4_fertility": 2.82, "g4_vcov": 99.33, "cand_fertility": 7.758, "vcov": 67.33, "rt": 43.38, "bfr": 19.43}, {"language": "Urdu", "best": "Gemma-4", "candidate": "Qalb-1.0-8B", "g4_fertility": 1.489, "g4_vcov": 100.0, "cand_fertility": 3.02, "vcov": 91.11, "rt": 100.0, "bfr": 17.51}], "idx": 4, "z": 0}, {"iso3": "NPL", "country_name": "Nepal", "best_model": "Gemma-4", "region": "Indic", "lang_details": [{"language": "Nepali", "best": "Gemma-4", "candidate": "NEPALI-LLM-9B", "g4_fertility": 2.216, "g4_vcov": 99.35, "cand_fertility": 2.48, "vcov": 100.0, "rt": 100.0, "bfr": 0.0}], "idx": 5, "z": 0}, {"iso3": "SAU", "country_name": "Saudi Arabia", "best_model": "Jais-2-8B", "region": "Middle East", "lang_details": [{"language": "Arabic", "best": "Jais-2-8B", "candidate": "Jais-2-8B", "g4_fertility": 2.031, "g4_vcov": 100.0, "cand_fertility": 1.462, "vcov": 86.82, "rt": 100.0, "bfr": 3.71}], "idx": 6, "z": 4}, {"iso3": "EGY", "country_name": "Egypt", "best_model": "Jais-2-8B", "region": "Middle East", "lang_details": [{"language": "Arabic", "best": "Jais-2-8B", "candidate": "Jais-2-8B", "g4_fertility": 2.031, "g4_vcov": 100.0, "cand_fertility": 1.462, "vcov": 86.82, "rt": 100.0, "bfr": 3.71}], "idx": 7, "z": 4}, {"iso3": "DZA", "country_name": "Algeria", "best_model": "Jais-2-8B", "region": "Middle East", "lang_details": [{"language": "Arabic", "best": "Jais-2-8B", "candidate": "Jais-2-8B", "g4_fertility": 2.031, "g4_vcov": 100.0, "cand_fertility": 1.462, "vcov": 86.82, "rt": 100.0, "bfr": 3.71}], "idx": 8, "z": 4}, {"iso3": "SDN", "country_name": "Sudan", "best_model": "Jais-2-8B", "region": "Middle East", "lang_details": [{"language": "Arabic", "best": "Jais-2-8B", "candidate": "Jais-2-8B", "g4_fertility": 2.031, "g4_vcov": 100.0, "cand_fertility": 1.462, "vcov": 86.82, "rt": 100.0, "bfr": 3.71}], "idx": 9, "z": 4}, {"iso3": "IRQ", "country_name": "Iraq", "best_model": "Jais-2-8B", "region": "Middle East", "lang_details": [{"language": "Arabic", "best": "Jais-2-8B", "candidate": "Jais-2-8B", "g4_fertility": 2.031, "g4_vcov": 100.0, "cand_fertility": 1.462, "vcov": 86.82, "rt": 100.0, "bfr": 3.71}, {"language": "Kurdish", "best": "Gemma-4", "candidate": "Mistral-Nemo-Kurdish", "g4_fertility": 2.358, "g4_vcov": 100.0, "cand_fertility": 2.486, "vcov": 96.19, "rt": 100.0, "bfr": 0.51}], "idx": 10, "z": 4}, {"iso3": "MAR", "country_name": "Morocco", "best_model": "Jais-2-8B", "region": "Middle East", "lang_details": [{"language": "Arabic", "best": "Jais-2-8B", "candidate": "Jais-2-8B", "g4_fertility": 2.031, "g4_vcov": 100.0, "cand_fertility": 1.462, "vcov": 86.82, "rt": 100.0, "bfr": 3.71}], "idx": 11, "z": 4}, {"iso3": "YEM", "country_name": "Yemen", "best_model": "Jais-2-8B", "region": "Middle East", "lang_details": [{"language": "Arabic", "best": "Jais-2-8B", "candidate": "Jais-2-8B", "g4_fertility": 2.031, "g4_vcov": 100.0, "cand_fertility": 1.462, "vcov": 86.82, "rt": 100.0, "bfr": 3.71}], "idx": 12, "z": 4}, {"iso3": "SYR", "country_name": "Syria", "best_model": "Jais-2-8B", "region": "Middle East", "lang_details": [{"language": "Arabic", "best": "Jais-2-8B", "candidate": "Jais-2-8B", "g4_fertility": 2.031, "g4_vcov": 100.0, "cand_fertility": 1.462, "vcov": 86.82, "rt": 100.0, "bfr": 3.71}], "idx": 13, "z": 4}, {"iso3": "TUN", "country_name": "Tunisia", "best_model": "Jais-2-8B", "region": "Middle East", "lang_details": [{"language": "Arabic", "best": "Jais-2-8B", "candidate": "Jais-2-8B", "g4_fertility": 2.031, "g4_vcov": 100.0, "cand_fertility": 1.462, "vcov": 86.82, "rt": 100.0, "bfr": 3.71}], "idx": 14, "z": 4}, {"iso3": "JOR", "country_name": "Jordan", "best_model": "Jais-2-8B", "region": "Middle East", "lang_details": [{"language": "Arabic", "best": "Jais-2-8B", "candidate": "Jais-2-8B", "g4_fertility": 2.031, "g4_vcov": 100.0, "cand_fertility": 1.462, "vcov": 86.82, "rt": 100.0, "bfr": 3.71}], "idx": 15, "z": 4}, {"iso3": "LBY", "country_name": "Libya", "best_model": "Jais-2-8B", "region": "Middle East", "lang_details": [{"language": "Arabic", "best": "Jais-2-8B", "candidate": "Jais-2-8B", "g4_fertility": 2.031, "g4_vcov": 100.0, "cand_fertility": 1.462, "vcov": 86.82, "rt": 100.0, "bfr": 3.71}], "idx": 16, "z": 4}, {"iso3": "LBN", "country_name": "Lebanon", "best_model": "Jais-2-8B", "region": "Middle East", "lang_details": [{"language": "Arabic", "best": "Jais-2-8B", "candidate": "Jais-2-8B", "g4_fertility": 2.031, "g4_vcov": 100.0, "cand_fertility": 1.462, "vcov": 86.82, "rt": 100.0, "bfr": 3.71}], "idx": 17, "z": 4}, {"iso3": "ARE", "country_name": "UAE", "best_model": "Jais-2-8B", "region": "Middle East", "lang_details": [{"language": "Arabic", "best": "Jais-2-8B", "candidate": "Jais-2-8B", "g4_fertility": 2.031, "g4_vcov": 100.0, "cand_fertility": 1.462, "vcov": 86.82, "rt": 100.0, "bfr": 3.71}], "idx": 18, "z": 4}, {"iso3": "OMN", "country_name": "Oman", "best_model": "Jais-2-8B", "region": "Middle East", "lang_details": [{"language": "Arabic", "best": "Jais-2-8B", "candidate": "Jais-2-8B", "g4_fertility": 2.031, "g4_vcov": 100.0, "cand_fertility": 1.462, "vcov": 86.82, "rt": 100.0, "bfr": 3.71}], "idx": 19, "z": 4}, {"iso3": "KWT", "country_name": "Kuwait", "best_model": "Jais-2-8B", "region": "Middle East", "lang_details": [{"language": "Arabic", "best": "Jais-2-8B", "candidate": "Jais-2-8B", "g4_fertility": 2.031, "g4_vcov": 100.0, "cand_fertility": 1.462, "vcov": 86.82, "rt": 100.0, "bfr": 3.71}], "idx": 20, "z": 4}, {"iso3": "QAT", "country_name": "Qatar", "best_model": "Jais-2-8B", "region": "Middle East", "lang_details": [{"language": "Arabic", "best": "Jais-2-8B", "candidate": "Jais-2-8B", "g4_fertility": 2.031, "g4_vcov": 100.0, "cand_fertility": 1.462, "vcov": 86.82, "rt": 100.0, "bfr": 3.71}], "idx": 21, "z": 4}, {"iso3": "BHR", "country_name": "Bahrain", "best_model": "Jais-2-8B", "region": "Middle East", "lang_details": [{"language": "Arabic", "best": "Jais-2-8B", "candidate": "Jais-2-8B", "g4_fertility": 2.031, "g4_vcov": 100.0, "cand_fertility": 1.462, "vcov": 86.82, "rt": 100.0, "bfr": 3.71}], "idx": 22, "z": 4}, {"iso3": "MRT", "country_name": "Mauritania", "best_model": "Jais-2-8B", "region": "Middle East", "lang_details": [{"language": "Arabic", "best": "Jais-2-8B", "candidate": "Jais-2-8B", "g4_fertility": 2.031, "g4_vcov": 100.0, "cand_fertility": 1.462, "vcov": 86.82, "rt": 100.0, "bfr": 3.71}], "idx": 23, "z": 4}, {"iso3": "IRN", "country_name": "Iran", "best_model": "Gemma-4", "region": "Middle East", "lang_details": [{"language": "Persian", "best": "Gemma-4", "candidate": "Maral-7B", "g4_fertility": 1.679, "g4_vcov": 100.0, "cand_fertility": 5.138, "vcov": 53.49, "rt": 100.0, "bfr": 0.04}], "idx": 24, "z": 0}, {"iso3": "AFG", "country_name": "Afghanistan", "best_model": "Gemma-4", "region": "Middle East", "lang_details": [{"language": "Persian", "best": "Gemma-4", "candidate": "Maral-7B", "g4_fertility": 1.679, "g4_vcov": 100.0, "cand_fertility": 5.138, "vcov": 53.49, "rt": 100.0, "bfr": 0.04}], "idx": 25, "z": 0}, {"iso3": "TUR", "country_name": "Turkey", "best_model": "Gemma-4", "region": "Middle East", "lang_details": [{"language": "Turkish", "best": "Gemma-4", "candidate": "Trendyol-8B", "g4_fertility": 2.109, "g4_vcov": 100.0, "cand_fertility": 2.547, "vcov": 100.0, "rt": 100.0, "bfr": 0.6}], "idx": 26, "z": 0}, {"iso3": "ISR", "country_name": "Israel", "best_model": "DictaLM-2.0-7B", "region": "Middle East", "lang_details": [{"language": "Hebrew", "best": "DictaLM-2.0-7B", "candidate": "DictaLM-2.0-7B", "g4_fertility": 2.706, "g4_vcov": 100.0, "cand_fertility": 2.642, "vcov": 83.33, "rt": 100.0, "bfr": 0.0}], "idx": 27, "z": 5}, {"iso3": "AZE", "country_name": "Azerbaijan", "best_model": "Gemma-4", "region": "Middle East", "lang_details": [{"language": "Azerbaijani", "best": "Gemma-4", "candidate": "mGPT-Azerbaijani-1.3B", "g4_fertility": 2.873, "g4_vcov": 100.0, "cand_fertility": 3.553, "vcov": 97.09, "rt": 100.0, "bfr": 0.96}], "idx": 28, "z": 0}, {"iso3": "UZB", "country_name": "Uzbekistan", "best_model": "Gemma-4", "region": "Middle East", "lang_details": [{"language": "Uzbek", "best": "Gemma-4", "candidate": "Mistral-7B-Uz", "g4_fertility": 2.839, "g4_vcov": 97.85, "cand_fertility": 3.515, "vcov": 100.0, "rt": 100.0, "bfr": 0.0}], "idx": 29, "z": 0}, {"iso3": "KAZ", "country_name": "Kazakhstan", "best_model": "Gemma-4", "region": "Middle East", "lang_details": [{"language": "Kazakh", "best": "Gemma-4", "candidate": "KazLLM-8B", "g4_fertility": 3.184, "g4_vcov": 100.0, "cand_fertility": 4.831, "vcov": 91.3, "rt": 100.0, "bfr": 8.27}], "idx": 30, "z": 0}, {"iso3": "CHN", "country_name": "China", "best_model": "Gemma-4", "region": "East Asia", "lang_details": [{"language": "Chinese", "best": "Gemma-4", "candidate": "ChatGLM3-6B", "g4_fertility": 14.132, "g4_vcov": 99.86, "cand_fertility": 13.184, "vcov": 10.85, "rt": 100.0, "bfr": 0.02}], "idx": 31, "z": 0}, {"iso3": "TWN", "country_name": "Taiwan", "best_model": "Gemma-4", "region": "East Asia", "lang_details": [{"language": "Chinese", "best": "Gemma-4", "candidate": "ChatGLM3-6B", "g4_fertility": 14.132, "g4_vcov": 99.86, "cand_fertility": 13.184, "vcov": 10.85, "rt": 100.0, "bfr": 0.02}], "idx": 32, "z": 0}, {"iso3": "JPN", "country_name": "Japan", "best_model": "Gemma-4", "region": "East Asia", "lang_details": [{"language": "Japanese", "best": "Gemma-4", "candidate": "LLM-jp-3-13B", "g4_fertility": 30.432, "g4_vcov": 100.0, "cand_fertility": 25.627, "vcov": 71.3, "rt": 100.0, "bfr": 0.0}], "idx": 33, "z": 0}, {"iso3": "KOR", "country_name": "South Korea", "best_model": "Polyglot-Ko-12B", "region": "East Asia", "lang_details": [{"language": "Korean", "best": "Polyglot-Ko-12B", "candidate": "Polyglot-Ko-12B", "g4_fertility": 2.415, "g4_vcov": 99.35, "cand_fertility": 2.199, "vcov": 93.26, "rt": 100.0, "bfr": 0.13}], "idx": 34, "z": 6}, {"iso3": "VNM", "country_name": "Vietnam", "best_model": "Gemma-4", "region": "SEA", "lang_details": [{"language": "Vietnamese", "best": "Gemma-4", "candidate": "Arcee-VyLinh-3B", "g4_fertility": 1.21, "g4_vcov": 100.0, "cand_fertility": 1.29, "vcov": 100.0, "rt": 100.0, "bfr": 0.89}], "idx": 35, "z": 0}, {"iso3": "THA", "country_name": "Thailand", "best_model": "Gemma-4", "region": "SEA", "lang_details": [{"language": "Thai", "best": "Gemma-4", "candidate": "Typhoon2-7B", "g4_fertility": 10.084, "g4_vcov": 100.0, "cand_fertility": 16.315, "vcov": 98.77, "rt": 100.0, "bfr": 2.35}], "idx": 36, "z": 0}, {"iso3": "IDN", "country_name": "Indonesia", "best_model": "Gemma-4", "region": "SEA", "lang_details": [{"language": "Indonesian", "best": "Gemma-4", "candidate": "Nusantara-7B", "g4_fertility": 1.575, "g4_vcov": 100.0, "cand_fertility": 2.146, "vcov": 100.0, "rt": 100.0, "bfr": 0.62}], "idx": 37, "z": 0}, {"iso3": "MYS", "country_name": "Malaysia", "best_model": "MaLLaM-5B", "region": "SEA", "lang_details": [{"language": "Malay", "best": "MaLLaM-5B", "candidate": "MaLLaM-5B", "g4_fertility": 1.632, "g4_vcov": 100.0, "cand_fertility": 1.417, "vcov": 84.76, "rt": 100.0, "bfr": 0.04}], "idx": 38, "z": 7}, {"iso3": "BRN", "country_name": "Brunei", "best_model": "MaLLaM-5B", "region": "SEA", "lang_details": [{"language": "Malay", "best": "MaLLaM-5B", "candidate": "MaLLaM-5B", "g4_fertility": 1.632, "g4_vcov": 100.0, "cand_fertility": 1.417, "vcov": 84.76, "rt": 100.0, "bfr": 0.04}], "idx": 39, "z": 7}, {"iso3": "PHL", "country_name": "Philippines", "best_model": "No Candidate Tested", "region": "SEA", "lang_details": [{"language": "Tagalog", "best": "No Candidate Tested", "candidate": "—", "g4_fertility": 1.84, "g4_vcov": 99.07, "cand_fertility": null, "vcov": null, "rt": null, "bfr": null}], "idx": 40, "z": 1}, {"iso3": "MMR", "country_name": "Myanmar", "best_model": "Gemma-4", "region": "SEA", "lang_details": [{"language": "Burmese", "best": "Gemma-4", "candidate": "Burmese-GPT-1B", "g4_fertility": 6.136, "g4_vcov": 100.0, "cand_fertility": 10.719, "vcov": 91.5, "rt": 100.0, "bfr": 0.6}], "idx": 41, "z": 0}, {"iso3": "KHM", "country_name": "Cambodia", "best_model": "Gemma-4", "region": "SEA", "lang_details": [{"language": "Khmer", "best": "Gemma-4", "candidate": "PrahokBART-62M", "g4_fertility": 12.747, "g4_vcov": 98.38, "cand_fertility": 14.511, "vcov": 75.14, "rt": 0.0, "bfr": 0.0}], "idx": 42, "z": 0}, {"iso3": "KEN", "country_name": "Kenya", "best_model": "Swahili-Gemma-7B", "region": "Africa", "lang_details": [{"language": "Swahili", "best": "Swahili-Gemma-7B", "candidate": "Swahili-Gemma-7B", "g4_fertility": 2.087, "g4_vcov": 100.0, "cand_fertility": 2.047, "vcov": 100.0, "rt": 100.0, "bfr": 0.0}], "idx": 43, "z": 8}, {"iso3": "TZA", "country_name": "Tanzania", "best_model": "Swahili-Gemma-7B", "region": "Africa", "lang_details": [{"language": "Swahili", "best": "Swahili-Gemma-7B", "candidate": "Swahili-Gemma-7B", "g4_fertility": 2.087, "g4_vcov": 100.0, "cand_fertility": 2.047, "vcov": 100.0, "rt": 100.0, "bfr": 0.0}], "idx": 44, "z": 8}, {"iso3": "UGA", "country_name": "Uganda", "best_model": "Swahili-Gemma-7B", "region": "Africa", "lang_details": [{"language": "Swahili", "best": "Swahili-Gemma-7B", "candidate": "Swahili-Gemma-7B", "g4_fertility": 2.087, "g4_vcov": 100.0, "cand_fertility": 2.047, "vcov": 100.0, "rt": 100.0, "bfr": 0.0}], "idx": 45, "z": 8}, {"iso3": "RWA", "country_name": "Rwanda", "best_model": "Swahili-Gemma-7B", "region": "Africa", "lang_details": [{"language": "Swahili", "best": "Swahili-Gemma-7B", "candidate": "Swahili-Gemma-7B", "g4_fertility": 2.087, "g4_vcov": 100.0, "cand_fertility": 2.047, "vcov": 100.0, "rt": 100.0, "bfr": 0.0}], "idx": 46, "z": 8}, {"iso3": "ETH", "country_name": "Ethiopia", "best_model": "Walia-LLM-7B", "region": "Africa", "lang_details": [{"language": "Amharic", "best": "Walia-LLM-7B", "candidate": "Walia-LLM-7B", "g4_fertility": 3.032, "g4_vcov": 99.08, "cand_fertility": 1.623, "vcov": 88.0, "rt": 100.0, "bfr": 0.03}], "idx": 47, "z": 9}, {"iso3": "NGA", "country_name": "Nigeria", "best_model": "Gemma-4", "region": "Africa", "lang_details": [{"language": "Hausa", "best": "Gemma-4", "candidate": "HausaLlama-8B", "g4_fertility": 1.864, "g4_vcov": 99.07, "cand_fertility": 2.13, "vcov": 93.46, "rt": 100.0, "bfr": 2.93}, {"language": "Yoruba", "best": "Gemma-4", "candidate": "YorubaLlama-8B", "g4_fertility": 2.588, "g4_vcov": 100.0, "cand_fertility": 2.934, "vcov": 96.09, "rt": 100.0, "bfr": 1.84}, {"language": "Igbo", "best": "Gemma-4", "candidate": "Kakugo-3B-Igbo", "g4_fertility": 2.358, "g4_vcov": 100.0, "cand_fertility": 2.688, "vcov": 95.0, "rt": 100.0, "bfr": 4.25}], "idx": 48, "z": 0}, {"iso3": "NER", "country_name": "Niger", "best_model": "Gemma-4", "region": "Africa", "lang_details": [{"language": "Hausa", "best": "Gemma-4", "candidate": "HausaLlama-8B", "g4_fertility": 1.864, "g4_vcov": 99.07, "cand_fertility": 2.13, "vcov": 93.46, "rt": 100.0, "bfr": 2.93}], "idx": 49, "z": 0}, {"iso3": "ZAF", "country_name": "South Africa", "best_model": "Gemma-4", "region": "Africa", "lang_details": [{"language": "Zulu", "best": "Gemma-4", "candidate": "Xhosa-ZuluLlama3-8B", "g4_fertility": 3.384, "g4_vcov": 100.0, "cand_fertility": 3.754, "vcov": 100.0, "rt": 100.0, "bfr": 0.16}, {"language": "Xhosa", "best": "Gemma-4", "candidate": "Xhosa-ZuluLlama3-8B", "g4_fertility": 3.302, "g4_vcov": 99.03, "cand_fertility": 3.567, "vcov": 100.0, "rt": 100.0, "bfr": 0.24}], "idx": 50, "z": 0}, {"iso3": "SOM", "country_name": "Somalia", "best_model": "No Candidate Tested", "region": "Africa", "lang_details": [{"language": "Somali", "best": "No Candidate Tested", "candidate": "—", "g4_fertility": 2.246, "g4_vcov": 100.0, "cand_fertility": null, "vcov": null, "rt": null, "bfr": null}], "idx": 51, "z": 1}, {"iso3": "SEN", "country_name": "Senegal", "best_model": "Gemma-4", "region": "Africa", "lang_details": [{"language": "Wolof", "best": "Gemma-4", "candidate": "Wolof-Qwen-1.5B", "g4_fertility": 1.921, "g4_vcov": 99.19, "cand_fertility": 2.103, "vcov": 100.0, "rt": 100.0, "bfr": 0.53}], "idx": 52, "z": 0}, {"iso3": "ZWE", "country_name": "Zimbabwe", "best_model": "No Candidate Tested", "region": "Africa", "lang_details": [{"language": "Shona", "best": "No Candidate Tested", "candidate": "—", "g4_fertility": 2.927, "g4_vcov": 100.0, "cand_fertility": null, "vcov": null, "rt": null, "bfr": null}], "idx": 53, "z": 1}, {"iso3": "FRA", "country_name": "France", "best_model": "Lucie-7B", "region": "Europe", "lang_details": [{"language": "French", "best": "Lucie-7B", "candidate": "Lucie-7B", "g4_fertility": 1.49, "g4_vcov": 98.31, "cand_fertility": 1.427, "vcov": 82.2, "rt": 100.0, "bfr": 0.0}], "idx": 54, "z": 10}, {"iso3": "BEL", "country_name": "Belgium", "best_model": "Lucie-7B", "region": "Europe", "lang_details": [{"language": "French", "best": "Lucie-7B", "candidate": "Lucie-7B", "g4_fertility": 1.49, "g4_vcov": 98.31, "cand_fertility": 1.427, "vcov": 82.2, "rt": 100.0, "bfr": 0.0}], "idx": 55, "z": 10}, {"iso3": "LUX", "country_name": "Luxembourg", "best_model": "Lucie-7B", "region": "Europe", "lang_details": [{"language": "French", "best": "Lucie-7B", "candidate": "Lucie-7B", "g4_fertility": 1.49, "g4_vcov": 98.31, "cand_fertility": 1.427, "vcov": 82.2, "rt": 100.0, "bfr": 0.0}], "idx": 56, "z": 10}, {"iso3": "CAN", "country_name": "Canada", "best_model": "Lucie-7B", "region": "Europe", "lang_details": [{"language": "French", "best": "Lucie-7B", "candidate": "Lucie-7B", "g4_fertility": 1.49, "g4_vcov": 98.31, "cand_fertility": 1.427, "vcov": 82.2, "rt": 100.0, "bfr": 0.0}], "idx": 57, "z": 10}, {"iso3": "CHE", "country_name": "Switzerland", "best_model": "Lucie-7B", "region": "Europe", "lang_details": [{"language": "French", "best": "Lucie-7B", "candidate": "Lucie-7B", "g4_fertility": 1.49, "g4_vcov": 98.31, "cand_fertility": 1.427, "vcov": 82.2, "rt": 100.0, "bfr": 0.0}], "idx": 58, "z": 10}, {"iso3": "DEU", "country_name": "Germany", "best_model": "Gemma-4", "region": "Europe", "lang_details": [{"language": "German", "best": "Gemma-4", "candidate": "LeoLM-7B", "g4_fertility": 1.655, "g4_vcov": 100.0, "cand_fertility": 2.18, "vcov": 81.48, "rt": 100.0, "bfr": 0.01}], "idx": 59, "z": 0}, {"iso3": "AUT", "country_name": "Austria", "best_model": "Gemma-4", "region": "Europe", "lang_details": [{"language": "German", "best": "Gemma-4", "candidate": "LeoLM-7B", "g4_fertility": 1.655, "g4_vcov": 100.0, "cand_fertility": 2.18, "vcov": 81.48, "rt": 100.0, "bfr": 0.01}], "idx": 60, "z": 0}, {"iso3": "ESP", "country_name": "Spain", "best_model": "Gemma-4", "region": "Europe", "lang_details": [{"language": "Spanish", "best": "Gemma-4", "candidate": "Salamandra-7B", "g4_fertility": 1.347, "g4_vcov": 100.0, "cand_fertility": 1.354, "vcov": 85.58, "rt": 100.0, "bfr": 0.03}], "idx": 61, "z": 0}, {"iso3": "PRT", "country_name": "Portugal", "best_model": "Gemma-4", "region": "Europe", "lang_details": [{"language": "Portuguese", "best": "Gemma-4", "candidate": "Gervasio-8B", "g4_fertility": 1.453, "g4_vcov": 100.0, "cand_fertility": 1.709, "vcov": 100.0, "rt": 100.0, "bfr": 0.74}], "idx": 62, "z": 0}, {"iso3": "AGO", "country_name": "Angola", "best_model": "Gemma-4", "region": "Europe", "lang_details": [{"language": "Portuguese", "best": "Gemma-4", "candidate": "Gervasio-8B", "g4_fertility": 1.453, "g4_vcov": 100.0, "cand_fertility": 1.709, "vcov": 100.0, "rt": 100.0, "bfr": 0.74}], "idx": 63, "z": 0}, {"iso3": "MOZ", "country_name": "Mozambique", "best_model": "Gemma-4", "region": "Europe", "lang_details": [{"language": "Portuguese", "best": "Gemma-4", "candidate": "Gervasio-8B", "g4_fertility": 1.453, "g4_vcov": 100.0, "cand_fertility": 1.709, "vcov": 100.0, "rt": 100.0, "bfr": 0.74}], "idx": 64, "z": 0}, {"iso3": "ITA", "country_name": "Italy", "best_model": "Gemma-4", "region": "Europe", "lang_details": [{"language": "Italian", "best": "Gemma-4", "candidate": "LLaMAntino-3-8B", "g4_fertility": 1.535, "g4_vcov": 100.0, "cand_fertility": 1.831, "vcov": 100.0, "rt": 100.0, "bfr": 0.58}], "idx": 65, "z": 0}, {"iso3": "NLD", "country_name": "Netherlands", "best_model": "Gemma-4", "region": "Europe", "lang_details": [{"language": "Dutch", "best": "Gemma-4", "candidate": "Fietje-2", "g4_fertility": 1.63, "g4_vcov": 100.0, "cand_fertility": 2.325, "vcov": 94.34, "rt": 100.0, "bfr": 0.1}], "idx": 66, "z": 0}, {"iso3": "POL", "country_name": "Poland", "best_model": "Gemma-4", "region": "Europe", "lang_details": [{"language": "Polish", "best": "Gemma-4", "candidate": "Bielik-11B", "g4_fertility": 2.096, "g4_vcov": 100.0, "cand_fertility": 2.924, "vcov": 81.13, "rt": 100.0, "bfr": 3.58}], "idx": 67, "z": 0}, {"iso3": "RUS", "country_name": "Russia", "best_model": "Gemma-4", "region": "Europe", "lang_details": [{"language": "Russian", "best": "Gemma-4", "candidate": "Vikhr-Nemo-12B", "g4_fertility": 1.884, "g4_vcov": 99.33, "cand_fertility": 2.13, "vcov": 98.67, "rt": 100.0, "bfr": 0.71}], "idx": 68, "z": 0}, {"iso3": "BLR", "country_name": "Belarus", "best_model": "Gemma-4", "region": "Europe", "lang_details": [{"language": "Russian", "best": "Gemma-4", "candidate": "Vikhr-Nemo-12B", "g4_fertility": 1.884, "g4_vcov": 99.33, "cand_fertility": 2.13, "vcov": 98.67, "rt": 100.0, "bfr": 0.71}], "idx": 69, "z": 0}, {"iso3": "UKR", "country_name": "Ukraine", "best_model": "Gemma-4", "region": "Europe", "lang_details": [{"language": "Ukrainian", "best": "Gemma-4", "candidate": "MamayLM-12B", "g4_fertility": 2.273, "g4_vcov": 100.0, "cand_fertility": 2.273, "vcov": 100.0, "rt": 100.0, "bfr": 0.0}], "idx": 70, "z": 0}, {"iso3": "ROU", "country_name": "Romania", "best_model": "Gemma-4", "region": "Europe", "lang_details": [{"language": "Romanian", "best": "Gemma-4", "candidate": "LLMic-3B", "g4_fertility": 1.8, "g4_vcov": 100.0, "cand_fertility": 2.192, "vcov": 77.68, "rt": 4.15, "bfr": 16.17}], "idx": 71, "z": 0}, {"iso3": "MDA", "country_name": "Moldova", "best_model": "Gemma-4", "region": "Europe", "lang_details": [{"language": "Romanian", "best": "Gemma-4", "candidate": "LLMic-3B", "g4_fertility": 1.8, "g4_vcov": 100.0, "cand_fertility": 2.192, "vcov": 77.68, "rt": 4.15, "bfr": 16.17}], "idx": 72, "z": 0}, {"iso3": "SWE", "country_name": "Sweden", "best_model": "Viking-7B", "region": "Europe", "lang_details": [{"language": "Swedish", "best": "Viking-7B", "candidate": "Viking-7B", "g4_fertility": 1.841, "g4_vcov": 100.0, "cand_fertility": 1.474, "vcov": 100.0, "rt": 100.0, "bfr": 0.94}], "idx": 73, "z": 11}, {"iso3": "CZE", "country_name": "Czech Republic", "best_model": "CSMPT-7B", "region": "Europe", "lang_details": [{"language": "Czech", "best": "CSMPT-7B", "candidate": "CSMPT-7B", "g4_fertility": 2.157, "g4_vcov": 99.13, "cand_fertility": 1.407, "vcov": 96.52, "rt": 100.0, "bfr": 0.03}], "idx": 74, "z": 12}, {"iso3": "GRC", "country_name": "Greece", "best_model": "Meltemi-7B", "region": "Europe", "lang_details": [{"language": "Greek", "best": "Meltemi-7B", "candidate": "Meltemi-7B", "g4_fertility": 2.472, "g4_vcov": 100.0, "cand_fertility": 1.397, "vcov": 95.42, "rt": 100.0, "bfr": 0.04}], "idx": 75, "z": 13}, {"iso3": "CYP", "country_name": "Cyprus", "best_model": "Meltemi-7B", "region": "Europe", "lang_details": [{"language": "Greek", "best": "Meltemi-7B", "candidate": "Meltemi-7B", "g4_fertility": 2.472, "g4_vcov": 100.0, "cand_fertility": 1.397, "vcov": 95.42, "rt": 100.0, "bfr": 0.04}], "idx": 76, "z": 13}, {"iso3": "MEX", "country_name": "Mexico", "best_model": "Gemma-4", "region": "Americas", "lang_details": [{"language": "Lat.Am. Spanish", "best": "Gemma-4", "candidate": "LatamGPT-70B", "g4_fertility": 1.347, "g4_vcov": 100.0, "cand_fertility": 1.604, "vcov": 100.0, "rt": 100.0, "bfr": 0.65}], "idx": 77, "z": 0}, {"iso3": "COL", "country_name": "Colombia", "best_model": "Gemma-4", "region": "Americas", "lang_details": [{"language": "Lat.Am. Spanish", "best": "Gemma-4", "candidate": "LatamGPT-70B", "g4_fertility": 1.347, "g4_vcov": 100.0, "cand_fertility": 1.604, "vcov": 100.0, "rt": 100.0, "bfr": 0.65}], "idx": 78, "z": 0}, {"iso3": "ARG", "country_name": "Argentina", "best_model": "Gemma-4", "region": "Americas", "lang_details": [{"language": "Lat.Am. Spanish", "best": "Gemma-4", "candidate": "LatamGPT-70B", "g4_fertility": 1.347, "g4_vcov": 100.0, "cand_fertility": 1.604, "vcov": 100.0, "rt": 100.0, "bfr": 0.65}], "idx": 79, "z": 0}, {"iso3": "VEN", "country_name": "Venezuela", "best_model": "Gemma-4", "region": "Americas", "lang_details": [{"language": "Lat.Am. Spanish", "best": "Gemma-4", "candidate": "LatamGPT-70B", "g4_fertility": 1.347, "g4_vcov": 100.0, "cand_fertility": 1.604, "vcov": 100.0, "rt": 100.0, "bfr": 0.65}], "idx": 80, "z": 0}, {"iso3": "CHL", "country_name": "Chile", "best_model": "Gemma-4", "region": "Americas", "lang_details": [{"language": "Lat.Am. Spanish", "best": "Gemma-4", "candidate": "LatamGPT-70B", "g4_fertility": 1.347, "g4_vcov": 100.0, "cand_fertility": 1.604, "vcov": 100.0, "rt": 100.0, "bfr": 0.65}], "idx": 81, "z": 0}, {"iso3": "ECU", "country_name": "Ecuador", "best_model": "Gemma-4", "region": "Americas", "lang_details": [{"language": "Lat.Am. Spanish", "best": "Gemma-4", "candidate": "LatamGPT-70B", "g4_fertility": 1.347, "g4_vcov": 100.0, "cand_fertility": 1.604, "vcov": 100.0, "rt": 100.0, "bfr": 0.65}], "idx": 82, "z": 0}, {"iso3": "GTM", "country_name": "Guatemala", "best_model": "Gemma-4", "region": "Americas", "lang_details": [{"language": "Lat.Am. Spanish", "best": "Gemma-4", "candidate": "LatamGPT-70B", "g4_fertility": 1.347, "g4_vcov": 100.0, "cand_fertility": 1.604, "vcov": 100.0, "rt": 100.0, "bfr": 0.65}], "idx": 83, "z": 0}, {"iso3": "CUB", "country_name": "Cuba", "best_model": "Gemma-4", "region": "Americas", "lang_details": [{"language": "Lat.Am. Spanish", "best": "Gemma-4", "candidate": "LatamGPT-70B", "g4_fertility": 1.347, "g4_vcov": 100.0, "cand_fertility": 1.604, "vcov": 100.0, "rt": 100.0, "bfr": 0.65}], "idx": 84, "z": 0}, {"iso3": "BOL", "country_name": "Bolivia", "best_model": "Gemma-4", "region": "Americas", "lang_details": [{"language": "Lat.Am. Spanish", "best": "Gemma-4", "candidate": "LatamGPT-70B", "g4_fertility": 1.347, "g4_vcov": 100.0, "cand_fertility": 1.604, "vcov": 100.0, "rt": 100.0, "bfr": 0.65}], "idx": 85, "z": 0}, {"iso3": "DOM", "country_name": "Dominican Rep.", "best_model": "Gemma-4", "region": "Americas", "lang_details": [{"language": "Lat.Am. Spanish", "best": "Gemma-4", "candidate": "LatamGPT-70B", "g4_fertility": 1.347, "g4_vcov": 100.0, "cand_fertility": 1.604, "vcov": 100.0, "rt": 100.0, "bfr": 0.65}], "idx": 86, "z": 0}, {"iso3": "HND", "country_name": "Honduras", "best_model": "Gemma-4", "region": "Americas", "lang_details": [{"language": "Lat.Am. Spanish", "best": "Gemma-4", "candidate": "LatamGPT-70B", "g4_fertility": 1.347, "g4_vcov": 100.0, "cand_fertility": 1.604, "vcov": 100.0, "rt": 100.0, "bfr": 0.65}], "idx": 87, "z": 0}, {"iso3": "PRY", "country_name": "Paraguay", "best_model": "Gemma-4", "region": "Americas", "lang_details": [{"language": "Lat.Am. Spanish", "best": "Gemma-4", "candidate": "LatamGPT-70B", "g4_fertility": 1.347, "g4_vcov": 100.0, "cand_fertility": 1.604, "vcov": 100.0, "rt": 100.0, "bfr": 0.65}], "idx": 88, "z": 0}, {"iso3": "SLV", "country_name": "El Salvador", "best_model": "Gemma-4", "region": "Americas", "lang_details": [{"language": "Lat.Am. Spanish", "best": "Gemma-4", "candidate": "LatamGPT-70B", "g4_fertility": 1.347, "g4_vcov": 100.0, "cand_fertility": 1.604, "vcov": 100.0, "rt": 100.0, "bfr": 0.65}], "idx": 89, "z": 0}, {"iso3": "NIC", "country_name": "Nicaragua", "best_model": "Gemma-4", "region": "Americas", "lang_details": [{"language": "Lat.Am. Spanish", "best": "Gemma-4", "candidate": "LatamGPT-70B", "g4_fertility": 1.347, "g4_vcov": 100.0, "cand_fertility": 1.604, "vcov": 100.0, "rt": 100.0, "bfr": 0.65}], "idx": 90, "z": 0}, {"iso3": "CRI", "country_name": "Costa Rica", "best_model": "Gemma-4", "region": "Americas", "lang_details": [{"language": "Lat.Am. Spanish", "best": "Gemma-4", "candidate": "LatamGPT-70B", "g4_fertility": 1.347, "g4_vcov": 100.0, "cand_fertility": 1.604, "vcov": 100.0, "rt": 100.0, "bfr": 0.65}], "idx": 91, "z": 0}, {"iso3": "PAN", "country_name": "Panama", "best_model": "Gemma-4", "region": "Americas", "lang_details": [{"language": "Lat.Am. Spanish", "best": "Gemma-4", "candidate": "LatamGPT-70B", "g4_fertility": 1.347, "g4_vcov": 100.0, "cand_fertility": 1.604, "vcov": 100.0, "rt": 100.0, "bfr": 0.65}], "idx": 92, "z": 0}, {"iso3": "URY", "country_name": "Uruguay", "best_model": "Gemma-4", "region": "Americas", "lang_details": [{"language": "Lat.Am. Spanish", "best": "Gemma-4", "candidate": "LatamGPT-70B", "g4_fertility": 1.347, "g4_vcov": 100.0, "cand_fertility": 1.604, "vcov": 100.0, "rt": 100.0, "bfr": 0.65}], "idx": 93, "z": 0}, {"iso3": "BRA", "country_name": "Brazil", "best_model": "Tucano-2b4", "region": "Americas", "lang_details": [{"language": "Brazilian Portuguese", "best": "Tucano-2b4", "candidate": "Tucano-2b4", "g4_fertility": 1.453, "g4_vcov": 100.0, "cand_fertility": 1.252, "vcov": 86.84, "rt": 99.31, "bfr": 0.01}], "idx": 94, "z": 14}, {"iso3": "PER", "country_name": "Peru", "best_model": "No Candidate Tested", "region": "Americas", "lang_details": [{"language": "Quechua", "best": "No Candidate Tested", "candidate": "—", "g4_fertility": 3.147, "g4_vcov": 100.0, "cand_fertility": null, "vcov": null, "rt": null, "bfr": null}], "idx": 95, "z": 1}, {"iso3": "HTI", "country_name": "Haiti", "best_model": "No Candidate Tested", "region": "Americas", "lang_details": [{"language": "Haitian Creole", "best": "No Candidate Tested", "candidate": "—", "g4_fertility": 1.796, "g4_vcov": 100.0, "cand_fertility": null, "vcov": null, "rt": null, "bfr": null}], "idx": 96, "z": 1}, {"iso3": "NZL", "country_name": "New Zealand", "best_model": "Goldfish-mri-39M", "region": "Oceania", "lang_details": [{"language": "Māori", "best": "Goldfish-mri-39M", "candidate": "Goldfish-mri-39M", "g4_fertility": 1.825, "g4_vcov": 100.0, "cand_fertility": 1.22, "vcov": 92.47, "rt": 99.7, "bfr": 0.12}], "idx": 97, "z": 15}, {"iso3": "WSM", "country_name": "Samoa", "best_model": "No Candidate Tested", "region": "Oceania", "lang_details": [{"language": "Samoan", "best": "No Candidate Tested", "candidate": "—", "g4_fertility": 1.821, "g4_vcov": 100.0, "cand_fertility": null, "vcov": null, "rt": null, "bfr": null}], "idx": 98, "z": 1}, {"iso3": "PNG", "country_name": "Papua New Guinea", "best_model": "Goldfish-tpi-125M", "region": "Oceania", "lang_details": [{"language": "Tok Pisin", "best": "Goldfish-tpi-125M", "candidate": "Goldfish-tpi-125M", "g4_fertility": 1.644, "g4_vcov": 100.0, "cand_fertility": 1.311, "vcov": 83.02, "rt": 98.42, "bfr": 0.0}], "idx": 99, "z": 16}];
+const MODEL_IDX   = {"Gemma-4": 0, "No Candidate Tested": 1, "Multiple Winners": 2, "Tamil-Mistral-7B": 3, "Jais-2-8B": 4, "DictaLM-2.0-7B": 5, "Polyglot-Ko-12B": 6, "MaLLaM-5B": 7, "Swahili-Gemma-7B": 8, "Walia-LLM-7B": 9, "Lucie-7B": 10, "Viking-7B": 11, "CSMPT-7B": 12, "Meltemi-7B": 13, "Tucano-2b4": 14, "Goldfish-mri-39M": 15, "Goldfish-tpi-125M": 16};
+const MODEL_COLORS= {"Gemma-4": "#4A90D9", "No Candidate Tested": "#3D3D50", "Multiple Winners": "#F5A623", "Tamil-Mistral-7B": "#FF6B35", "MahaMarathi-7B": "#E63946", "Ambari-7B": "#FF9F1C", "Gujju-Llama-7B": "#F4A261", "Jais-2-8B": "#9B5DE5", "DictaLM-2.0-7B": "#C77DFF", "Polyglot-Ko-12B": "#00B4D8", "MaLLaM-5B": "#0096C7", "Swahili-Gemma-7B": "#52B788", "Walia-LLM-7B": "#2D6A4F", "Lucie-7B": "#3D5A80", "Viking-7B": "#98C1D9", "CSMPT-7B": "#A8DADC", "Meltemi-7B": "#457B9D", "Tucano-2b4": "#E76F51", "Goldfish-mri-39M": "#2EC4B6", "Goldfish-tpi-125M": "#80CED7"};
+const COLORSCALE  = [[0.0, "#1E2030"], [0.05545555555555555, "#1E2030"], [0.05555555555555555, "#4A90D9"], [0.1110111111111111, "#4A90D9"], [0.1111111111111111, "#3D3D50"], [0.16656666666666667, "#3D3D50"], [0.16666666666666666, "#F5A623"], [0.22212222222222222, "#F5A623"], [0.2222222222222222, "#FF6B35"], [0.2776777777777778, "#FF6B35"], [0.2777777777777778, "#9B5DE5"], [0.3332333333333333, "#9B5DE5"], [0.3333333333333333, "#C77DFF"], [0.3887888888888889, "#C77DFF"], [0.3888888888888889, "#00B4D8"], [0.44434444444444443, "#00B4D8"], [0.4444444444444444, "#0096C7"], [0.4999, "#0096C7"], [0.5, "#52B788"], [0.5554555555555556, "#52B788"], [0.5555555555555556, "#2D6A4F"], [0.6110111111111112, "#2D6A4F"], [0.6111111111111112, "#3D5A80"], [0.6665666666666666, "#3D5A80"], [0.6666666666666666, "#98C1D9"], [0.7221222222222222, "#98C1D9"], [0.7222222222222222, "#A8DADC"], [0.7776777777777778, "#A8DADC"], [0.7777777777777778, "#457B9D"], [0.8332333333333334, "#457B9D"], [0.8333333333333334, "#E76F51"], [0.8887888888888889, "#E76F51"], [0.8888888888888888, "#2EC4B6"], [0.9443444444444444, "#2EC4B6"], [0.9444444444444444, "#80CED7"], [1.0, "#80CED7"]];
+const ZMIN = -1, ZMAX = 16;
+
+const REGION_VIEW = {
+  "All":         { lat: 15,  lon: 10,  scale: 0.85 },
+  "Indic":       { lat: 22,  lon: 80,  scale: 3.2  },
+  "Middle East": { lat: 27,  lon: 44,  scale: 3.0  },
+  "East Asia":   { lat: 36,  lon: 118, scale: 3.0  },
+  "SEA":         { lat:  8,  lon: 112, scale: 3.0  },
+  "Africa":      { lat:  2,  lon: 22,  scale: 2.4  },
+  "Europe":      { lat: 52,  lon: 14,  scale: 4.2  },
+  "Americas":    { lat:  5,  lon:-68,  scale: 1.9  },
+  "Oceania":     { lat:-25,  lon:145,  scale: 3.2  },
+};
+
+// ── Build initial z array ──────────────────────────────────────────────────
+function zFor(region) {
+  return COUNTRIES.map(c =>
+    (region === "All" || c.region === region) ? c.z : -1
+  );
+}
+
+const trace = {
+  type: "choropleth",
+  locations: COUNTRIES.map(c => c.iso3),
+  z: zFor("All"),
+  text: COUNTRIES.map(c => c.country_name),
+  customdata: COUNTRIES.map((c, i) => i),
+  colorscale: COLORSCALE,
+  zmin: ZMIN, zmax: ZMAX,
+  showscale: false,
+  hovertemplate: "<b>%{text}</b><extra></extra>",
+  marker: { line: { color: "#0D1117", width: 0.6 } },
+};
+
+const layout = {
+  paper_bgcolor: "#0D1117",
+  margin: { l:0, r:0, t:0, b:0 },
+  geo: {
+    showframe: false,
+    showcoastlines: true,
+    coastlinecolor: "#30363D",
+    showland: true,
+    landcolor: "#21262D",
+    showocean: true,
+    oceancolor: "#141B2D",
+    showlakes: true,
+    lakecolor: "#141B2D",
+    showcountries: true,
+    countrycolor: "#30363D",
+    bgcolor: "#0D1117",
+    projection: { type: "natural earth" },
+  },
+  dragmode: "pan",
+  uirevision: "map",
+};
+
+const config = {
+  responsive: true,
+  displayModeBar: true,
+  modeBarButtonsToRemove: ["select2d","lasso2d","autoScale2d","toImage"],
+  modeBarButtonsToAdd: [{
+    name: "Reset view",
+    icon: Plotly.Icons.home,
+    click: () => setRegion("All", document.querySelector(".pill.active")),
+  }],
+  displaylogo: false,
+  scrollZoom: true,
+};
+
+Plotly.newPlot("map", [trace], layout, config);
+
+// ── Click → sidebar ──────────────────────────────────────────────────────
+document.getElementById("map").on("plotly_click", e => {
+  if (!e.points.length) return;
+  const c = COUNTRIES[e.points[0].customdata];
+  if (c) openSB(c);
+});
+
+// ── Region filter ─────────────────────────────────────────────────────────
+function setRegion(region, btn) {
+  if (btn) {
+    document.querySelectorAll(".pill").forEach(p => p.classList.remove("active"));
+    btn.classList.add("active");
+  }
+  Plotly.restyle("map", { z: [zFor(region)] });
+  const v = REGION_VIEW[region] || REGION_VIEW["All"];
+  Plotly.relayout("map", {
+    "geo.center.lat": v.lat,
+    "geo.center.lon": v.lon,
+    "geo.projection.scale": v.scale,
+  });
+}
+
+// ── Sidebar ───────────────────────────────────────────────────────────────
+function openSB(country) {
+  document.getElementById("sb-title").textContent = country.country_name;
+  document.getElementById("sb-body").innerHTML = buildCards(country);
+  document.getElementById("sb").classList.remove("hidden");
+}
+function closeSB() {
+  document.getElementById("sb").classList.add("hidden");
+}
+
+function buildCards(country) {
+  if (!country.lang_details?.length)
+    return `<div class="sb-empty"><p>No evaluation data for this country.</p></div>`;
+
+  return country.lang_details.map(d => {
+    const isWin = d.best !== "Gemma-4" && d.best !== "No Candidate Tested";
+    const [badgeClass, badgeTxt] = isWin
+      ? ["badge-win",  "✅ Candidate wins"]
+      : d.best === "Gemma-4"
+        ? ["badge-g4",  "Gemma-4 best"]
+        : ["badge-none","No candidate"];
+
+    let metrics = "";
+    if (d.cand_fertility !== null) {
+      const maxF   = Math.max(d.g4_fertility, d.cand_fertility, 0.01);
+      const g4pct  = (d.g4_fertility   / maxF * 100).toFixed(0);
+      const cpct   = (d.cand_fertility / maxF * 100).toFixed(0);
+      const candLabel = d.candidate !== "—" ? d.candidate : "Candidate";
+      metrics = `
+        <div class="metrics">
+          <div class="m-row">
+            <div class="m-labels"><span>Fertility · Gemma-4</span><span>${d.g4_fertility}</span></div>
+            <div class="m-bar"><div class="m-fill fill-g4"  style="width:${g4pct}%"></div></div>
+          </div>
+          <div class="m-row">
+            <div class="m-labels"><span>Fertility · ${candLabel}</span><span>${d.cand_fertility}</span></div>
+            <div class="m-bar"><div class="m-fill fill-cand" style="width:${cpct}%"></div></div>
+          </div>
+          <div class="divider"></div>
+          <div class="m-row">
+            <div class="m-labels"><span>Vocab Coverage</span><span>${d.vcov}%</span></div>
+            <div class="m-bar"><div class="m-fill fill-vcov" style="width:${d.vcov}%"></div></div>
+          </div>
+          <div class="m-row">
+            <div class="m-labels"><span>Roundtrip Fidelity</span><span>${d.rt}%</span></div>
+            <div class="m-bar"><div class="m-fill fill-rt"   style="width:${d.rt}%"></div></div>
+          </div>
+        </div>`;
+    }
+
+    return `
+      <div class="lc">
+        <div class="lc-top">
+          <span class="lc-name">${d.language}</span>
+          <span class="badge ${badgeClass}">${badgeTxt}</span>
+        </div>
+        <div class="lc-model">${d.best}</div>
+        ${metrics}
+      </div>`;
+  }).join("");
+}
+</script>
 </body>
 </html>
