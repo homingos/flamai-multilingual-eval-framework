@@ -18,6 +18,11 @@ OUT         = ROOT / "docs" / "language-map.html"
 
 # ── Language → ISO-3166-1 alpha-3 primary countries ──────────────────────────
 LANG_COUNTRIES = {
+    # English → Gemma-4 (injected as hardcoded winner — not tested since Gemma-4 is production)
+    "English":              ["USA","GBR","AUS","IRL","GHA","ZMB","MWI","BWA",
+                             "NAM","LSO","SWZ","JAM","TTO","GUY","BLZ","BHS",
+                             "BRB","FJI","SLB","VUT","LCA","VCT","ATG","GRD",
+                             "KNA","DMA","SYC"],
     "Hindi":                ["IND"],
     "Bengali":              ["BGD"],
     "Tamil":                ["IND","LKA","SGP"],
@@ -35,55 +40,59 @@ LANG_COUNTRIES = {
     "Maithili":             ["IND"],
     "Arabic":               ["SAU","EGY","DZA","SDN","IRQ","MAR","YEM",
                              "SYR","TUN","JOR","LBY","LBN","ARE","OMN",
-                             "KWT","QAT","BHR","MRT"],
+                             "KWT","QAT","BHR","MRT","COM"],
     "Persian":              ["IRN","AFG"],
-    "Turkish":              ["TUR"],
+    "Turkish":              ["TUR","AZE"],
     "Hebrew":               ["ISR"],
     "Kurdish":              ["IRQ"],
     "Azerbaijani":          ["AZE"],
-    "Uzbek":                ["UZB"],
+    "Uzbek":                ["UZB","TJK"],
     "Kazakh":               ["KAZ"],
-    "Chinese":              ["CHN","TWN"],
+    "Chinese":              ["CHN","TWN","HKG","MAC"],
     "Japanese":             ["JPN"],
-    "Korean":               ["KOR"],
+    "Korean":               ["KOR","PRK"],
     "Vietnamese":           ["VNM"],
     "Thai":                 ["THA"],
-    "Indonesian":           ["IDN"],
-    "Malay":                ["MYS","BRN"],
+    "Indonesian":           ["IDN","TLS"],
+    "Malay":                ["MYS","BRN","SGP"],
     "Tagalog":              ["PHL"],
     "Burmese":              ["MMR"],
     "Khmer":                ["KHM"],
-    "Swahili":              ["KEN","TZA","UGA","RWA"],
+    "Swahili":              ["KEN","TZA","UGA","RWA","BDI","COD"],
     "Amharic":              ["ETH"],
     "Hausa":                ["NGA","NER"],
     "Yoruba":               ["NGA"],
     "Igbo":                 ["NGA"],
-    "Zulu":                 ["ZAF"],
+    "Zulu":                 ["ZAF","LSO"],
     "Xhosa":                ["ZAF"],
-    "Somali":               ["SOM"],
-    "Wolof":                ["SEN"],
+    "Somali":               ["SOM","DJI","ETH"],
+    "Wolof":                ["SEN","GMB"],
     "Shona":                ["ZWE"],
-    "French":               ["FRA","BEL","LUX","CAN","CHE"],
-    "German":               ["DEU","AUT"],
+    "French":               ["FRA","BEL","LUX","CAN","CHE",
+                             "CIV","CMR","MLI","BFA","COG","GAB",
+                             "TGO","BEN","GIN","MDG","CAF","TCD",
+                             "GNQ","RWA","BDI","DJI","MUS","REU",
+                             "CPV","GNB","STP","HTI"],
+    "German":               ["DEU","AUT","LIE"],
     "Spanish":              ["ESP"],
-    "Portuguese":           ["PRT","AGO","MOZ"],
-    "Italian":              ["ITA"],
-    "Dutch":                ["NLD"],
+    "Portuguese":           ["PRT","AGO","MOZ","CPV","GNB","STP","TLS"],
+    "Italian":              ["ITA","SMR","VAT"],
+    "Dutch":                ["NLD","SUR","BEL"],
     "Polish":               ["POL"],
-    "Russian":              ["RUS","BLR"],
+    "Russian":              ["RUS","BLR","KGZ"],
     "Ukrainian":            ["UKR"],
     "Romanian":             ["ROU","MDA"],
-    "Swedish":              ["SWE"],
+    "Swedish":              ["SWE","FIN"],
     "Czech":                ["CZE"],
     "Greek":                ["GRC","CYP"],
     "Lat.Am. Spanish":      ["MEX","COL","ARG","VEN","CHL","ECU","GTM",
                              "CUB","BOL","DOM","HND","PRY","SLV","NIC",
-                             "CRI","PAN","URY"],
+                             "CRI","PAN","URY","PRI"],
     "Brazilian Portuguese": ["BRA"],
     "Quechua":              ["PER"],
     "Haitian Creole":       ["HTI"],
     "Māori":                ["NZL"],
-    "Samoan":               ["WSM"],
+    "Samoan":               ["WSM","ASM"],
     "Tok Pisin":            ["PNG"],
 }
 
@@ -96,23 +105,43 @@ ISO_NAMES = {
     "KWT":"Kuwait","QAT":"Qatar","BHR":"Bahrain","MRT":"Mauritania",
     "TUR":"Turkey","ISR":"Israel","AZE":"Azerbaijan","UZB":"Uzbekistan",
     "KAZ":"Kazakhstan","CHN":"China","TWN":"Taiwan","JPN":"Japan",
-    "KOR":"South Korea","VNM":"Vietnam","THA":"Thailand","IDN":"Indonesia",
-    "MYS":"Malaysia","BRN":"Brunei","PHL":"Philippines","MMR":"Myanmar",
-    "KHM":"Cambodia","KEN":"Kenya","TZA":"Tanzania","UGA":"Uganda",
-    "RWA":"Rwanda","ETH":"Ethiopia","NGA":"Nigeria","NER":"Niger",
-    "ZAF":"South Africa","SOM":"Somalia","SEN":"Senegal","ZWE":"Zimbabwe",
+    "KOR":"South Korea","PRK":"North Korea","VNM":"Vietnam","THA":"Thailand",
+    "IDN":"Indonesia","MYS":"Malaysia","BRN":"Brunei","PHL":"Philippines",
+    "MMR":"Myanmar","KHM":"Cambodia","TLS":"Timor-Leste","KEN":"Kenya",
+    "TZA":"Tanzania","UGA":"Uganda","RWA":"Rwanda","BDI":"Burundi",
+    "ETH":"Ethiopia","NGA":"Nigeria","NER":"Niger","ZAF":"South Africa",
+    "SOM":"Somalia","SEN":"Senegal","ZWE":"Zimbabwe","GMB":"Gambia",
     "FRA":"France","BEL":"Belgium","LUX":"Luxembourg","CAN":"Canada",
-    "CHE":"Switzerland","DEU":"Germany","AUT":"Austria","ESP":"Spain",
-    "PRT":"Portugal","AGO":"Angola","MOZ":"Mozambique","ITA":"Italy",
-    "NLD":"Netherlands","POL":"Poland","RUS":"Russia","BLR":"Belarus",
+    "CHE":"Switzerland","DEU":"Germany","AUT":"Austria","LIE":"Liechtenstein",
+    "ESP":"Spain","PRT":"Portugal","AGO":"Angola","MOZ":"Mozambique",
+    "ITA":"Italy","SMR":"San Marino","VAT":"Vatican City",
+    "NLD":"Netherlands","SUR":"Suriname","POL":"Poland",
+    "RUS":"Russia","BLR":"Belarus","KGZ":"Kyrgyzstan","TJK":"Tajikistan",
     "UKR":"Ukraine","ROU":"Romania","MDA":"Moldova","SWE":"Sweden",
-    "CZE":"Czech Republic","GRC":"Greece","CYP":"Cyprus","MEX":"Mexico",
-    "COL":"Colombia","ARG":"Argentina","VEN":"Venezuela","CHL":"Chile",
-    "ECU":"Ecuador","GTM":"Guatemala","CUB":"Cuba","BOL":"Bolivia",
-    "DOM":"Dominican Rep.","HND":"Honduras","PRY":"Paraguay","SLV":"El Salvador",
-    "NIC":"Nicaragua","CRI":"Costa Rica","PAN":"Panama","URY":"Uruguay",
+    "FIN":"Finland","CZE":"Czech Republic","GRC":"Greece","CYP":"Cyprus",
+    "MEX":"Mexico","COL":"Colombia","ARG":"Argentina","VEN":"Venezuela",
+    "CHL":"Chile","ECU":"Ecuador","GTM":"Guatemala","CUB":"Cuba",
+    "BOL":"Bolivia","DOM":"Dominican Rep.","HND":"Honduras","PRY":"Paraguay",
+    "SLV":"El Salvador","NIC":"Nicaragua","CRI":"Costa Rica","PAN":"Panama",
+    "URY":"Uruguay","PRI":"Puerto Rico",
     "BRA":"Brazil","PER":"Peru","HTI":"Haiti","NZL":"New Zealand",
-    "WSM":"Samoa","PNG":"Papua New Guinea",
+    "WSM":"Samoa","ASM":"American Samoa","PNG":"Papua New Guinea",
+    # English-speaking
+    "USA":"United States","GBR":"United Kingdom","AUS":"Australia",
+    "IRL":"Ireland","GHA":"Ghana","ZMB":"Zambia","MWI":"Malawi",
+    "BWA":"Botswana","NAM":"Namibia","LSO":"Lesotho","SWZ":"Eswatini",
+    "JAM":"Jamaica","TTO":"Trinidad & Tobago","GUY":"Guyana","BLZ":"Belize",
+    "BHS":"Bahamas","BRB":"Barbados","FJI":"Fiji","SLB":"Solomon Islands",
+    "VUT":"Vanuatu","LCA":"Saint Lucia","VCT":"St. Vincent","ATG":"Antigua & Barbuda",
+    "GRD":"Grenada","KNA":"St. Kitts & Nevis","DMA":"Dominica","SYC":"Seychelles",
+    # Francophone Africa
+    "CIV":"Ivory Coast","CMR":"Cameroon","MLI":"Mali","BFA":"Burkina Faso",
+    "COD":"DR Congo","COG":"Congo","GAB":"Gabon","TGO":"Togo","BEN":"Benin",
+    "GIN":"Guinea","MDG":"Madagascar","CAF":"Cent. African Rep.","TCD":"Chad",
+    "GNQ":"Equatorial Guinea","MUS":"Mauritius","REU":"Réunion",
+    "CPV":"Cape Verde","GNB":"Guinea-Bissau","STP":"São Tomé & Príncipe",
+    # Other
+    "HKG":"Hong Kong","MAC":"Macau","COM":"Comoros",
 }
 
 # Indian state → primary evaluated language (ST_NM keys from GeoJSON)
@@ -178,6 +207,7 @@ LANG_REGION = {
         "Europe":      ["French","German","Spanish","Portuguese","Italian","Dutch","Polish","Russian","Ukrainian","Romanian","Swedish","Czech","Greek"],
         "Americas":    ["Lat.Am. Spanish","Brazilian Portuguese","Quechua","Haitian Creole"],
         "Oceania":     ["Māori","Samoan","Tok Pisin"],
+        "Other":       ["English"],
     }.items()
     for lang in langs
 }
@@ -194,7 +224,9 @@ def best_per_language(rows):
     g4   = {r["language"]: r for r in rows if r["tokenizer_name"] == "Gemma-4"}
     cand = {r["language"]: r for r in rows
             if r["tokenizer_name"] not in ("Gemma-4","BLOOM","mT5")}
-    out = {}
+    # English wasn't tested — Gemma-4 IS the production English model
+    out = {"English": {"best": "Gemma-4", "candidate": "—",
+                       "g4": None, "cand": None}}
     for lang, gr in g4.items():
         cr = cand.get(lang)
 
@@ -420,13 +452,11 @@ td.num{{font-family:monospace;font-size:11px;color:var(--mu)}}
 .legend-fab{{position:absolute;bottom:58px;left:14px;z-index:25;
   background:var(--sf);border:1px solid var(--bd);border-radius:8px;overflow:hidden;
   box-shadow:0 4px 16px rgba(0,0,0,.5)}}
-.legend-toggle{{display:flex;align-items:center;gap:6px;padding:6px 12px;cursor:pointer;
-  font-size:11px;font-weight:500;color:var(--mu);transition:color .15s}}
-.legend-toggle:hover{{color:var(--tx)}}
-.legend-toggle .ico{{font-size:13px}}
-.legend-body{{display:none;padding:8px 10px;border-top:1px solid var(--bd);
+.legend-header{{padding:6px 12px;font-size:11px;font-weight:600;
+  color:var(--mu);letter-spacing:.04em;text-transform:uppercase;
+  border-bottom:1px solid var(--bd)}}
+.legend-body{{padding:8px 10px;
   max-height:260px;overflow-y:auto;display:flex;flex-direction:column;gap:4px}}
-.legend-body.open{{display:flex}}
 .lchip{{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--tx);
   padding:3px 6px;border-radius:5px;cursor:default;white-space:nowrap}}
 .lchip:hover{{background:var(--sf2)}}
@@ -563,10 +593,8 @@ td.num{{font-family:monospace;font-size:11px;color:var(--mu)}}
 
     <!-- Floating legend -->
     <div class="legend-fab">
-      <div class="legend-toggle" onclick="toggleLegend()">
-        <span class="ico">🏷</span><span id="leg-lbl">Legend</span>
-      </div>
-      <div class="legend-body" id="leg-body">
+      <div class="legend-header">Legend</div>
+      <div class="legend-body">
         {legend_items}
       </div>
     </div>
@@ -672,10 +700,10 @@ function loadIndiaStates() {{
         featureidkey:"properties.ST_NM",
         locations: INDIA_ST.map(s=>s.state),
         z:         INDIA_ST.map(s=>s.z),
-        text:      INDIA_ST.map(s=>s.state),
+        text:      INDIA_ST.map(s=>s.state+"<br>"+s.lang+" · "+s.best),
         customdata:INDIA_ST.map((_,i)=>({{"type":"state","idx":i}})),
         colorscale:COLORSCALE, zmin:ZMIN, zmax:ZMAX, showscale:false,
-        hovertemplate:"<b>%{{text}}</b><br>%{{customdata}}<extra></extra>",
+        hovertemplate:"<b>%{{text}}</b><extra></extra>",
         marker:{{line:{{color:"rgba(13,17,23,.8)",width:0.8}}}},
         name:"India States",
       }};
@@ -750,6 +778,14 @@ function buildCards(details) {{
     const isWin  = d.best!=="Gemma-4" && d.best!=="No Candidate Tested";
     const [bc,bt] = isWin ? ["bwin", d.best]
       : d.best==="Gemma-4" ? ["bg4","Gemma-4 best"] : ["bnone","No candidate"];
+
+    if (!d.g4 && !d.cand) return `
+      <div class="lc">
+        <div class="lc-top"><span class="lc-name">${{d.language}}</span>
+          <span class="badge ${{bc}}">${{bt}}</span></div>
+        <div class="lc-cand" style="color:var(--mu);font-style:italic">
+          Production language — not independently benchmarked</div>
+      </div>`;
 
     if (!d.cand) return `
       <div class="lc">
@@ -826,14 +862,6 @@ function cmpRow(label, g4, cand, dir) {{
     <td class="v">${{cand}}</td>
     <td class="${{cls}} v">${{neutral?"=":sign+pct+"%"}}</td>
   </tr>`;
-}}
-
-// ── Legend toggle ─────────────────────────────────────────────────────────
-function toggleLegend() {{
-  const b = document.getElementById("leg-body");
-  const l = document.getElementById("leg-lbl");
-  const open = b.classList.toggle("open");
-  l.textContent = open ? "Hide legend" : "Legend";
 }}
 
 // ── Stats popovers ────────────────────────────────────────────────────────
