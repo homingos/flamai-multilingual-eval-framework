@@ -1024,5 +1024,23 @@
     "weighted_avg_vocab_coverage": 83.02,
     "weighted_avg_roundtrip_pass_rate": 98.42,
     "weighted_avg_avg_tokens_per_sent": 41.02
+  },
+  "mT5": {
+    "languages_tested": 63,
+    "total_chars": 8512470,
+    "avg_fertility": 3.176,
+    "avg_compression_ratio": 2.857,
+    "avg_byte_fallback_rate": 0.126,
+    "avg_unknown_rate": 0.001,
+    "avg_vocab_coverage": 54.262,
+    "avg_roundtrip_pass_rate": 87.356,
+    "avg_avg_tokens_per_sent": 48.183,
+    "weighted_avg_fertility": 2.796,
+    "weighted_avg_compression_ratio": 2.927,
+    "weighted_avg_byte_fallback_rate": 0.135,
+    "weighted_avg_unknown_rate": 0.0,
+    "weighted_avg_vocab_coverage": 55.732,
+    "weighted_avg_roundtrip_pass_rate": 88.542,
+    "weighted_avg_avg_tokens_per_sent": 48.506
   }
 }
