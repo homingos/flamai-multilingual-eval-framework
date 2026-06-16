@@ -6,23 +6,8 @@ Uses weasyprint for HTML→PDF conversion with a dark-navy styled report.
 import os
 import re
 import base64
-import sys
-
-# Ensure homebrew dylibs (pango, cairo) are visible to weasyprint on macOS
-os.environ.setdefault("DYLD_LIBRARY_PATH", "/opt/homebrew/lib")
-
-try:
-    from weasyprint import HTML, CSS
-except OSError:
-    # Try again after setting the env var (in case the import happened before)
-    import ctypes
-    import ctypes.util
-    # Force-load the dylib manually
-    try:
-        ctypes.CDLL("/opt/homebrew/lib/libpango-1.0.dylib")
-    except Exception:
-        pass
-    from weasyprint import HTML, CSS
+import subprocess
+import tempfile
 
 # ---------------------------------------------------------------------------
 # Paths
@@ -285,13 +270,11 @@ MAP_HTML = """
 CSS_STYLE = """
 @page {
     size: A4;
-    margin: 20mm;
-    @bottom-center {
-        content: "Flam AI · Falcon Language Support · Task 1 — Regional LLM Evaluation  |  Page " counter(page) " of " counter(pages);
-        font-family: sans-serif;
-        font-size: 8pt;
-        color: #666;
-    }
+    margin: 18mm 15mm 22mm 15mm;
+}
+
+@media print {
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 
 * {
@@ -311,8 +294,8 @@ body {
 .report-header {
     background: #0D1117;
     color: #ffffff;
-    padding: 24px 28px 20px 28px;
-    margin: -20mm -20mm 20px -20mm;
+    padding: 24px 24px 20px 24px;
+    margin: -18mm -15mm 20px -15mm;
     border-bottom: 4px solid #1565c0;
 }
 
@@ -444,15 +427,20 @@ pre code {
 
 /* ---- Tables ---- */
 .table-wrapper {
-    overflow-x: auto;
-    margin: 10px 0 14px 0;
+    margin: 10px 0 16px 0;
+    width: 100%;
 }
 
 table {
     border-collapse: collapse;
     width: 100%;
     font-size: 7.5pt;
-    page-break-inside: auto;
+    table-layout: auto;
+}
+
+/* Repeat header row on every page */
+thead {
+    display: table-header-group;
 }
 
 thead tr {
@@ -461,47 +449,50 @@ thead tr {
 }
 
 thead th {
-    padding: 6px 8px;
+    padding: 5px 7px;
     text-align: left;
     font-weight: 600;
     font-size: 7pt;
     letter-spacing: 0.3px;
     border: 1px solid #283593;
-    white-space: nowrap;
 }
 
 tbody td {
-    padding: 5px 8px;
+    padding: 4px 7px;
     border: 1px solid #e0e4ee;
     vertical-align: top;
-    line-height: 1.4;
+    line-height: 1.35;
 }
 
+/* Prevent row content from splitting across a page break */
 tbody tr {
     background: #ffffff;
+    break-inside: avoid;
+    page-break-inside: avoid;
 }
 
 tbody tr.alt-row {
     background: #f8f9fa;
+    break-inside: avoid;
+    page-break-inside: avoid;
 }
 
 /* Winner rows: green tint + left accent */
 tbody tr.winner-row {
     background: #f0fff4;
-    border-left: 3px solid #2e7d32;
+    break-inside: avoid;
+    page-break-inside: avoid;
 }
 
 tbody tr.winner-row td:first-child {
     border-left: 3px solid #2e7d32;
 }
 
-/* Gemma wins: subtle red/orange tint */
+/* Gemma wins: subtle warm tint */
 tbody tr.gemma-row {
     background: #fff8f6;
-}
-
-tbody tr:hover {
-    background: #e8edf8;
+    break-inside: avoid;
+    page-break-inside: avoid;
 }
 
 strong {
@@ -562,6 +553,7 @@ full_html = f"""<!DOCTYPE html>
 <head>
   <meta charset="UTF-8">
   <title>Falcon Tokenizer Evaluation Report</title>
+  <style>{CSS_STYLE}</style>
 </head>
 <body>
 {HEADER_HTML}
@@ -571,10 +563,34 @@ full_html = f"""<!DOCTYPE html>
 """
 
 # ---------------------------------------------------------------------------
-# Generate PDF
+# Generate PDF via Chrome headless (proper break-inside support)
 # ---------------------------------------------------------------------------
-print("Building PDF…")
-html_doc = HTML(string=full_html, base_url=BASE)
-css_doc = CSS(string=CSS_STYLE)
-html_doc.write_pdf(OUT_PDF, stylesheets=[css_doc])
+CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+
+print("Building PDF via Chrome headless…")
+with tempfile.NamedTemporaryFile(suffix=".html", delete=False, mode="w", encoding="utf-8") as f:
+    f.write(full_html)
+    tmp_html = f.name
+
+try:
+    result = subprocess.run(
+        [
+            CHROME,
+            "--headless=new",
+            "--disable-gpu",
+            "--no-sandbox",
+            "--disable-extensions",
+            "--run-all-compositor-stages-before-draw",
+            f"--print-to-pdf={OUT_PDF}",
+            "--print-to-pdf-no-header",
+            f"file://{tmp_html}",
+        ],
+        capture_output=True, text=True, timeout=120,
+    )
+    if result.returncode != 0:
+        print("Chrome stderr:", result.stderr[:500])
+        raise RuntimeError("Chrome exited with non-zero status")
+finally:
+    os.unlink(tmp_html)
+
 print(f"PDF written to: {OUT_PDF}")
