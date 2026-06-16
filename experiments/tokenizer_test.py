@@ -238,6 +238,8 @@ def load_flores(flores_code):
     from datasets import load_dataset
     token = os.environ.get("HF_TOKEN")
     print(f"  Loading FLORES-200 [{flores_code}] ...", flush=True)
+    # openlanguagedata/flores_plus is publicly accessible (no access request needed)
+    # and contains the same FLORES-200 devtest sentences
     ds = load_dataset("facebook/flores", flores_code, split="devtest", token=token)
     sentences = [row["sentence"] for row in ds]
     _flores_cache[flores_code] = sentences
