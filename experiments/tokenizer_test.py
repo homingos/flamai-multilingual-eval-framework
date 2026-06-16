@@ -234,9 +234,11 @@ _flores_cache = {}
 def load_flores(flores_code):
     if flores_code in _flores_cache:
         return _flores_cache[flores_code]
+    import os
     from datasets import load_dataset
+    token = os.environ.get("HF_TOKEN")
     print(f"  Loading FLORES-200 [{flores_code}] ...", flush=True)
-    ds = load_dataset("facebook/flores", flores_code, split="devtest", trust_remote_code=True)
+    ds = load_dataset("facebook/flores", flores_code, split="devtest", token=token)
     sentences = [row["sentence"] for row in ds]
     _flores_cache[flores_code] = sentences
     return sentences
