@@ -1,6 +1,6 @@
 # Regional LLM Research — Raw Findings
 **Phase 1 output. 65 languages researched in parallel.**
-Cross-reference: `docs/Regional LLMs by Continent.pdf` (ChatGPT pre-research)
+Cross-reference: `docs/pdfs/Regional LLMs by Continent.pdf` (ChatGPT pre-research)
 
 ## Stats
 | Metric | Count |

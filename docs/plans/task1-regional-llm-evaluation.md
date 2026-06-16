@@ -4,7 +4,8 @@
 Identify the best open-weight language model per target language by running tokenizer efficiency tests against Gemma-4 36B as the baseline.
 
 ## Reference Research
-- `docs/Regional LLMs by Continent.pdf` — ChatGPT-generated report ranking top 10 LLMs per continent by regional language fit. Use as a starting shortlist; our tokenizer tests verify their claims independently.
+- `docs/pdfs/Regional LLMs by Continent.pdf` — ChatGPT-generated report ranking top 10 LLMs per continent by regional language fit. Use as a starting shortlist; our tokenizer tests verify their claims independently.
+- `docs/pdfs/Tokenizer evaluation — detailed report - document_pdf.pdf` — Indic tokenizer evaluation report by the team. **This is the target format** for our global report: 7 metrics, pivot tables per metric, per-language × per-tokenizer results, aggregate summary.
 
 ---
 
@@ -65,7 +66,7 @@ One agent per language. Each agent researches and returns:
 
 Agents that find no viable regional candidate return: `"no candidate — Gemma-4 default"`
 
-**Known starting points from the ChatGPT PDF:**
+**Known starting points from `docs/pdfs/Regional LLMs by Continent.pdf`:**
 
 | Region | Model | Licence | HF URL |
 |---|---|---|---|
@@ -112,29 +113,69 @@ Test sentences sourced from FLORES-200 dataset (professionally translated, 200+ 
 
 ---
 
-### Phase 4 — Tokenizer Test Script
+### Phase 4 — Tokenizer Evaluation Script
 Script: `experiments/tokenizer_test.py`
 
-For each shortlisted candidate:
-1. Load candidate tokenizer via `AutoTokenizer.from_pretrained(model_id)`
-2. Load Gemma-4 tokenizer as baseline
-3. Run FLORES-200 sentences for the target language through both
-4. Record token count per sentence
-5. Compute average token count (candidate vs Gemma-4)
-6. Write results to `data/tokenizer_results.csv`
+**Tokenizers to test per language:**
+- `Gemma-4` — production baseline (always included)
+- Regional candidate model from the shortlist (`docs/plans/task1-phase2-shortlist.md`)
+- `BLOOM` — multilingual baseline (for cross-comparison context)
+- `mT5` — multilingual baseline (for cross-comparison context)
 
-Output columns: `language, candidate_model, candidate_avg_tokens, gemma4_avg_tokens, delta, delta_pct`
+**7 metrics computed per tokenizer × language:**
+
+| Metric | Formula | Direction | Target |
+|---|---|---|---|
+| Fertility | `total_tokens / total_words` | Lower is better | 1.0–2.5 |
+| Compression ratio | `total_chars / total_tokens` | Higher is better | >3.0 |
+| Byte fallback rate (%) | % tokens that are raw byte fallbacks (`<0xNN>`) | Lower is better | 0% |
+| UNK rate (%) | % tokens equal to `unk_token_id` | Lower is better | 0% |
+| Vocabulary coverage (%) | % unique chars that map to exactly 1 token | Higher is better | >80% |
+| Roundtrip fidelity (%) | % segments where encode→decode = original | Higher is better | 100% |
+| Avg tokens / segment | `total_tokens / total_sentences` | Lower is better | same as fertility |
+
+**Output files:**
+
+`data/results.csv` — one row per tokenizer × language combination:
+```
+tokenizer_name, language, region, fertility, compression_ratio, byte_fallback_rate,
+unknown_rate, vocab_coverage, roundtrip_pass_rate, avg_tokens_per_sent,
+total_tokens, total_words, total_chars, total_sentences
+```
+
+`data/summary.json` — per-tokenizer aggregates (unweighted + character-weighted averages across all languages tested).
 
 ---
 
-### Phase 5 — Document Results
-- CSV → `data/tokenizer_results.csv`
-- Summary → `docs/llm-evaluation.md` (per-language table + recommendation)
-- Update Notion page "Task 1" section with findings
+### Phase 5 — Generate Detailed Report
+Script: `experiments/detailed_report.py`
+
+Produces `docs/llm-evaluation.md` matching the format in `docs/pdfs/Tokenizer evaluation — detailed report - document_pdf.pdf`:
+
+1. **Metric glossary** — definitions + direction table
+2. **Regional aggregates** — unweighted and character-weighted averages per tokenizer, grouped by continent
+3. **Pivot tables** — one table per metric, rows = languages, columns = tokenizers (Gemma-4 + regional candidate + BLOOM + mT5)
+4. **Full summary table** — all aggregate columns in one view
+5. **Complete per-language results** — every row from `data/results.csv`
+
+Update Notion page "Task 1" section with key findings and link to the report.
 
 ---
 
-## Decision Rule
-- `delta < 0` (candidate uses fewer tokens): candidate is more efficient → **preferred over Gemma-4**
-- `delta ≈ 0`: no tokenizer advantage → evaluate on other criteria (benchmark scores, model size, licence)
-- `delta > 0` (candidate uses more tokens): Gemma-4 handles that language better → **stick with Gemma-4**
+## Decision Rule (7-metric)
+
+A regional candidate is **preferred over Gemma-4** for a language when it wins on the majority of these signals:
+
+| Signal | Prefer candidate when… |
+|---|---|
+| Fertility | candidate fertility < Gemma-4 fertility |
+| Compression ratio | candidate compression > Gemma-4 compression |
+| Byte fallback rate | candidate rate ≈ 0% (Gemma-4 may already be 0%) |
+| UNK rate | candidate rate = 0% |
+| Vocabulary coverage | candidate coverage > Gemma-4 coverage |
+| Roundtrip fidelity | both should be ~100%; flag any that aren't |
+| Avg tokens / segment | candidate avg < Gemma-4 avg |
+
+**Primary signals:** Fertility and vocabulary coverage (most diagnostic of native language support).
+**Secondary signals:** Compression ratio, byte fallback, roundtrip fidelity.
+**Tiebreaker:** If metrics are roughly equal, prefer the model with better licence (Apache 2.0 > CC-BY-NC > custom).
