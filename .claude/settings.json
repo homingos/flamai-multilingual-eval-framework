@@ -1,0 +1,30 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/ramyogeshwaran/Documents/RamYogeshwaran/Repos/falcon-language/.claude/hooks/python_checks.sh"
+          },
+          {
+            "type": "command",
+            "command": "/Users/ramyogeshwaran/Documents/RamYogeshwaran/Repos/falcon-language/.claude/hooks/validate_notebook.sh"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/ramyogeshwaran/Documents/RamYogeshwaran/Repos/falcon-language/.claude/hooks/commit_guard.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
