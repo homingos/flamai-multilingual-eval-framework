@@ -117,9 +117,76 @@ def generate():
         f"",
     ]
 
+    # ── 0. Per-language best LLM summary ─────────────────────────────────────
+    ALL_LANGS = [
+        ("Hindi","Indic"),("Bengali","Indic"),("Tamil","Indic"),("Telugu","Indic"),
+        ("Kannada","Indic"),("Malayalam","Indic"),("Marathi","Indic"),("Gujarati","Indic"),
+        ("Punjabi","Indic"),("Odia","Indic"),("Assamese","Indic"),("Urdu","Indic"),
+        ("Nepali","Indic"),("Sinhala","Indic"),("Maithili","Indic"),
+        ("Arabic","Middle East"),("Persian","Middle East"),("Turkish","Middle East"),
+        ("Hebrew","Middle East"),("Kurdish","Middle East"),("Azerbaijani","Middle East"),
+        ("Uzbek","Middle East"),("Kazakh","Middle East"),
+        ("Chinese","East Asia"),("Japanese","East Asia"),("Korean","East Asia"),
+        ("Vietnamese","SEA"),("Thai","SEA"),("Indonesian","SEA"),("Malay","SEA"),
+        ("Tagalog","SEA"),("Burmese","SEA"),("Khmer","SEA"),
+        ("Swahili","Africa"),("Amharic","Africa"),("Hausa","Africa"),("Yoruba","Africa"),
+        ("Igbo","Africa"),("Zulu","Africa"),("Xhosa","Africa"),("Somali","Africa"),
+        ("Wolof","Africa"),("Shona","Africa"),
+        ("French","Europe"),("German","Europe"),("Spanish","Europe"),("Portuguese","Europe"),
+        ("Italian","Europe"),("Dutch","Europe"),("Polish","Europe"),("Russian","Europe"),
+        ("Ukrainian","Europe"),("Romanian","Europe"),("Swedish","Europe"),("Czech","Europe"),
+        ("Greek","Europe"),
+        ("Lat.Am. Spanish","Americas"),("Brazilian Portuguese","Americas"),("Quechua","Americas"),
+        ("Nahuatl","Americas"),("Haitian Creole","Americas"),
+        ("Māori","Oceania"),("Samoan","Oceania"),("Hawaiian","Oceania"),("Tok Pisin","Oceania"),
+    ]
+
+    cand_map = {r["language"]: r for r in rows if r["tokenizer_name"] not in ("Gemma-4","BLOOM","mT5")}
+
+    def _verdict(r, g):
+        cf = float(r["fertility"]); gf = float(g["fertility"])
+        cv = float(r["vocab_coverage"])
+        rt = float(r["roundtrip_pass_rate"]); bfr = float(r["byte_fallback_rate"])
+        if cf < gf and cv >= 80 and rt >= 95:
+            return "Candidate"
+        wins = sum([cf < gf, cv > float(g["vocab_coverage"]), bfr < 1.0, rt >= 99.0])
+        return "Mixed → Gemma-4" if wins >= 2 else "Gemma-4"
+
+    summary_rows = []
+    for lang, region in ALL_LANGS:
+        if lang in ("Nahuatl","Hawaiian"):
+            summary_rows.append([lang, region, "—", "Not in FLORES-200", "—"])
+            continue
+        g = g4.get(lang)
+        c = cand_map.get(lang)
+        if g is None:
+            summary_rows.append([lang, region, "Gemma-4", "No test data", "—"])
+            continue
+        if c is None:
+            summary_rows.append([lang, region, "Gemma-4", "No regional candidate tested", "—"])
+            continue
+        v = _verdict(c, g)
+        best = c["tokenizer_name"] if v == "Candidate" else "Gemma-4"
+        summary_rows.append([lang, region, best, c["tokenizer_name"], f"fertility {g['fertility']}→{c['fertility']}, vcov {c['vocab_coverage']}%"])
+
+    lines += [
+        "## 1. Best LLM per language — summary",
+        "",
+        "For languages where the regional candidate tokenizer was not tested (gated repo, missing package, or no model found),",
+        "Gemma-4 is the current default. Re-run after fixing those to get a full comparison.",
+        "",
+        md_table(
+            ["#", "Language", "Region", "Best tokenizer", "Candidate tested", "Key metrics"],
+            [[i+1] + r for i, r in enumerate(summary_rows)],
+        ),
+        "",
+        "---",
+        "",
+    ]
+
     # ── 1. Metric glossary ────────────────────────────────────────────────────
     lines += [
-        "## 1. Metric glossary",
+        "## 2. Metric glossary",
         "",
         "All metrics computed over the same FLORES-200 devtest segments per language.",
         "",
@@ -172,7 +239,7 @@ def generate():
 
     # ── 2. Overall summary table ───────────────────────────────────────────────
     lines += [
-        "## 2. Aggregate summary (all languages)",
+        "## 3. Aggregate summary (all languages)",
         "",
         "**Unweighted** averages treat each language equally. **Character-weighted** averages weight by `total_chars` so languages with more text influence the score more.",
         "",
@@ -204,7 +271,7 @@ def generate():
     candidates_rows = [r for r in rows if r["tokenizer_name"] not in ("Gemma-4", "BLOOM", "mT5")]
 
     lines += [
-        "## 3. Regional candidate vs Gemma-4 — verdict per language",
+        "## 4. Regional candidate vs Gemma-4 — verdict per language",
         "",
         "Primary signals: fertility and vocab coverage. Secondary: byte fallback rate and roundtrip fidelity.",
         "",
@@ -233,7 +300,7 @@ def generate():
     ]
 
     # ── 4. Pivot tables per metric ────────────────────────────────────────────
-    lines += ["## 4. Comparison across metrics (pivot tables)", ""]
+    lines += ["## 5. Comparison across metrics (pivot tables)", ""]
     lines += ["Rows = languages. Columns = tokenizers. Scan across a row to compare models on one language; scan down a column to see one model across languages.", ""]
 
     baseline_toks = ["Gemma-4", "BLOOM", "mT5"]
@@ -272,7 +339,7 @@ def generate():
     lines += [
         "---",
         "",
-        "## 5. Complete per-language results",
+        "## 6. Complete per-language results",
         "",
         "Every tokenizer × language combination from `data/results.csv`.",
         "",
@@ -291,7 +358,7 @@ def generate():
         "",
         "---",
         "",
-        "## 6. Raw files",
+        "## 7. Raw files",
         "",
         "- `data/results.csv` — machine-readable detail (one row per tokenizer × language)",
         "- `data/summary.json` — per-tokenizer aggregates (unweighted + character-weighted)",

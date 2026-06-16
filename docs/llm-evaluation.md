@@ -1,6 +1,6 @@
 # Global Tokenizer Evaluation — Detailed Report
 
-**Generated:** 2026-06-16 10:41 UTC  ·  **Source:** `data/results.csv`  ·  **Corpus:** FLORES-200 devtest (~1012 sentences/language)
+**Generated:** 2026-06-16 10:48 UTC  ·  **Source:** `data/results.csv`  ·  **Corpus:** FLORES-200 devtest (~1012 sentences/language)
 
 > **Caveats.** Fertility uses whitespace "words", which is imperfect for languages without whitespace
 > word boundaries (Japanese, Thai, Burmese, Khmer). For those languages, use `avg_tokens_per_sent`
@@ -9,7 +9,82 @@
 
 ---
 
-## 1. Metric glossary
+## 1. Best LLM per language — summary
+
+For languages where the regional candidate tokenizer was not tested (gated repo, missing package, or no model found),
+Gemma-4 is the current default. Re-run after fixing those to get a full comparison.
+
+| # | Language | Region | Best tokenizer | Candidate tested | Key metrics |
+| --- | --- | --- | --- | --- | --- |
+| 1 | Hindi | Indic | Gemma-4 | No regional candidate tested | — |
+| 2 | Bengali | Indic | Gemma-4 | BanglaLLama-3.1-8B | fertility 1.683→8.021, vcov 58.02% |
+| 3 | Tamil | Indic | Tamil-Mistral-7B | Tamil-Mistral-7B | fertility 2.374→1.734, vcov 86.61% |
+| 4 | Telugu | Indic | Gemma-4 | Telugu-Llama2-7B | fertility 2.843→19.59, vcov 50.0% |
+| 5 | Kannada | Indic | Gemma-4 | No regional candidate tested | — |
+| 6 | Malayalam | Indic | Gemma-4 | MalayaLLM-Gemma-9B | fertility 3.357→5.875, vcov 100.0% |
+| 7 | Marathi | Indic | Gemma-4 | No regional candidate tested | — |
+| 8 | Gujarati | Indic | Gujju-Llama-7B | Gujju-Llama-7B | fertility 2.415→2.033, vcov 82.98% |
+| 9 | Punjabi | Indic | Gemma-4 | Dhee-Qwen3-Punjabi-2B | fertility 2.82→7.758, vcov 67.33% |
+| 10 | Odia | Indic | Gemma-4 | No regional candidate tested | — |
+| 11 | Assamese | Indic | Gemma-4 | No regional candidate tested | — |
+| 12 | Urdu | Indic | Gemma-4 | Qalb-1.0-8B | fertility 1.489→3.02, vcov 91.11% |
+| 13 | Nepali | Indic | Gemma-4 | NEPALI-LLM-9B | fertility 2.216→2.48, vcov 100.0% |
+| 14 | Sinhala | Indic | Gemma-4 | llama3-sinhala-8B | fertility 2.997→11.324, vcov 52.38% |
+| 15 | Maithili | Indic | Gemma-4 | No regional candidate tested | — |
+| 16 | Arabic | Middle East | Gemma-4 | No regional candidate tested | — |
+| 17 | Persian | Middle East | Gemma-4 | Maral-7B | fertility 1.679→5.138, vcov 53.49% |
+| 18 | Turkish | Middle East | Gemma-4 | Trendyol-8B | fertility 2.109→2.547, vcov 100.0% |
+| 19 | Hebrew | Middle East | DictaLM-2.0-7B | DictaLM-2.0-7B | fertility 2.706→2.642, vcov 83.33% |
+| 20 | Kurdish | Middle East | Gemma-4 | Mistral-Nemo-Kurdish | fertility 2.358→2.486, vcov 96.19% |
+| 21 | Azerbaijani | Middle East | Gemma-4 | No regional candidate tested | — |
+| 22 | Uzbek | Middle East | Gemma-4 | Mistral-7B-Uz | fertility 2.839→3.515, vcov 100.0% |
+| 23 | Kazakh | Middle East | Gemma-4 | No regional candidate tested | — |
+| 24 | Chinese | East Asia | Gemma-4 | No regional candidate tested | — |
+| 25 | Japanese | East Asia | Gemma-4 | LLM-jp-3-13B | fertility 30.432→25.627, vcov 71.3% |
+| 26 | Korean | East Asia | Polyglot-Ko-12B | Polyglot-Ko-12B | fertility 2.415→2.199, vcov 93.26% |
+| 27 | Vietnamese | SEA | Gemma-4 | Arcee-VyLinh-3B | fertility 1.21→1.29, vcov 100.0% |
+| 28 | Thai | SEA | Gemma-4 | Typhoon2-7B | fertility 10.084→16.315, vcov 98.77% |
+| 29 | Indonesian | SEA | Gemma-4 | Nusantara-7B | fertility 1.575→2.146, vcov 100.0% |
+| 30 | Malay | SEA | MaLLaM-5B | MaLLaM-5B | fertility 1.632→1.417, vcov 84.76% |
+| 31 | Tagalog | SEA | Gemma-4 | No regional candidate tested | — |
+| 32 | Burmese | SEA | Gemma-4 | Burmese-GPT-1B | fertility 6.136→10.719, vcov 91.5% |
+| 33 | Khmer | SEA | Gemma-4 | No regional candidate tested | — |
+| 34 | Swahili | Africa | Swahili-Gemma-7B | Swahili-Gemma-7B | fertility 2.087→2.047, vcov 100.0% |
+| 35 | Amharic | Africa | Gemma-4 | No regional candidate tested | — |
+| 36 | Hausa | Africa | Gemma-4 | No regional candidate tested | — |
+| 37 | Yoruba | Africa | Gemma-4 | No regional candidate tested | — |
+| 38 | Igbo | Africa | Gemma-4 | Kakugo-3B-Igbo | fertility 2.358→2.688, vcov 95.0% |
+| 39 | Zulu | Africa | Gemma-4 | No regional candidate tested | — |
+| 40 | Xhosa | Africa | Gemma-4 | No regional candidate tested | — |
+| 41 | Somali | Africa | Gemma-4 | No regional candidate tested | — |
+| 42 | Wolof | Africa | Gemma-4 | Wolof-Qwen-1.5B | fertility 1.921→2.103, vcov 100.0% |
+| 43 | Shona | Africa | Gemma-4 | No regional candidate tested | — |
+| 44 | French | Europe | Lucie-7B | Lucie-7B | fertility 1.49→1.427, vcov 82.2% |
+| 45 | German | Europe | Gemma-4 | LeoLM-7B | fertility 1.655→2.18, vcov 81.48% |
+| 46 | Spanish | Europe | Gemma-4 | Salamandra-7B | fertility 1.347→1.354, vcov 85.58% |
+| 47 | Portuguese | Europe | Gemma-4 | Gervasio-8B | fertility 1.453→1.709, vcov 100.0% |
+| 48 | Italian | Europe | Gemma-4 | LLaMAntino-3-8B | fertility 1.535→1.831, vcov 100.0% |
+| 49 | Dutch | Europe | Gemma-4 | Fietje-2 | fertility 1.63→2.325, vcov 94.34% |
+| 50 | Polish | Europe | Gemma-4 | Bielik-11B | fertility 2.096→2.924, vcov 81.13% |
+| 51 | Russian | Europe | Gemma-4 | Vikhr-Nemo-12B | fertility 1.884→2.13, vcov 98.67% |
+| 52 | Ukrainian | Europe | Gemma-4 | MamayLM-12B | fertility 2.273→2.273, vcov 100.0% |
+| 53 | Romanian | Europe | Gemma-4 | LLMic-3B | fertility 1.8→2.192, vcov 77.68% |
+| 54 | Swedish | Europe | Viking-7B | Viking-7B | fertility 1.841→1.474, vcov 100.0% |
+| 55 | Czech | Europe | CSMPT-7B | CSMPT-7B | fertility 2.157→1.407, vcov 96.52% |
+| 56 | Greek | Europe | Meltemi-7B | Meltemi-7B | fertility 2.472→1.397, vcov 95.42% |
+| 57 | Lat.Am. Spanish | Americas | Gemma-4 | LatamGPT-70B | fertility 1.347→1.604, vcov 100.0% |
+| 58 | Brazilian Portuguese | Americas | Tucano-2b4 | Tucano-2b4 | fertility 1.453→1.252, vcov 86.84% |
+| 59 | Quechua | Americas | Gemma-4 | No regional candidate tested | — |
+| 60 | Nahuatl | Americas | — | Not in FLORES-200 | — |
+| 61 | Haitian Creole | Americas | Gemma-4 | No regional candidate tested | — |
+| 62 | Māori | Oceania | Gemma-4 | No regional candidate tested | — |
+| 63 | Samoan | Oceania | Gemma-4 | No regional candidate tested | — |
+| 64 | Hawaiian | Oceania | — | Not in FLORES-200 | — |
+| 65 | Tok Pisin | Oceania | Gemma-4 | No regional candidate tested | — |
+
+---
+
+## 2. Metric glossary
 
 All metrics computed over the same FLORES-200 devtest segments per language.
 
@@ -55,7 +130,7 @@ All metrics computed over the same FLORES-200 devtest segments per language.
 
 ---
 
-## 2. Aggregate summary (all languages)
+## 3. Aggregate summary (all languages)
 
 **Unweighted** averages treat each language equally. **Character-weighted** averages weight by `total_chars` so languages with more text influence the score more.
 
@@ -66,7 +141,7 @@ All metrics computed over the same FLORES-200 devtest segments per language.
 
 ---
 
-## 3. Regional candidate vs Gemma-4 — verdict per language
+## 4. Regional candidate vs Gemma-4 — verdict per language
 
 Primary signals: fertility and vocab coverage. Secondary: byte fallback rate and roundtrip fidelity.
 
@@ -114,7 +189,7 @@ Primary signals: fertility and vocab coverage. Secondary: byte fallback rate and
 
 ---
 
-## 4. Comparison across metrics (pivot tables)
+## 5. Comparison across metrics (pivot tables)
 
 Rows = languages. Columns = tokenizers. Scan across a row to compare models on one language; scan down a column to see one model across languages.
 
@@ -862,7 +937,7 @@ Rows = languages. Columns = tokenizers. Scan across a row to compare models on o
 
 ---
 
-## 5. Complete per-language results
+## 6. Complete per-language results
 
 Every tokenizer × language combination from `data/results.csv`.
 
@@ -1036,7 +1111,7 @@ Every tokenizer × language combination from `data/results.csv`.
 
 ---
 
-## 6. Raw files
+## 7. Raw files
 
 - `data/results.csv` — machine-readable detail (one row per tokenizer × language)
 - `data/summary.json` — per-tokenizer aggregates (unweighted + character-weighted)
