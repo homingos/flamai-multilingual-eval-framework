@@ -64,7 +64,7 @@ LANGUAGES = [
     {"name": "Gujarati",          "region": "Indic",       "flores_code": "guj_Gujr", "candidate": ("Gujju-Llama-7B",       "sampoorna42/gujju-llama-base-v1.0")},
     {"name": "Punjabi",           "region": "Indic",       "flores_code": "pan_Guru", "candidate": ("Dhee-Qwen3-Punjabi-2B","dheeyantra/dhee-nxtgen-qwen3-punjabi-v2")},
     {"name": "Odia",              "region": "Indic",       "flores_code": "ory_Orya", "candidate": ("Qwen-Odia-7B",         "OdiaGenAI-LLM/qwen_1.5_odia_7b")},
-    {"name": "Assamese",          "region": "Indic",       "flores_code": "asm_Beng", "candidate": ("Goldfish-ASM-125M",    "goldfish-models/asm_beng_full")},
+    {"name": "Assamese",          "region": "Indic",       "flores_code": "asm_Beng", "candidate": ("Goldfish-ASM-125M",    "goldfish-models/asm_beng_full"), "slow_tokenizer": True},
     {"name": "Urdu",              "region": "Indic",       "flores_code": "urd_Arab", "candidate": ("Qalb-1.0-8B",          "enstazao/Qalb-1.0-8B-Instruct")},
     {"name": "Nepali",            "region": "Indic",       "flores_code": "npi_Deva", "candidate": ("NEPALI-LLM-9B",        "shivam9980/NEPALI-LLM")},
     {"name": "Sinhala",           "region": "Indic",       "flores_code": "sin_Sinh", "candidate": ("llama3-sinhala-8B",    "ihalage/llama3-sinhala")},
@@ -75,7 +75,7 @@ LANGUAGES = [
     {"name": "Turkish",           "region": "Middle East", "flores_code": "tur_Latn", "candidate": ("Trendyol-8B",          "Trendyol/Trendyol-LLM-8B-T1")},
     {"name": "Hebrew",            "region": "Middle East", "flores_code": "heb_Hebr", "candidate": ("DictaLM-2.0-7B",       "dicta-il/dictalm2.0-instruct")},
     {"name": "Kurdish",           "region": "Middle East", "flores_code": "kmr_Latn", "candidate": ("Mistral-Nemo-Kurdish", "nazimali/Mistral-Nemo-Kurdish-Instruct")},
-    {"name": "Azerbaijani",       "region": "Middle East", "flores_code": "azj_Latn", "candidate": ("AzQ-1.7B",             "karabakh-nlp/AzQ-1.7B")},
+    {"name": "Azerbaijani",       "region": "Middle East", "flores_code": "azj_Latn", "candidate": ("mGPT-Azerbaijani-1.3B", "ai-forever/mGPT-1.3B-azerbaijan")},
     {"name": "Uzbek",             "region": "Middle East", "flores_code": "uzn_Latn", "candidate": ("Mistral-7B-Uz",        "behbudiy/Mistral-7B-Instruct-Uz")},
     {"name": "Kazakh",            "region": "Middle East", "flores_code": "kaz_Cyrl", "candidate": ("KazLLM-8B",            "issai/LLama-3.1-KazLLM-1.0-8B")},
     # ── East & Southeast Asia ─────────────────────────────────────────────────
@@ -121,10 +121,10 @@ LANGUAGES = [
     {"name": "Nahuatl",           "region": "Americas",    "flores_code": None,        "candidate": None},  # not in FLORES-200
     {"name": "Haitian Creole",    "region": "Americas",    "flores_code": "hat_Latn", "candidate": None},
     # ── Oceania ───────────────────────────────────────────────────────────────
-    {"name": "Māori",             "region": "Oceania",     "flores_code": "mri_Latn", "candidate": ("Goldfish-mri-39M",     "goldfish-models/mri_latn_10mb")},
+    {"name": "Māori",             "region": "Oceania",     "flores_code": "mri_Latn", "candidate": ("Goldfish-mri-39M",     "goldfish-models/mri_latn_10mb"), "slow_tokenizer": True},
     {"name": "Samoan",            "region": "Oceania",     "flores_code": "smo_Latn", "candidate": None},
     {"name": "Hawaiian",          "region": "Oceania",     "flores_code": None,        "candidate": None},  # not in FLORES-200
-    {"name": "Tok Pisin",         "region": "Oceania",     "flores_code": "tpi_Latn", "candidate": ("Goldfish-tpi-125M",    "goldfish-models/tpi_latn_full")},
+    {"name": "Tok Pisin",         "region": "Oceania",     "flores_code": "tpi_Latn", "candidate": ("Goldfish-tpi-125M",    "goldfish-models/tpi_latn_full"), "slow_tokenizer": True},
 ]
 
 CSV_FIELDS = [
@@ -248,11 +248,10 @@ def load_flores(flores_code):
 
 # ── Tokenizer loader ──────────────────────────────────────────────────────────
 
-def load_tokenizer(hf_id):
+def load_tokenizer(hf_id, use_fast=True):
     from transformers import AutoTokenizer
-    kwargs = {"use_fast": True}
-    # Some models require trust_remote_code (e.g. ChatGLM)
-    if any(x in hf_id.lower() for x in ("chatglm", "moss")):
+    kwargs = {"use_fast": use_fast}
+    if any(x in hf_id.lower() for x in ("chatglm", "moss", "goldfish")):
         kwargs["trust_remote_code"] = True
     return AutoTokenizer.from_pretrained(hf_id, **kwargs)
 
@@ -298,6 +297,8 @@ def parse_args():
                    help="Only run regional candidate tokenizers (skip Gemma-4/BLOOM/mT5)")
     p.add_argument("--dry-run", action="store_true",
                    help="Print what would run without loading any tokenizers")
+    p.add_argument("--append", action="store_true",
+                   help="Load existing results.csv and skip already-completed tokenizer×language pairs")
     return p.parse_args()
 
 
@@ -328,7 +329,31 @@ def main():
             print(f"  {lang['name']:25s} ({lang['region']}) → {', '.join(tok_list)}")
         return
 
+    _INT_FIELDS   = {"total_tokens", "total_words", "total_chars", "total_sentences"}
+    _FLOAT_FIELDS = {"fertility", "compression_ratio", "byte_fallback_rate", "unknown_rate",
+                     "vocab_coverage", "roundtrip_pass_rate", "avg_tokens_per_sent"}
+
+    def _cast_row(r):
+        out = {}
+        for k, v in r.items():
+            if k in _INT_FIELDS:
+                out[k] = int(v)
+            elif k in _FLOAT_FIELDS:
+                out[k] = float(v)
+            else:
+                out[k] = v
+        return out
+
+    # Load existing results if appending
+    existing = set()
     rows = []
+    if args.append and RESULTS_CSV.exists():
+        with open(RESULTS_CSV, newline="", encoding="utf-8") as f:
+            for r in csv.DictReader(f):
+                rows.append(_cast_row(r))
+                existing.add((r["tokenizer_name"], r["language"]))
+        print(f"Loaded {len(rows)} existing rows; will skip {len(existing)} completed pairs.")
+
     total_combos = sum(
         (0 if args.skip_baselines else len(BASELINES)) + (1 if l["candidate"] else 0)
         for l in runnable
@@ -352,15 +377,19 @@ def main():
         tokenizers_to_run = {}
         if not args.skip_baselines:
             tokenizers_to_run.update(BASELINES)
-        if lang["candidate"]:
-            cand_name, cand_id = lang["candidate"]
-            tokenizers_to_run[cand_name] = cand_id
+        if lang.get("candidate"):
+            cand_name, cand_id = lang["candidate"][:2]
+            tokenizers_to_run[cand_name] = (cand_id, lang.get("slow_tokenizer", False))
 
-        for tok_name, hf_id in tokenizers_to_run.items():
+        for tok_name, hf_info in tokenizers_to_run.items():
             done += 1
+            if (tok_name, lang_name) in existing:
+                print(f"  [{done}/{total_combos}] {tok_name} — skipped (already in results)")
+                continue
+            hf_id, slow = (hf_info if isinstance(hf_info, tuple) else (hf_info, False))
             print(f"  [{done}/{total_combos}] {tok_name} ({hf_id})", end=" ... ", flush=True)
             try:
-                tokenizer = load_tokenizer(hf_id)
+                tokenizer = load_tokenizer(hf_id, use_fast=not slow)
                 metrics   = evaluate(tokenizer, sentences)
                 del tokenizer  # free memory immediately
                 row = {

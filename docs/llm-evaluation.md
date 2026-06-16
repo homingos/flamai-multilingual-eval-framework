@@ -1,6 +1,6 @@
 # Global Tokenizer Evaluation — Detailed Report
 
-**Generated:** 2026-06-16 10:48 UTC  ·  **Source:** `data/results.csv`  ·  **Corpus:** FLORES-200 devtest (~1012 sentences/language)
+**Generated:** 2026-06-16 11:03 UTC  ·  **Source:** `data/results.csv`  ·  **Corpus:** FLORES-200 devtest (~1012 sentences/language)
 
 > **Caveats.** Fertility uses whitespace "words", which is imperfect for languages without whitespace
 > word boundaries (Japanese, Thai, Burmese, Khmer). For those languages, use `avg_tokens_per_sent`
@@ -16,30 +16,30 @@ Gemma-4 is the current default. Re-run after fixing those to get a full comparis
 
 | # | Language | Region | Best tokenizer | Candidate tested | Key metrics |
 | --- | --- | --- | --- | --- | --- |
-| 1 | Hindi | Indic | Gemma-4 | No regional candidate tested | — |
+| 1 | Hindi | Indic | Gemma-4 | Airavata-7B | fertility 1.385→1.823, vcov 60.81% |
 | 2 | Bengali | Indic | Gemma-4 | BanglaLLama-3.1-8B | fertility 1.683→8.021, vcov 58.02% |
 | 3 | Tamil | Indic | Tamil-Mistral-7B | Tamil-Mistral-7B | fertility 2.374→1.734, vcov 86.61% |
 | 4 | Telugu | Indic | Gemma-4 | Telugu-Llama2-7B | fertility 2.843→19.59, vcov 50.0% |
-| 5 | Kannada | Indic | Gemma-4 | No regional candidate tested | — |
+| 5 | Kannada | Indic | Ambari-7B | Ambari-7B | fertility 3.241→2.736, vcov 81.69% |
 | 6 | Malayalam | Indic | Gemma-4 | MalayaLLM-Gemma-9B | fertility 3.357→5.875, vcov 100.0% |
-| 7 | Marathi | Indic | Gemma-4 | No regional candidate tested | — |
+| 7 | Marathi | Indic | MahaMarathi-7B | MahaMarathi-7B | fertility 1.987→1.638, vcov 84.87% |
 | 8 | Gujarati | Indic | Gujju-Llama-7B | Gujju-Llama-7B | fertility 2.415→2.033, vcov 82.98% |
 | 9 | Punjabi | Indic | Gemma-4 | Dhee-Qwen3-Punjabi-2B | fertility 2.82→7.758, vcov 67.33% |
-| 10 | Odia | Indic | Gemma-4 | No regional candidate tested | — |
+| 10 | Odia | Indic | Gemma-4 | Qwen-Odia-7B | fertility 4.852→13.654, vcov 56.44% |
 | 11 | Assamese | Indic | Gemma-4 | No regional candidate tested | — |
 | 12 | Urdu | Indic | Gemma-4 | Qalb-1.0-8B | fertility 1.489→3.02, vcov 91.11% |
 | 13 | Nepali | Indic | Gemma-4 | NEPALI-LLM-9B | fertility 2.216→2.48, vcov 100.0% |
 | 14 | Sinhala | Indic | Gemma-4 | llama3-sinhala-8B | fertility 2.997→11.324, vcov 52.38% |
 | 15 | Maithili | Indic | Gemma-4 | No regional candidate tested | — |
-| 16 | Arabic | Middle East | Gemma-4 | No regional candidate tested | — |
+| 16 | Arabic | Middle East | Jais-2-8B | Jais-2-8B | fertility 2.031→1.462, vcov 86.82% |
 | 17 | Persian | Middle East | Gemma-4 | Maral-7B | fertility 1.679→5.138, vcov 53.49% |
 | 18 | Turkish | Middle East | Gemma-4 | Trendyol-8B | fertility 2.109→2.547, vcov 100.0% |
 | 19 | Hebrew | Middle East | DictaLM-2.0-7B | DictaLM-2.0-7B | fertility 2.706→2.642, vcov 83.33% |
 | 20 | Kurdish | Middle East | Gemma-4 | Mistral-Nemo-Kurdish | fertility 2.358→2.486, vcov 96.19% |
-| 21 | Azerbaijani | Middle East | Gemma-4 | No regional candidate tested | — |
+| 21 | Azerbaijani | Middle East | Gemma-4 | mGPT-Azerbaijani-1.3B | fertility 2.873→3.553, vcov 97.09% |
 | 22 | Uzbek | Middle East | Gemma-4 | Mistral-7B-Uz | fertility 2.839→3.515, vcov 100.0% |
-| 23 | Kazakh | Middle East | Gemma-4 | No regional candidate tested | — |
-| 24 | Chinese | East Asia | Gemma-4 | No regional candidate tested | — |
+| 23 | Kazakh | Middle East | Gemma-4 | KazLLM-8B | fertility 3.184→4.831, vcov 91.3% |
+| 24 | Chinese | East Asia | Gemma-4 | ChatGLM3-6B | fertility 14.132→13.184, vcov 10.85% |
 | 25 | Japanese | East Asia | Gemma-4 | LLM-jp-3-13B | fertility 30.432→25.627, vcov 71.3% |
 | 26 | Korean | East Asia | Polyglot-Ko-12B | Polyglot-Ko-12B | fertility 2.415→2.199, vcov 93.26% |
 | 27 | Vietnamese | SEA | Gemma-4 | Arcee-VyLinh-3B | fertility 1.21→1.29, vcov 100.0% |
@@ -48,14 +48,14 @@ Gemma-4 is the current default. Re-run after fixing those to get a full comparis
 | 30 | Malay | SEA | MaLLaM-5B | MaLLaM-5B | fertility 1.632→1.417, vcov 84.76% |
 | 31 | Tagalog | SEA | Gemma-4 | No regional candidate tested | — |
 | 32 | Burmese | SEA | Gemma-4 | Burmese-GPT-1B | fertility 6.136→10.719, vcov 91.5% |
-| 33 | Khmer | SEA | Gemma-4 | No regional candidate tested | — |
+| 33 | Khmer | SEA | Gemma-4 | PrahokBART-62M | fertility 12.747→14.511, vcov 75.14% |
 | 34 | Swahili | Africa | Swahili-Gemma-7B | Swahili-Gemma-7B | fertility 2.087→2.047, vcov 100.0% |
-| 35 | Amharic | Africa | Gemma-4 | No regional candidate tested | — |
-| 36 | Hausa | Africa | Gemma-4 | No regional candidate tested | — |
-| 37 | Yoruba | Africa | Gemma-4 | No regional candidate tested | — |
+| 35 | Amharic | Africa | Walia-LLM-7B | Walia-LLM-7B | fertility 3.032→1.623, vcov 88.0% |
+| 36 | Hausa | Africa | Gemma-4 | HausaLlama-8B | fertility 1.864→2.13, vcov 93.46% |
+| 37 | Yoruba | Africa | Gemma-4 | YorubaLlama-8B | fertility 2.588→2.934, vcov 96.09% |
 | 38 | Igbo | Africa | Gemma-4 | Kakugo-3B-Igbo | fertility 2.358→2.688, vcov 95.0% |
-| 39 | Zulu | Africa | Gemma-4 | No regional candidate tested | — |
-| 40 | Xhosa | Africa | Gemma-4 | No regional candidate tested | — |
+| 39 | Zulu | Africa | Gemma-4 | Xhosa-ZuluLlama3-8B | fertility 3.384→3.754, vcov 100.0% |
+| 40 | Xhosa | Africa | Gemma-4 | Xhosa-ZuluLlama3-8B | fertility 3.302→3.567, vcov 100.0% |
 | 41 | Somali | Africa | Gemma-4 | No regional candidate tested | — |
 | 42 | Wolof | Africa | Gemma-4 | Wolof-Qwen-1.5B | fertility 1.921→2.103, vcov 100.0% |
 | 43 | Shona | Africa | Gemma-4 | No regional candidate tested | — |
@@ -137,6 +137,7 @@ All metrics computed over the same FLORES-200 devtest segments per language.
 | Tokenizer | Languages tested | Avg fertility | Avg compression | Avg byte fallback % | Avg vocab coverage % | Avg roundtrip % |
 | --- | --- | --- | --- | --- | --- | --- |
 | Gemma-4 | 63 | 3.217 | 3.027 | 0.298 | 99.672 | 100.0 |
+| Xhosa-ZuluLlama3-8B | 2 | 3.66 | 2.506 | 0.2 | 100.0 | 100.0 |
 | BLOOM | 63 | 4.548 | 2.961 | 2.698 | 93.277 | 100.0 |
 
 ---
@@ -186,6 +187,20 @@ Primary signals: fertility and vocab coverage. Secondary: byte fallback rate and
 | Greek | Europe | Meltemi-7B | 2.472 | 1.397 | 100.0 | 95.42 | 0.04 | 100.0 | ✅ Candidate wins |
 | Lat.Am. Spanish | Americas | LatamGPT-70B | 1.347 | 1.604 | 100.0 | 100.0 | 0.65 | 100.0 | ⚠️ Mixed |
 | Brazilian Portuguese | Americas | Tucano-2b4 | 1.453 | 1.252 | 100.0 | 86.84 | 0.01 | 99.31 | ✅ Candidate wins |
+| Hindi | Indic | Airavata-7B | 1.385 | 1.823 | 100.0 | 60.81 | 3.99 | 100.0 | ❌ Gemma-4 wins |
+| Kannada | Indic | Ambari-7B | 3.241 | 2.736 | 100.0 | 81.69 | 0.0 | 100.0 | ✅ Candidate wins |
+| Marathi | Indic | MahaMarathi-7B | 1.987 | 1.638 | 100.0 | 84.87 | 0.0 | 100.0 | ✅ Candidate wins |
+| Odia | Indic | Qwen-Odia-7B | 4.852 | 13.654 | 96.32 | 56.44 | 25.78 | 75.69 | ❌ Gemma-4 wins |
+| Arabic | Middle East | Jais-2-8B | 2.031 | 1.462 | 100.0 | 86.82 | 3.71 | 100.0 | ✅ Candidate wins |
+| Azerbaijani | Middle East | mGPT-Azerbaijani-1.3B | 2.873 | 3.553 | 100.0 | 97.09 | 0.96 | 100.0 | ⚠️ Mixed |
+| Kazakh | Middle East | KazLLM-8B | 3.184 | 4.831 | 100.0 | 91.3 | 8.27 | 100.0 | ❌ Gemma-4 wins |
+| Chinese | East Asia | ChatGLM3-6B | 14.132 | 13.184 | 99.86 | 10.85 | 0.02 | 100.0 | ⚠️ Mixed |
+| Khmer | SEA | PrahokBART-62M | 12.747 | 14.511 | 98.38 | 75.14 | 0.0 | 0.0 | ❌ Gemma-4 wins |
+| Amharic | Africa | Walia-LLM-7B | 3.032 | 1.623 | 99.08 | 88.0 | 0.03 | 100.0 | ✅ Candidate wins |
+| Hausa | Africa | HausaLlama-8B | 1.864 | 2.13 | 99.07 | 93.46 | 2.93 | 100.0 | ❌ Gemma-4 wins |
+| Yoruba | Africa | YorubaLlama-8B | 2.588 | 2.934 | 100.0 | 96.09 | 1.84 | 100.0 | ❌ Gemma-4 wins |
+| Zulu | Africa | Xhosa-ZuluLlama3-8B | 3.384 | 3.754 | 100.0 | 100.0 | 0.16 | 100.0 | ⚠️ Mixed |
+| Xhosa | Africa | Xhosa-ZuluLlama3-8B | 3.302 | 3.567 | 99.03 | 100.0 | 0.24 | 100.0 | ⚠️ Mixed |
 
 ---
 
@@ -198,71 +213,71 @@ Rows = languages. Columns = tokenizers. Scan across a row to compare models on o
 
 **Indic**
 
-| language | Gemma-4 | BLOOM | mT5 | BanglaLLama-3.1-8B | Tamil-Mistral-7B | Telugu-Llama2-7B | MalayaLLM-Gemma-9B | Gujju-Llama-7B | Dhee-Qwen3-Punjabi-2B | Qalb-1.0-8B | NEPALI-LLM-9B | llama3-sinhala-8B |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Hindi | 1.385 | 1.37 | — | — | — | — | — | — | — | — | — | — |
-| Bengali | 1.683 | 1.652 | — | 8.021 | — | — | — | — | — | — | — | — |
-| Tamil | 2.374 | 2.099 | — | — | 1.734 | — | — | — | — | — | — | — |
-| Telugu | 2.843 | 2.15 | — | — | — | 19.59 | — | — | — | — | — | — |
-| Kannada | 3.241 | 2.217 | — | — | — | — | — | — | — | — | — | — |
-| Malayalam | 3.357 | 2.54 | — | — | — | — | 5.875 | — | — | — | — | — |
-| Marathi | 1.987 | 1.754 | — | — | — | — | — | — | — | — | — | — |
-| Gujarati | 2.415 | 1.776 | — | — | — | — | — | 2.033 | — | — | — | — |
-| Punjabi | 2.82 | 1.528 | — | — | — | — | — | — | 7.758 | — | — | — |
-| Odia | 4.852 | 1.912 | — | — | — | — | — | — | — | — | — | — |
-| Assamese | 2.819 | 1.999 | — | — | — | — | — | — | — | — | — | — |
-| Urdu | 1.489 | 1.344 | — | — | — | — | — | — | — | 3.02 | — | — |
-| Nepali | 2.216 | 1.723 | — | — | — | — | — | — | — | — | 2.48 | — |
-| Sinhala | 2.997 | 10.689 | — | — | — | — | — | — | — | — | — | 11.324 |
-| Maithili | 1.806 | 1.734 | — | — | — | — | — | — | — | — | — | — |
+| language | Gemma-4 | BLOOM | mT5 | Airavata-7B | BanglaLLama-3.1-8B | Tamil-Mistral-7B | Telugu-Llama2-7B | Ambari-7B | MalayaLLM-Gemma-9B | MahaMarathi-7B | Gujju-Llama-7B | Dhee-Qwen3-Punjabi-2B | Qwen-Odia-7B | Qalb-1.0-8B | NEPALI-LLM-9B | llama3-sinhala-8B |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Hindi | 1.385 | 1.37 | — | 1.823 | — | — | — | — | — | — | — | — | — | — | — | — |
+| Bengali | 1.683 | 1.652 | — | — | 8.021 | — | — | — | — | — | — | — | — | — | — | — |
+| Tamil | 2.374 | 2.099 | — | — | — | 1.734 | — | — | — | — | — | — | — | — | — | — |
+| Telugu | 2.843 | 2.15 | — | — | — | — | 19.59 | — | — | — | — | — | — | — | — | — |
+| Kannada | 3.241 | 2.217 | — | — | — | — | — | 2.736 | — | — | — | — | — | — | — | — |
+| Malayalam | 3.357 | 2.54 | — | — | — | — | — | — | 5.875 | — | — | — | — | — | — | — |
+| Marathi | 1.987 | 1.754 | — | — | — | — | — | — | — | 1.638 | — | — | — | — | — | — |
+| Gujarati | 2.415 | 1.776 | — | — | — | — | — | — | — | — | 2.033 | — | — | — | — | — |
+| Punjabi | 2.82 | 1.528 | — | — | — | — | — | — | — | — | — | 7.758 | — | — | — | — |
+| Odia | 4.852 | 1.912 | — | — | — | — | — | — | — | — | — | — | 13.654 | — | — | — |
+| Assamese | 2.819 | 1.999 | — | — | — | — | — | — | — | — | — | — | — | — | — | — |
+| Urdu | 1.489 | 1.344 | — | — | — | — | — | — | — | — | — | — | — | 3.02 | — | — |
+| Nepali | 2.216 | 1.723 | — | — | — | — | — | — | — | — | — | — | — | — | 2.48 | — |
+| Sinhala | 2.997 | 10.689 | — | — | — | — | — | — | — | — | — | — | — | — | — | 11.324 |
+| Maithili | 1.806 | 1.734 | — | — | — | — | — | — | — | — | — | — | — | — | — | — |
 
 **Middle East**
 
-| language | Gemma-4 | BLOOM | mT5 | Maral-7B | Trendyol-8B | DictaLM-2.0-7B | Mistral-Nemo-Kurdish | Mistral-7B-Uz |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Arabic | 2.031 | 1.603 | — | — | — | — | — | — |
-| Persian | 1.679 | 2.055 | — | 5.138 | — | — | — | — |
-| Turkish | 2.109 | 3.051 | — | — | 2.547 | — | — | — |
-| Hebrew | 2.706 | 4.568 | — | — | — | 2.642 | — | — |
-| Kurdish | 2.358 | 2.446 | — | — | — | — | 2.486 | — |
-| Azerbaijani | 2.873 | 3.296 | — | — | — | — | — | — |
-| Uzbek | 2.839 | 2.974 | — | — | — | — | — | 3.515 |
-| Kazakh | 3.184 | 5.089 | — | — | — | — | — | — |
+| language | Gemma-4 | BLOOM | mT5 | Jais-2-8B | Maral-7B | Trendyol-8B | DictaLM-2.0-7B | Mistral-Nemo-Kurdish | mGPT-Azerbaijani-1.3B | Mistral-7B-Uz | KazLLM-8B |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Arabic | 2.031 | 1.603 | — | 1.462 | — | — | — | — | — | — | — |
+| Persian | 1.679 | 2.055 | — | — | 5.138 | — | — | — | — | — | — |
+| Turkish | 2.109 | 3.051 | — | — | — | 2.547 | — | — | — | — | — |
+| Hebrew | 2.706 | 4.568 | — | — | — | — | 2.642 | — | — | — | — |
+| Kurdish | 2.358 | 2.446 | — | — | — | — | — | 2.486 | — | — | — |
+| Azerbaijani | 2.873 | 3.296 | — | — | — | — | — | — | 3.553 | — | — |
+| Uzbek | 2.839 | 2.974 | — | — | — | — | — | — | — | 3.515 | — |
+| Kazakh | 3.184 | 5.089 | — | — | — | — | — | — | — | — | 4.831 |
 
 **East Asia**
 
-| language | Gemma-4 | BLOOM | mT5 | LLM-jp-3-13B | Polyglot-Ko-12B |
-| --- | --- | --- | --- | --- | --- |
-| Chinese | 14.132 | 12.117 | — | — | — |
-| Japanese | 30.432 | 44.828 | — | 25.627 | — |
-| Korean | 2.415 | 4.887 | — | — | 2.199 |
+| language | Gemma-4 | BLOOM | mT5 | ChatGLM3-6B | LLM-jp-3-13B | Polyglot-Ko-12B |
+| --- | --- | --- | --- | --- | --- | --- |
+| Chinese | 14.132 | 12.117 | — | 13.184 | — | — |
+| Japanese | 30.432 | 44.828 | — | — | 25.627 | — |
+| Korean | 2.415 | 4.887 | — | — | — | 2.199 |
 
 **SEA**
 
-| language | Gemma-4 | BLOOM | mT5 | Arcee-VyLinh-3B | Typhoon2-7B | Nusantara-7B | MaLLaM-5B | Burmese-GPT-1B |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Vietnamese | 1.21 | 1.128 | — | 1.29 | — | — | — | — |
-| Thai | 10.084 | 29.119 | — | — | 16.315 | — | — | — |
-| Indonesian | 1.575 | 1.333 | — | — | — | 2.146 | — | — |
-| Malay | 1.632 | 1.444 | — | — | — | — | 1.417 | — |
-| Tagalog | 1.84 | 1.895 | — | — | — | — | — | — |
-| Burmese | 6.136 | 25.746 | — | — | — | — | — | 10.719 |
-| Khmer | 12.747 | 29.492 | — | — | — | — | — | — |
+| language | Gemma-4 | BLOOM | mT5 | Arcee-VyLinh-3B | Typhoon2-7B | Nusantara-7B | MaLLaM-5B | Burmese-GPT-1B | PrahokBART-62M |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Vietnamese | 1.21 | 1.128 | — | 1.29 | — | — | — | — | — |
+| Thai | 10.084 | 29.119 | — | — | 16.315 | — | — | — | — |
+| Indonesian | 1.575 | 1.333 | — | — | — | 2.146 | — | — | — |
+| Malay | 1.632 | 1.444 | — | — | — | — | 1.417 | — | — |
+| Tagalog | 1.84 | 1.895 | — | — | — | — | — | — | — |
+| Burmese | 6.136 | 25.746 | — | — | — | — | — | 10.719 | — |
+| Khmer | 12.747 | 29.492 | — | — | — | — | — | — | 14.511 |
 
 **Africa**
 
-| language | Gemma-4 | BLOOM | mT5 | Swahili-Gemma-7B | Kakugo-3B-Igbo | Wolof-Qwen-1.5B |
-| --- | --- | --- | --- | --- | --- | --- |
-| Swahili | 2.087 | 1.602 | — | 2.047 | — | — |
-| Amharic | 3.032 | 7.905 | — | — | — | — |
-| Hausa | 1.864 | 1.924 | — | — | — | — |
-| Yoruba | 2.588 | 1.759 | — | — | — | — |
-| Igbo | 2.358 | 1.892 | — | — | 2.688 | — |
-| Zulu | 3.384 | 3.043 | — | — | — | — |
-| Xhosa | 3.302 | 2.933 | — | — | — | — |
-| Somali | 2.246 | 2.402 | — | — | — | — |
-| Wolof | 1.921 | 1.845 | — | — | — | 2.103 |
-| Shona | 2.927 | 2.848 | — | — | — | — |
+| language | Gemma-4 | BLOOM | mT5 | Swahili-Gemma-7B | Walia-LLM-7B | HausaLlama-8B | YorubaLlama-8B | Kakugo-3B-Igbo | Xhosa-ZuluLlama3-8B | Wolof-Qwen-1.5B |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Swahili | 2.087 | 1.602 | — | 2.047 | — | — | — | — | — | — |
+| Amharic | 3.032 | 7.905 | — | — | 1.623 | — | — | — | — | — |
+| Hausa | 1.864 | 1.924 | — | — | — | 2.13 | — | — | — | — |
+| Yoruba | 2.588 | 1.759 | — | — | — | — | 2.934 | — | — | — |
+| Igbo | 2.358 | 1.892 | — | — | — | — | — | 2.688 | — | — |
+| Zulu | 3.384 | 3.043 | — | — | — | — | — | — | 3.754 | — |
+| Xhosa | 3.302 | 2.933 | — | — | — | — | — | — | 3.567 | — |
+| Somali | 2.246 | 2.402 | — | — | — | — | — | — | — | — |
+| Wolof | 1.921 | 1.845 | — | — | — | — | — | — | — | 2.103 |
+| Shona | 2.927 | 2.848 | — | — | — | — | — | — | — | — |
 
 **Europe**
 
@@ -304,71 +319,71 @@ Rows = languages. Columns = tokenizers. Scan across a row to compare models on o
 
 **Indic**
 
-| language | Gemma-4 | BLOOM | mT5 | BanglaLLama-3.1-8B | Tamil-Mistral-7B | Telugu-Llama2-7B | MalayaLLM-Gemma-9B | Gujju-Llama-7B | Dhee-Qwen3-Punjabi-2B | Qalb-1.0-8B | NEPALI-LLM-9B | llama3-sinhala-8B |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Hindi | 3.69 | 3.73 | — | — | — | — | — | — | — | — | — | — |
-| Bengali | 3.93 | 4.004 | — | 0.825 | — | — | — | — | — | — | — | — |
-| Tamil | 3.87 | 4.378 | — | — | 5.297 | — | — | — | — | — | — | — |
-| Telugu | 2.751 | 3.637 | — | — | — | 0.399 | — | — | — | — | — | — |
-| Kannada | 2.645 | 3.868 | — | — | — | — | — | — | — | — | — | — |
-| Malayalam | 2.98 | 3.937 | — | — | — | — | 1.703 | — | — | — | — | — |
-| Marathi | 3.517 | 3.982 | — | — | — | — | — | — | — | — | — | — |
-| Gujarati | 2.506 | 3.407 | — | — | — | — | — | 2.977 | — | — | — | — |
-| Punjabi | 1.827 | 3.372 | — | — | — | — | — | — | 0.664 | — | — | — |
-| Odia | 1.416 | 3.595 | — | — | — | — | — | — | — | — | — | — |
-| Assamese | 2.316 | 3.266 | — | — | — | — | — | — | — | — | — | — |
-| Urdu | 3.156 | 3.496 | — | — | — | — | — | — | — | 1.556 | — | — |
-| Nepali | 3.062 | 3.938 | — | — | — | — | — | — | — | — | 2.736 | — |
-| Sinhala | 2.112 | 0.592 | — | — | — | — | — | — | — | — | — | 0.559 |
-| Maithili | 2.912 | 3.032 | — | — | — | — | — | — | — | — | — | — |
+| language | Gemma-4 | BLOOM | mT5 | Airavata-7B | BanglaLLama-3.1-8B | Tamil-Mistral-7B | Telugu-Llama2-7B | Ambari-7B | MalayaLLM-Gemma-9B | MahaMarathi-7B | Gujju-Llama-7B | Dhee-Qwen3-Punjabi-2B | Qwen-Odia-7B | Qalb-1.0-8B | NEPALI-LLM-9B | llama3-sinhala-8B |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Hindi | 3.69 | 3.73 | — | 2.803 | — | — | — | — | — | — | — | — | — | — | — | — |
+| Bengali | 3.93 | 4.004 | — | — | 0.825 | — | — | — | — | — | — | — | — | — | — | — |
+| Tamil | 3.87 | 4.378 | — | — | — | 5.297 | — | — | — | — | — | — | — | — | — | — |
+| Telugu | 2.751 | 3.637 | — | — | — | — | 0.399 | — | — | — | — | — | — | — | — | — |
+| Kannada | 2.645 | 3.868 | — | — | — | — | — | 3.133 | — | — | — | — | — | — | — | — |
+| Malayalam | 2.98 | 3.937 | — | — | — | — | — | — | 1.703 | — | — | — | — | — | — | — |
+| Marathi | 3.517 | 3.982 | — | — | — | — | — | — | — | 4.265 | — | — | — | — | — | — |
+| Gujarati | 2.506 | 3.407 | — | — | — | — | — | — | — | — | 2.977 | — | — | — | — | — |
+| Punjabi | 1.827 | 3.372 | — | — | — | — | — | — | — | — | — | 0.664 | — | — | — | — |
+| Odia | 1.416 | 3.595 | — | — | — | — | — | — | — | — | — | — | 0.503 | — | — | — |
+| Assamese | 2.316 | 3.266 | — | — | — | — | — | — | — | — | — | — | — | — | — | — |
+| Urdu | 3.156 | 3.496 | — | — | — | — | — | — | — | — | — | — | — | 1.556 | — | — |
+| Nepali | 3.062 | 3.938 | — | — | — | — | — | — | — | — | — | — | — | — | 2.736 | — |
+| Sinhala | 2.112 | 0.592 | — | — | — | — | — | — | — | — | — | — | — | — | — | 0.559 |
+| Maithili | 2.912 | 3.032 | — | — | — | — | — | — | — | — | — | — | — | — | — | — |
 
 **Middle East**
 
-| language | Gemma-4 | BLOOM | mT5 | Maral-7B | Trendyol-8B | DictaLM-2.0-7B | Mistral-Nemo-Kurdish | Mistral-7B-Uz |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Arabic | 2.917 | 3.695 | — | — | — | — | — | — |
-| Persian | 3.135 | 2.56 | — | 1.024 | — | — | — | — |
-| Turkish | 3.655 | 2.527 | — | — | 3.027 | — | — | — |
-| Hebrew | 2.172 | 1.286 | — | — | — | 2.224 | — | — |
-| Kurdish | 2.438 | 2.35 | — | — | — | — | 2.313 | — |
-| Azerbaijani | 2.619 | 2.283 | — | — | — | — | — | — |
-| Uzbek | 2.888 | 2.757 | — | — | — | — | — | 2.333 |
-| Kazakh | 2.452 | 1.534 | — | — | — | — | — | — |
+| language | Gemma-4 | BLOOM | mT5 | Jais-2-8B | Maral-7B | Trendyol-8B | DictaLM-2.0-7B | Mistral-Nemo-Kurdish | mGPT-Azerbaijani-1.3B | Mistral-7B-Uz | KazLLM-8B |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Arabic | 2.917 | 3.695 | — | 4.052 | — | — | — | — | — | — | — |
+| Persian | 3.135 | 2.56 | — | — | 1.024 | — | — | — | — | — | — |
+| Turkish | 3.655 | 2.527 | — | — | — | 3.027 | — | — | — | — | — |
+| Hebrew | 2.172 | 1.286 | — | — | — | — | 2.224 | — | — | — | — |
+| Kurdish | 2.438 | 2.35 | — | — | — | — | — | 2.313 | — | — | — |
+| Azerbaijani | 2.619 | 2.283 | — | — | — | — | — | — | 2.118 | — | — |
+| Uzbek | 2.888 | 2.757 | — | — | — | — | — | — | — | 2.333 | — |
+| Kazakh | 2.452 | 1.534 | — | — | — | — | — | — | — | — | 1.616 |
 
 **East Asia**
 
-| language | Gemma-4 | BLOOM | mT5 | LLM-jp-3-13B | Polyglot-Ko-12B |
-| --- | --- | --- | --- | --- | --- |
-| Chinese | 1.479 | 1.725 | — | — | — |
-| Japanese | 1.731 | 1.175 | — | 2.055 | — |
-| Korean | 1.77 | 0.875 | — | — | 1.944 |
+| language | Gemma-4 | BLOOM | mT5 | ChatGLM3-6B | LLM-jp-3-13B | Polyglot-Ko-12B |
+| --- | --- | --- | --- | --- | --- | --- |
+| Chinese | 1.479 | 1.725 | — | 1.585 | — | — |
+| Japanese | 1.731 | 1.175 | — | — | 2.055 | — |
+| Korean | 1.77 | 0.875 | — | — | — | 1.944 |
 
 **SEA**
 
-| language | Gemma-4 | BLOOM | mT5 | Arcee-VyLinh-3B | Typhoon2-7B | Nusantara-7B | MaLLaM-5B | Burmese-GPT-1B |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Vietnamese | 3.727 | 3.998 | — | 3.496 | — | — | — | — |
-| Thai | 2.906 | 1.006 | — | — | 1.796 | — | — | — |
-| Indonesian | 4.562 | 5.39 | — | — | — | 3.347 | — | — |
-| Malay | 4.437 | 5.014 | — | — | — | — | 5.109 | — |
-| Tagalog | 3.374 | 3.275 | — | — | — | — | — | — |
-| Burmese | 2.499 | 0.596 | — | — | — | — | — | 1.43 |
-| Khmer | 2.067 | 0.893 | — | — | — | — | — | — |
+| language | Gemma-4 | BLOOM | mT5 | Arcee-VyLinh-3B | Typhoon2-7B | Nusantara-7B | MaLLaM-5B | Burmese-GPT-1B | PrahokBART-62M |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Vietnamese | 3.727 | 3.998 | — | 3.496 | — | — | — | — | — |
+| Thai | 2.906 | 1.006 | — | — | 1.796 | — | — | — | — |
+| Indonesian | 4.562 | 5.39 | — | — | — | 3.347 | — | — | — |
+| Malay | 4.437 | 5.014 | — | — | — | — | 5.109 | — | — |
+| Tagalog | 3.374 | 3.275 | — | — | — | — | — | — | — |
+| Burmese | 2.499 | 0.596 | — | — | — | — | — | 1.43 | — |
+| Khmer | 2.067 | 0.893 | — | — | — | — | — | — | 1.816 |
 
 **Africa**
 
-| language | Gemma-4 | BLOOM | mT5 | Swahili-Gemma-7B | Kakugo-3B-Igbo | Wolof-Qwen-1.5B |
-| --- | --- | --- | --- | --- | --- | --- |
-| Swahili | 3.108 | 4.048 | — | 3.169 | — | — |
-| Amharic | 1.658 | 0.636 | — | — | — | — |
-| Hausa | 2.987 | 2.893 | — | — | — | — |
-| Yoruba | 1.944 | 2.862 | — | — | — | — |
-| Igbo | 2.29 | 2.854 | — | — | 2.009 | — |
-| Zulu | 2.77 | 3.081 | — | — | — | — |
-| Xhosa | 2.717 | 3.059 | — | — | — | — |
-| Somali | 2.896 | 2.707 | — | — | — | — |
-| Wolof | 2.643 | 2.751 | — | — | — | 2.414 |
-| Shona | 2.907 | 2.987 | — | — | — | — |
+| language | Gemma-4 | BLOOM | mT5 | Swahili-Gemma-7B | Walia-LLM-7B | HausaLlama-8B | YorubaLlama-8B | Kakugo-3B-Igbo | Xhosa-ZuluLlama3-8B | Wolof-Qwen-1.5B |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Swahili | 3.108 | 4.048 | — | 3.169 | — | — | — | — | — | — |
+| Amharic | 1.658 | 0.636 | — | — | 3.098 | — | — | — | — | — |
+| Hausa | 2.987 | 2.893 | — | — | — | 2.614 | — | — | — | — |
+| Yoruba | 1.944 | 2.862 | — | — | — | — | 1.715 | — | — | — |
+| Igbo | 2.29 | 2.854 | — | — | — | — | — | 2.009 | — | — |
+| Zulu | 2.77 | 3.081 | — | — | — | — | — | — | 2.497 | — |
+| Xhosa | 2.717 | 3.059 | — | — | — | — | — | — | 2.515 | — |
+| Somali | 2.896 | 2.707 | — | — | — | — | — | — | — | — |
+| Wolof | 2.643 | 2.751 | — | — | — | — | — | — | — | 2.414 |
+| Shona | 2.907 | 2.987 | — | — | — | — | — | — | — | — |
 
 **Europe**
 
@@ -410,71 +425,71 @@ Rows = languages. Columns = tokenizers. Scan across a row to compare models on o
 
 **Indic**
 
-| language | Gemma-4 | BLOOM | mT5 | BanglaLLama-3.1-8B | Tamil-Mistral-7B | Telugu-Llama2-7B | MalayaLLM-Gemma-9B | Gujju-Llama-7B | Dhee-Qwen3-Punjabi-2B | Qalb-1.0-8B | NEPALI-LLM-9B | llama3-sinhala-8B |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Hindi | 0.0 | 0.03 | — | — | — | — | — | — | — | — | — | — |
-| Bengali | 0.0 | 0.27 | — | 16.93 | — | — | — | — | — | — | — | — |
-| Tamil | 0.0 | 0.24 | — | — | 0.0 | — | — | — | — | — | — | — |
-| Telugu | 1.0 | 0.62 | — | — | — | 90.6 | — | — | — | — | — | — |
-| Kannada | 0.0 | 0.86 | — | — | — | — | — | — | — | — | — | — |
-| Malayalam | 0.0 | 0.17 | — | — | — | — | 0.0 | — | — | — | — | — |
-| Marathi | 0.0 | 0.23 | — | — | — | — | — | — | — | — | — | — |
-| Gujarati | 0.01 | 0.34 | — | — | — | — | — | 0.0 | — | — | — | — |
-| Punjabi | 0.01 | 0.07 | — | — | — | — | — | — | 19.43 | — | — | — |
-| Odia | 1.06 | 0.22 | — | — | — | — | — | — | — | — | — | — |
-| Assamese | 0.01 | 0.26 | — | — | — | — | — | — | — | — | — | — |
-| Urdu | 0.0 | 0.04 | — | — | — | — | — | — | — | 17.51 | — | — |
-| Nepali | 0.0 | 0.04 | — | — | — | — | — | — | — | — | 0.0 | — |
-| Sinhala | 0.02 | 30.3 | — | — | — | — | — | — | — | — | — | 28.31 |
-| Maithili | 0.0 | 0.01 | — | — | — | — | — | — | — | — | — | — |
+| language | Gemma-4 | BLOOM | mT5 | Airavata-7B | BanglaLLama-3.1-8B | Tamil-Mistral-7B | Telugu-Llama2-7B | Ambari-7B | MalayaLLM-Gemma-9B | MahaMarathi-7B | Gujju-Llama-7B | Dhee-Qwen3-Punjabi-2B | Qwen-Odia-7B | Qalb-1.0-8B | NEPALI-LLM-9B | llama3-sinhala-8B |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Hindi | 0.0 | 0.03 | — | 3.99 | — | — | — | — | — | — | — | — | — | — | — | — |
+| Bengali | 0.0 | 0.27 | — | — | 16.93 | — | — | — | — | — | — | — | — | — | — | — |
+| Tamil | 0.0 | 0.24 | — | — | — | 0.0 | — | — | — | — | — | — | — | — | — | — |
+| Telugu | 1.0 | 0.62 | — | — | — | — | 90.6 | — | — | — | — | — | — | — | — | — |
+| Kannada | 0.0 | 0.86 | — | — | — | — | — | 0.0 | — | — | — | — | — | — | — | — |
+| Malayalam | 0.0 | 0.17 | — | — | — | — | — | — | 0.0 | — | — | — | — | — | — | — |
+| Marathi | 0.0 | 0.23 | — | — | — | — | — | — | — | 0.0 | — | — | — | — | — | — |
+| Gujarati | 0.01 | 0.34 | — | — | — | — | — | — | — | — | 0.0 | — | — | — | — | — |
+| Punjabi | 0.01 | 0.07 | — | — | — | — | — | — | — | — | — | 19.43 | — | — | — | — |
+| Odia | 1.06 | 0.22 | — | — | — | — | — | — | — | — | — | — | 25.78 | — | — | — |
+| Assamese | 0.01 | 0.26 | — | — | — | — | — | — | — | — | — | — | — | — | — | — |
+| Urdu | 0.0 | 0.04 | — | — | — | — | — | — | — | — | — | — | — | 17.51 | — | — |
+| Nepali | 0.0 | 0.04 | — | — | — | — | — | — | — | — | — | — | — | — | 0.0 | — |
+| Sinhala | 0.02 | 30.3 | — | — | — | — | — | — | — | — | — | — | — | — | — | 28.31 |
+| Maithili | 0.0 | 0.01 | — | — | — | — | — | — | — | — | — | — | — | — | — | — |
 
 **Middle East**
 
-| language | Gemma-4 | BLOOM | mT5 | Maral-7B | Trendyol-8B | DictaLM-2.0-7B | Mistral-Nemo-Kurdish | Mistral-7B-Uz |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Arabic | 0.0 | 0.0 | — | — | — | — | — | — |
-| Persian | 0.0 | 0.13 | — | 0.04 | — | — | — | — |
-| Turkish | 0.96 | 0.12 | — | — | 0.6 | — | — | — |
-| Hebrew | 0.0 | 7.34 | — | — | — | 0.0 | — | — |
-| Kurdish | 0.0 | 0.09 | — | — | — | — | 0.51 | — |
-| Azerbaijani | 0.91 | 0.47 | — | — | — | — | — | — |
-| Uzbek | 0.01 | 0.0 | — | — | — | — | — | 0.0 |
-| Kazakh | 0.0 | 2.79 | — | — | — | — | — | — |
+| language | Gemma-4 | BLOOM | mT5 | Jais-2-8B | Maral-7B | Trendyol-8B | DictaLM-2.0-7B | Mistral-Nemo-Kurdish | mGPT-Azerbaijani-1.3B | Mistral-7B-Uz | KazLLM-8B |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Arabic | 0.0 | 0.0 | — | 3.71 | — | — | — | — | — | — | — |
+| Persian | 0.0 | 0.13 | — | — | 0.04 | — | — | — | — | — | — |
+| Turkish | 0.96 | 0.12 | — | — | — | 0.6 | — | — | — | — | — |
+| Hebrew | 0.0 | 7.34 | — | — | — | — | 0.0 | — | — | — | — |
+| Kurdish | 0.0 | 0.09 | — | — | — | — | — | 0.51 | — | — | — |
+| Azerbaijani | 0.91 | 0.47 | — | — | — | — | — | — | 0.96 | — | — |
+| Uzbek | 0.01 | 0.0 | — | — | — | — | — | — | — | 0.0 | — |
+| Kazakh | 0.0 | 2.79 | — | — | — | — | — | — | — | — | 8.27 |
 
 **East Asia**
 
-| language | Gemma-4 | BLOOM | mT5 | LLM-jp-3-13B | Polyglot-Ko-12B |
-| --- | --- | --- | --- | --- | --- |
-| Chinese | 0.05 | 0.79 | — | — | — |
-| Japanese | 0.0 | 2.32 | — | 0.0 | — |
-| Korean | 0.07 | 22.1 | — | — | 0.13 |
+| language | Gemma-4 | BLOOM | mT5 | ChatGLM3-6B | LLM-jp-3-13B | Polyglot-Ko-12B |
+| --- | --- | --- | --- | --- | --- | --- |
+| Chinese | 0.05 | 0.79 | — | 0.02 | — | — |
+| Japanese | 0.0 | 2.32 | — | — | 0.0 | — |
+| Korean | 0.07 | 22.1 | — | — | — | 0.13 |
 
 **SEA**
 
-| language | Gemma-4 | BLOOM | mT5 | Arcee-VyLinh-3B | Typhoon2-7B | Nusantara-7B | MaLLaM-5B | Burmese-GPT-1B |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Vietnamese | 0.18 | 0.02 | — | 0.89 | — | — | — | — |
-| Thai | 0.0 | 11.86 | — | — | 2.35 | — | — | — |
-| Indonesian | 0.0 | 0.0 | — | — | — | 0.62 | — | — |
-| Malay | 0.0 | 0.0 | — | — | — | — | 0.04 | — |
-| Tagalog | 0.0 | 0.02 | — | — | — | — | — | — |
-| Burmese | 0.0 | 27.36 | — | — | — | — | — | 0.6 |
-| Khmer | 0.01 | 26.35 | — | — | — | — | — | — |
+| language | Gemma-4 | BLOOM | mT5 | Arcee-VyLinh-3B | Typhoon2-7B | Nusantara-7B | MaLLaM-5B | Burmese-GPT-1B | PrahokBART-62M |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Vietnamese | 0.18 | 0.02 | — | 0.89 | — | — | — | — | — |
+| Thai | 0.0 | 11.86 | — | — | 2.35 | — | — | — | — |
+| Indonesian | 0.0 | 0.0 | — | — | — | 0.62 | — | — | — |
+| Malay | 0.0 | 0.0 | — | — | — | — | 0.04 | — | — |
+| Tagalog | 0.0 | 0.02 | — | — | — | — | — | — | — |
+| Burmese | 0.0 | 27.36 | — | — | — | — | — | 0.6 | — |
+| Khmer | 0.01 | 26.35 | — | — | — | — | — | — | 0.0 |
 
 **Africa**
 
-| language | Gemma-4 | BLOOM | mT5 | Swahili-Gemma-7B | Kakugo-3B-Igbo | Wolof-Qwen-1.5B |
-| --- | --- | --- | --- | --- | --- | --- |
-| Swahili | 0.0 | 0.05 | — | 0.0 | — | — |
-| Amharic | 0.02 | 26.31 | — | — | — | — |
-| Hausa | 0.0 | 1.5 | — | — | — | — |
-| Yoruba | 0.01 | 0.11 | — | — | — | — |
-| Igbo | 0.0 | 0.15 | — | — | 4.25 | — |
-| Zulu | 0.0 | 0.01 | — | — | — | — |
-| Xhosa | 0.01 | 0.03 | — | — | — | — |
-| Somali | 0.0 | 0.4 | — | — | — | — |
-| Wolof | 0.02 | 0.01 | — | — | — | 0.53 |
-| Shona | 0.0 | 0.02 | — | — | — | — |
+| language | Gemma-4 | BLOOM | mT5 | Swahili-Gemma-7B | Walia-LLM-7B | HausaLlama-8B | YorubaLlama-8B | Kakugo-3B-Igbo | Xhosa-ZuluLlama3-8B | Wolof-Qwen-1.5B |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Swahili | 0.0 | 0.05 | — | 0.0 | — | — | — | — | — | — |
+| Amharic | 0.02 | 26.31 | — | — | 0.03 | — | — | — | — | — |
+| Hausa | 0.0 | 1.5 | — | — | — | 2.93 | — | — | — | — |
+| Yoruba | 0.01 | 0.11 | — | — | — | — | 1.84 | — | — | — |
+| Igbo | 0.0 | 0.15 | — | — | — | — | — | 4.25 | — | — |
+| Zulu | 0.0 | 0.01 | — | — | — | — | — | — | 0.16 | — |
+| Xhosa | 0.01 | 0.03 | — | — | — | — | — | — | 0.24 | — |
+| Somali | 0.0 | 0.4 | — | — | — | — | — | — | — | — |
+| Wolof | 0.02 | 0.01 | — | — | — | — | — | — | — | 0.53 |
+| Shona | 0.0 | 0.02 | — | — | — | — | — | — | — | — |
 
 **Europe**
 
@@ -516,71 +531,71 @@ Rows = languages. Columns = tokenizers. Scan across a row to compare models on o
 
 **Indic**
 
-| language | Gemma-4 | BLOOM | mT5 | BanglaLLama-3.1-8B | Tamil-Mistral-7B | Telugu-Llama2-7B | MalayaLLM-Gemma-9B | Gujju-Llama-7B | Dhee-Qwen3-Punjabi-2B | Qalb-1.0-8B | NEPALI-LLM-9B | llama3-sinhala-8B |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Hindi | 0.0 | 0.0 | — | — | — | — | — | — | — | — | — | — |
-| Bengali | 0.0 | 0.0 | — | 0.0 | — | — | — | — | — | — | — | — |
-| Tamil | 0.0 | 0.0 | — | — | 0.0 | — | — | — | — | — | — | — |
-| Telugu | 0.0 | 0.0 | — | — | — | 0.0 | — | — | — | — | — | — |
-| Kannada | 0.0 | 0.0 | — | — | — | — | — | — | — | — | — | — |
-| Malayalam | 0.0 | 0.0 | — | — | — | — | 0.0 | — | — | — | — | — |
-| Marathi | 0.0 | 0.0 | — | — | — | — | — | — | — | — | — | — |
-| Gujarati | 0.0 | 0.0 | — | — | — | — | — | 0.0 | — | — | — | — |
-| Punjabi | 0.0 | 0.0 | — | — | — | — | — | — | 0.0 | — | — | — |
-| Odia | 0.0 | 0.0 | — | — | — | — | — | — | — | — | — | — |
-| Assamese | 0.0 | 0.0 | — | — | — | — | — | — | — | — | — | — |
-| Urdu | 0.0 | 0.0 | — | — | — | — | — | — | — | 0.0 | — | — |
-| Nepali | 0.0 | 0.0 | — | — | — | — | — | — | — | — | 0.0 | — |
-| Sinhala | 0.0 | 0.0 | — | — | — | — | — | — | — | — | — | 0.0 |
-| Maithili | 0.0 | 0.0 | — | — | — | — | — | — | — | — | — | — |
+| language | Gemma-4 | BLOOM | mT5 | Airavata-7B | BanglaLLama-3.1-8B | Tamil-Mistral-7B | Telugu-Llama2-7B | Ambari-7B | MalayaLLM-Gemma-9B | MahaMarathi-7B | Gujju-Llama-7B | Dhee-Qwen3-Punjabi-2B | Qwen-Odia-7B | Qalb-1.0-8B | NEPALI-LLM-9B | llama3-sinhala-8B |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Hindi | 0.0 | 0.0 | — | 0.0 | — | — | — | — | — | — | — | — | — | — | — | — |
+| Bengali | 0.0 | 0.0 | — | — | 0.0 | — | — | — | — | — | — | — | — | — | — | — |
+| Tamil | 0.0 | 0.0 | — | — | — | 0.0 | — | — | — | — | — | — | — | — | — | — |
+| Telugu | 0.0 | 0.0 | — | — | — | — | 0.0 | — | — | — | — | — | — | — | — | — |
+| Kannada | 0.0 | 0.0 | — | — | — | — | — | 0.0 | — | — | — | — | — | — | — | — |
+| Malayalam | 0.0 | 0.0 | — | — | — | — | — | — | 0.0 | — | — | — | — | — | — | — |
+| Marathi | 0.0 | 0.0 | — | — | — | — | — | — | — | 0.0 | — | — | — | — | — | — |
+| Gujarati | 0.0 | 0.0 | — | — | — | — | — | — | — | — | 0.0 | — | — | — | — | — |
+| Punjabi | 0.0 | 0.0 | — | — | — | — | — | — | — | — | — | 0.0 | — | — | — | — |
+| Odia | 0.0 | 0.0 | — | — | — | — | — | — | — | — | — | — | 0.0 | — | — | — |
+| Assamese | 0.0 | 0.0 | — | — | — | — | — | — | — | — | — | — | — | — | — | — |
+| Urdu | 0.0 | 0.0 | — | — | — | — | — | — | — | — | — | — | — | 0.0 | — | — |
+| Nepali | 0.0 | 0.0 | — | — | — | — | — | — | — | — | — | — | — | — | 0.0 | — |
+| Sinhala | 0.0 | 0.0 | — | — | — | — | — | — | — | — | — | — | — | — | — | 0.0 |
+| Maithili | 0.0 | 0.0 | — | — | — | — | — | — | — | — | — | — | — | — | — | — |
 
 **Middle East**
 
-| language | Gemma-4 | BLOOM | mT5 | Maral-7B | Trendyol-8B | DictaLM-2.0-7B | Mistral-Nemo-Kurdish | Mistral-7B-Uz |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Arabic | 0.0 | 0.0 | — | — | — | — | — | — |
-| Persian | 0.0 | 0.0 | — | 0.0 | — | — | — | — |
-| Turkish | 0.0 | 0.0 | — | — | 0.0 | — | — | — |
-| Hebrew | 0.0 | 0.0 | — | — | — | 0.0 | — | — |
-| Kurdish | 0.0 | 0.0 | — | — | — | — | 0.0 | — |
-| Azerbaijani | 0.0 | 0.0 | — | — | — | — | — | — |
-| Uzbek | 0.0 | 0.0 | — | — | — | — | — | 0.0 |
-| Kazakh | 0.0 | 0.0 | — | — | — | — | — | — |
+| language | Gemma-4 | BLOOM | mT5 | Jais-2-8B | Maral-7B | Trendyol-8B | DictaLM-2.0-7B | Mistral-Nemo-Kurdish | mGPT-Azerbaijani-1.3B | Mistral-7B-Uz | KazLLM-8B |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Arabic | 0.0 | 0.0 | — | 0.0 | — | — | — | — | — | — | — |
+| Persian | 0.0 | 0.0 | — | — | 0.0 | — | — | — | — | — | — |
+| Turkish | 0.0 | 0.0 | — | — | — | 0.0 | — | — | — | — | — |
+| Hebrew | 0.0 | 0.0 | — | — | — | — | 0.0 | — | — | — | — |
+| Kurdish | 0.0 | 0.0 | — | — | — | — | — | 0.0 | — | — | — |
+| Azerbaijani | 0.0 | 0.0 | — | — | — | — | — | — | 0.0 | — | — |
+| Uzbek | 0.0 | 0.0 | — | — | — | — | — | — | — | 0.0 | — |
+| Kazakh | 0.0 | 0.0 | — | — | — | — | — | — | — | — | 0.0 |
 
 **East Asia**
 
-| language | Gemma-4 | BLOOM | mT5 | LLM-jp-3-13B | Polyglot-Ko-12B |
-| --- | --- | --- | --- | --- | --- |
-| Chinese | 0.0 | 0.0 | — | — | — |
-| Japanese | 0.0 | 0.0 | — | 0.0 | — |
-| Korean | 0.0 | 0.0 | — | — | 0.0 |
+| language | Gemma-4 | BLOOM | mT5 | ChatGLM3-6B | LLM-jp-3-13B | Polyglot-Ko-12B |
+| --- | --- | --- | --- | --- | --- | --- |
+| Chinese | 0.0 | 0.0 | — | 0.0 | — | — |
+| Japanese | 0.0 | 0.0 | — | — | 0.0 | — |
+| Korean | 0.0 | 0.0 | — | — | — | 0.0 |
 
 **SEA**
 
-| language | Gemma-4 | BLOOM | mT5 | Arcee-VyLinh-3B | Typhoon2-7B | Nusantara-7B | MaLLaM-5B | Burmese-GPT-1B |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Vietnamese | 0.0 | 0.0 | — | 0.0 | — | — | — | — |
-| Thai | 0.0 | 0.0 | — | — | 0.0 | — | — | — |
-| Indonesian | 0.0 | 0.0 | — | — | — | 0.0 | — | — |
-| Malay | 0.0 | 0.0 | — | — | — | — | 0.0 | — |
-| Tagalog | 0.0 | 0.0 | — | — | — | — | — | — |
-| Burmese | 0.0 | 0.0 | — | — | — | — | — | 0.0 |
-| Khmer | 0.0 | 0.0 | — | — | — | — | — | — |
+| language | Gemma-4 | BLOOM | mT5 | Arcee-VyLinh-3B | Typhoon2-7B | Nusantara-7B | MaLLaM-5B | Burmese-GPT-1B | PrahokBART-62M |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Vietnamese | 0.0 | 0.0 | — | 0.0 | — | — | — | — | — |
+| Thai | 0.0 | 0.0 | — | — | 0.0 | — | — | — | — |
+| Indonesian | 0.0 | 0.0 | — | — | — | 0.0 | — | — | — |
+| Malay | 0.0 | 0.0 | — | — | — | — | 0.0 | — | — |
+| Tagalog | 0.0 | 0.0 | — | — | — | — | — | — | — |
+| Burmese | 0.0 | 0.0 | — | — | — | — | — | 0.0 | — |
+| Khmer | 0.0 | 0.0 | — | — | — | — | — | — | 8.97 |
 
 **Africa**
 
-| language | Gemma-4 | BLOOM | mT5 | Swahili-Gemma-7B | Kakugo-3B-Igbo | Wolof-Qwen-1.5B |
-| --- | --- | --- | --- | --- | --- | --- |
-| Swahili | 0.0 | 0.0 | — | 0.0 | — | — |
-| Amharic | 0.0 | 0.0 | — | — | — | — |
-| Hausa | 0.0 | 0.0 | — | — | — | — |
-| Yoruba | 0.0 | 0.0 | — | — | — | — |
-| Igbo | 0.0 | 0.0 | — | — | 0.0 | — |
-| Zulu | 0.0 | 0.0 | — | — | — | — |
-| Xhosa | 0.0 | 0.0 | — | — | — | — |
-| Somali | 0.0 | 0.0 | — | — | — | — |
-| Wolof | 0.0 | 0.0 | — | — | — | 0.0 |
-| Shona | 0.0 | 0.0 | — | — | — | — |
+| language | Gemma-4 | BLOOM | mT5 | Swahili-Gemma-7B | Walia-LLM-7B | HausaLlama-8B | YorubaLlama-8B | Kakugo-3B-Igbo | Xhosa-ZuluLlama3-8B | Wolof-Qwen-1.5B |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Swahili | 0.0 | 0.0 | — | 0.0 | — | — | — | — | — | — |
+| Amharic | 0.0 | 0.0 | — | — | 0.0 | — | — | — | — | — |
+| Hausa | 0.0 | 0.0 | — | — | — | 0.0 | — | — | — | — |
+| Yoruba | 0.0 | 0.0 | — | — | — | — | 0.0 | — | — | — |
+| Igbo | 0.0 | 0.0 | — | — | — | — | — | 0.0 | — | — |
+| Zulu | 0.0 | 0.0 | — | — | — | — | — | — | 0.0 | — |
+| Xhosa | 0.0 | 0.0 | — | — | — | — | — | — | 0.0 | — |
+| Somali | 0.0 | 0.0 | — | — | — | — | — | — | — | — |
+| Wolof | 0.0 | 0.0 | — | — | — | — | — | — | — | 0.0 |
+| Shona | 0.0 | 0.0 | — | — | — | — | — | — | — | — |
 
 **Europe**
 
@@ -622,71 +637,71 @@ Rows = languages. Columns = tokenizers. Scan across a row to compare models on o
 
 **Indic**
 
-| language | Gemma-4 | BLOOM | mT5 | BanglaLLama-3.1-8B | Tamil-Mistral-7B | Telugu-Llama2-7B | MalayaLLM-Gemma-9B | Gujju-Llama-7B | Dhee-Qwen3-Punjabi-2B | Qalb-1.0-8B | NEPALI-LLM-9B | llama3-sinhala-8B |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Hindi | 100.0 | 98.65 | — | — | — | — | — | — | — | — | — | — |
-| Bengali | 100.0 | 99.38 | — | 58.02 | — | — | — | — | — | — | — | — |
-| Tamil | 100.0 | 100.0 | — | — | 86.61 | — | — | — | — | — | — | — |
-| Telugu | 99.35 | 99.35 | — | — | — | 50.0 | — | — | — | — | — | — |
-| Kannada | 100.0 | 100.0 | — | — | — | — | — | — | — | — | — | — |
-| Malayalam | 100.0 | 98.57 | — | — | — | — | 100.0 | — | — | — | — | — |
-| Marathi | 100.0 | 100.0 | — | — | — | — | — | — | — | — | — | — |
-| Gujarati | 99.29 | 95.74 | — | — | — | — | — | 82.98 | — | — | — | — |
-| Punjabi | 99.33 | 99.33 | — | — | — | — | — | — | 67.33 | — | — | — |
-| Odia | 96.32 | 96.32 | — | — | — | — | — | — | — | — | — | — |
-| Assamese | 99.38 | 98.76 | — | — | — | — | — | — | — | — | — | — |
-| Urdu | 100.0 | 98.52 | — | — | — | — | — | — | — | 91.11 | — | — |
-| Nepali | 99.35 | 100.0 | — | — | — | — | — | — | — | — | 100.0 | — |
-| Sinhala | 98.64 | 52.38 | — | — | — | — | — | — | — | — | — | 52.38 |
-| Maithili | 100.0 | 99.34 | — | — | — | — | — | — | — | — | — | — |
+| language | Gemma-4 | BLOOM | mT5 | Airavata-7B | BanglaLLama-3.1-8B | Tamil-Mistral-7B | Telugu-Llama2-7B | Ambari-7B | MalayaLLM-Gemma-9B | MahaMarathi-7B | Gujju-Llama-7B | Dhee-Qwen3-Punjabi-2B | Qwen-Odia-7B | Qalb-1.0-8B | NEPALI-LLM-9B | llama3-sinhala-8B |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Hindi | 100.0 | 98.65 | — | 60.81 | — | — | — | — | — | — | — | — | — | — | — | — |
+| Bengali | 100.0 | 99.38 | — | — | 58.02 | — | — | — | — | — | — | — | — | — | — | — |
+| Tamil | 100.0 | 100.0 | — | — | — | 86.61 | — | — | — | — | — | — | — | — | — | — |
+| Telugu | 99.35 | 99.35 | — | — | — | — | 50.0 | — | — | — | — | — | — | — | — | — |
+| Kannada | 100.0 | 100.0 | — | — | — | — | — | 81.69 | — | — | — | — | — | — | — | — |
+| Malayalam | 100.0 | 98.57 | — | — | — | — | — | — | 100.0 | — | — | — | — | — | — | — |
+| Marathi | 100.0 | 100.0 | — | — | — | — | — | — | — | 84.87 | — | — | — | — | — | — |
+| Gujarati | 99.29 | 95.74 | — | — | — | — | — | — | — | — | 82.98 | — | — | — | — | — |
+| Punjabi | 99.33 | 99.33 | — | — | — | — | — | — | — | — | — | 67.33 | — | — | — | — |
+| Odia | 96.32 | 96.32 | — | — | — | — | — | — | — | — | — | — | 56.44 | — | — | — |
+| Assamese | 99.38 | 98.76 | — | — | — | — | — | — | — | — | — | — | — | — | — | — |
+| Urdu | 100.0 | 98.52 | — | — | — | — | — | — | — | — | — | — | — | 91.11 | — | — |
+| Nepali | 99.35 | 100.0 | — | — | — | — | — | — | — | — | — | — | — | — | 100.0 | — |
+| Sinhala | 98.64 | 52.38 | — | — | — | — | — | — | — | — | — | — | — | — | — | 52.38 |
+| Maithili | 100.0 | 99.34 | — | — | — | — | — | — | — | — | — | — | — | — | — | — |
 
 **Middle East**
 
-| language | Gemma-4 | BLOOM | mT5 | Maral-7B | Trendyol-8B | DictaLM-2.0-7B | Mistral-Nemo-Kurdish | Mistral-7B-Uz |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Arabic | 100.0 | 100.0 | — | — | — | — | — | — |
-| Persian | 100.0 | 99.22 | — | 53.49 | — | — | — | — |
-| Turkish | 100.0 | 98.15 | — | — | 100.0 | — | — | — |
-| Hebrew | 100.0 | 96.3 | — | — | — | 83.33 | — | — |
-| Kurdish | 100.0 | 99.05 | — | — | — | — | 96.19 | — |
-| Azerbaijani | 100.0 | 97.09 | — | — | — | — | — | — |
-| Uzbek | 97.85 | 98.92 | — | — | — | — | — | 100.0 |
-| Kazakh | 100.0 | 86.96 | — | — | — | — | — | — |
+| language | Gemma-4 | BLOOM | mT5 | Jais-2-8B | Maral-7B | Trendyol-8B | DictaLM-2.0-7B | Mistral-Nemo-Kurdish | mGPT-Azerbaijani-1.3B | Mistral-7B-Uz | KazLLM-8B |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Arabic | 100.0 | 100.0 | — | 86.82 | — | — | — | — | — | — | — |
+| Persian | 100.0 | 99.22 | — | — | 53.49 | — | — | — | — | — | — |
+| Turkish | 100.0 | 98.15 | — | — | — | 100.0 | — | — | — | — | — |
+| Hebrew | 100.0 | 96.3 | — | — | — | — | 83.33 | — | — | — | — |
+| Kurdish | 100.0 | 99.05 | — | — | — | — | — | 96.19 | — | — | — |
+| Azerbaijani | 100.0 | 97.09 | — | — | — | — | — | — | 97.09 | — | — |
+| Uzbek | 97.85 | 98.92 | — | — | — | — | — | — | — | 100.0 | — |
+| Kazakh | 100.0 | 86.96 | — | — | — | — | — | — | — | — | 91.3 |
 
 **East Asia**
 
-| language | Gemma-4 | BLOOM | mT5 | LLM-jp-3-13B | Polyglot-Ko-12B |
-| --- | --- | --- | --- | --- | --- |
-| Chinese | 99.86 | 98.06 | — | — | — |
-| Japanese | 100.0 | 87.24 | — | 71.3 | — |
-| Korean | 99.35 | 19.36 | — | — | 93.26 |
+| language | Gemma-4 | BLOOM | mT5 | ChatGLM3-6B | LLM-jp-3-13B | Polyglot-Ko-12B |
+| --- | --- | --- | --- | --- | --- | --- |
+| Chinese | 99.86 | 98.06 | — | 10.85 | — | — |
+| Japanese | 100.0 | 87.24 | — | — | 71.3 | — |
+| Korean | 99.35 | 19.36 | — | — | — | 93.26 |
 
 **SEA**
 
-| language | Gemma-4 | BLOOM | mT5 | Arcee-VyLinh-3B | Typhoon2-7B | Nusantara-7B | MaLLaM-5B | Burmese-GPT-1B |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Vietnamese | 100.0 | 100.0 | — | 100.0 | — | — | — | — |
-| Thai | 100.0 | 81.48 | — | — | 98.77 | — | — | — |
-| Indonesian | 100.0 | 99.03 | — | — | — | 100.0 | — | — |
-| Malay | 100.0 | 100.0 | — | — | — | — | 84.76 | — |
-| Tagalog | 99.07 | 98.15 | — | — | — | — | — | — |
-| Burmese | 100.0 | 53.59 | — | — | — | — | — | 91.5 |
-| Khmer | 98.38 | 63.78 | — | — | — | — | — | — |
+| language | Gemma-4 | BLOOM | mT5 | Arcee-VyLinh-3B | Typhoon2-7B | Nusantara-7B | MaLLaM-5B | Burmese-GPT-1B | PrahokBART-62M |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Vietnamese | 100.0 | 100.0 | — | 100.0 | — | — | — | — | — |
+| Thai | 100.0 | 81.48 | — | — | 98.77 | — | — | — | — |
+| Indonesian | 100.0 | 99.03 | — | — | — | 100.0 | — | — | — |
+| Malay | 100.0 | 100.0 | — | — | — | — | 84.76 | — | — |
+| Tagalog | 99.07 | 98.15 | — | — | — | — | — | — | — |
+| Burmese | 100.0 | 53.59 | — | — | — | — | — | 91.5 | — |
+| Khmer | 98.38 | 63.78 | — | — | — | — | — | — | 75.14 |
 
 **Africa**
 
-| language | Gemma-4 | BLOOM | mT5 | Swahili-Gemma-7B | Kakugo-3B-Igbo | Wolof-Qwen-1.5B |
-| --- | --- | --- | --- | --- | --- | --- |
-| Swahili | 100.0 | 100.0 | — | 100.0 | — | — |
-| Amharic | 99.08 | 28.0 | — | — | — | — |
-| Hausa | 99.07 | 93.46 | — | — | — | — |
-| Yoruba | 100.0 | 99.22 | — | — | — | — |
-| Igbo | 100.0 | 100.0 | — | — | 95.0 | — |
-| Zulu | 100.0 | 99.09 | — | — | — | — |
-| Xhosa | 99.03 | 99.03 | — | — | — | — |
-| Somali | 100.0 | 100.0 | — | — | — | — |
-| Wolof | 99.19 | 100.0 | — | — | — | 100.0 |
-| Shona | 100.0 | 100.0 | — | — | — | — |
+| language | Gemma-4 | BLOOM | mT5 | Swahili-Gemma-7B | Walia-LLM-7B | HausaLlama-8B | YorubaLlama-8B | Kakugo-3B-Igbo | Xhosa-ZuluLlama3-8B | Wolof-Qwen-1.5B |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Swahili | 100.0 | 100.0 | — | 100.0 | — | — | — | — | — | — |
+| Amharic | 99.08 | 28.0 | — | — | 88.0 | — | — | — | — | — |
+| Hausa | 99.07 | 93.46 | — | — | — | 93.46 | — | — | — | — |
+| Yoruba | 100.0 | 99.22 | — | — | — | — | 96.09 | — | — | — |
+| Igbo | 100.0 | 100.0 | — | — | — | — | — | 95.0 | — | — |
+| Zulu | 100.0 | 99.09 | — | — | — | — | — | — | 100.0 | — |
+| Xhosa | 99.03 | 99.03 | — | — | — | — | — | — | 100.0 | — |
+| Somali | 100.0 | 100.0 | — | — | — | — | — | — | — | — |
+| Wolof | 99.19 | 100.0 | — | — | — | — | — | — | — | 100.0 |
+| Shona | 100.0 | 100.0 | — | — | — | — | — | — | — | — |
 
 **Europe**
 
@@ -728,71 +743,71 @@ Rows = languages. Columns = tokenizers. Scan across a row to compare models on o
 
 **Indic**
 
-| language | Gemma-4 | BLOOM | mT5 | BanglaLLama-3.1-8B | Tamil-Mistral-7B | Telugu-Llama2-7B | MalayaLLM-Gemma-9B | Gujju-Llama-7B | Dhee-Qwen3-Punjabi-2B | Qalb-1.0-8B | NEPALI-LLM-9B | llama3-sinhala-8B |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Hindi | 100.0 | 100.0 | — | — | — | — | — | — | — | — | — | — |
-| Bengali | 100.0 | 100.0 | — | 100.0 | — | — | — | — | — | — | — | — |
-| Tamil | 100.0 | 100.0 | — | — | 100.0 | — | — | — | — | — | — | — |
-| Telugu | 100.0 | 100.0 | — | — | — | 100.0 | — | — | — | — | — | — |
-| Kannada | 100.0 | 100.0 | — | — | — | — | — | — | — | — | — | — |
-| Malayalam | 100.0 | 100.0 | — | — | — | — | 100.0 | — | — | — | — | — |
-| Marathi | 100.0 | 100.0 | — | — | — | — | — | — | — | — | — | — |
-| Gujarati | 100.0 | 100.0 | — | — | — | — | — | 100.0 | — | — | — | — |
-| Punjabi | 100.0 | 100.0 | — | — | — | — | — | — | 43.38 | — | — | — |
-| Odia | 100.0 | 100.0 | — | — | — | — | — | — | — | — | — | — |
-| Assamese | 100.0 | 100.0 | — | — | — | — | — | — | — | — | — | — |
-| Urdu | 100.0 | 100.0 | — | — | — | — | — | — | — | 100.0 | — | — |
-| Nepali | 100.0 | 100.0 | — | — | — | — | — | — | — | — | 100.0 | — |
-| Sinhala | 100.0 | 100.0 | — | — | — | — | — | — | — | — | — | 100.0 |
-| Maithili | 100.0 | 100.0 | — | — | — | — | — | — | — | — | — | — |
+| language | Gemma-4 | BLOOM | mT5 | Airavata-7B | BanglaLLama-3.1-8B | Tamil-Mistral-7B | Telugu-Llama2-7B | Ambari-7B | MalayaLLM-Gemma-9B | MahaMarathi-7B | Gujju-Llama-7B | Dhee-Qwen3-Punjabi-2B | Qwen-Odia-7B | Qalb-1.0-8B | NEPALI-LLM-9B | llama3-sinhala-8B |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Hindi | 100.0 | 100.0 | — | 100.0 | — | — | — | — | — | — | — | — | — | — | — | — |
+| Bengali | 100.0 | 100.0 | — | — | 100.0 | — | — | — | — | — | — | — | — | — | — | — |
+| Tamil | 100.0 | 100.0 | — | — | — | 100.0 | — | — | — | — | — | — | — | — | — | — |
+| Telugu | 100.0 | 100.0 | — | — | — | — | 100.0 | — | — | — | — | — | — | — | — | — |
+| Kannada | 100.0 | 100.0 | — | — | — | — | — | 100.0 | — | — | — | — | — | — | — | — |
+| Malayalam | 100.0 | 100.0 | — | — | — | — | — | — | 100.0 | — | — | — | — | — | — | — |
+| Marathi | 100.0 | 100.0 | — | — | — | — | — | — | — | 100.0 | — | — | — | — | — | — |
+| Gujarati | 100.0 | 100.0 | — | — | — | — | — | — | — | — | 100.0 | — | — | — | — | — |
+| Punjabi | 100.0 | 100.0 | — | — | — | — | — | — | — | — | — | 43.38 | — | — | — | — |
+| Odia | 100.0 | 100.0 | — | — | — | — | — | — | — | — | — | — | 75.69 | — | — | — |
+| Assamese | 100.0 | 100.0 | — | — | — | — | — | — | — | — | — | — | — | — | — | — |
+| Urdu | 100.0 | 100.0 | — | — | — | — | — | — | — | — | — | — | — | 100.0 | — | — |
+| Nepali | 100.0 | 100.0 | — | — | — | — | — | — | — | — | — | — | — | — | 100.0 | — |
+| Sinhala | 100.0 | 100.0 | — | — | — | — | — | — | — | — | — | — | — | — | — | 100.0 |
+| Maithili | 100.0 | 100.0 | — | — | — | — | — | — | — | — | — | — | — | — | — | — |
 
 **Middle East**
 
-| language | Gemma-4 | BLOOM | mT5 | Maral-7B | Trendyol-8B | DictaLM-2.0-7B | Mistral-Nemo-Kurdish | Mistral-7B-Uz |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Arabic | 100.0 | 100.0 | — | — | — | — | — | — |
-| Persian | 100.0 | 100.0 | — | 100.0 | — | — | — | — |
-| Turkish | 100.0 | 100.0 | — | — | 100.0 | — | — | — |
-| Hebrew | 100.0 | 100.0 | — | — | — | 100.0 | — | — |
-| Kurdish | 100.0 | 100.0 | — | — | — | — | 100.0 | — |
-| Azerbaijani | 100.0 | 100.0 | — | — | — | — | — | — |
-| Uzbek | 100.0 | 100.0 | — | — | — | — | — | 100.0 |
-| Kazakh | 100.0 | 100.0 | — | — | — | — | — | — |
+| language | Gemma-4 | BLOOM | mT5 | Jais-2-8B | Maral-7B | Trendyol-8B | DictaLM-2.0-7B | Mistral-Nemo-Kurdish | mGPT-Azerbaijani-1.3B | Mistral-7B-Uz | KazLLM-8B |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Arabic | 100.0 | 100.0 | — | 100.0 | — | — | — | — | — | — | — |
+| Persian | 100.0 | 100.0 | — | — | 100.0 | — | — | — | — | — | — |
+| Turkish | 100.0 | 100.0 | — | — | — | 100.0 | — | — | — | — | — |
+| Hebrew | 100.0 | 100.0 | — | — | — | — | 100.0 | — | — | — | — |
+| Kurdish | 100.0 | 100.0 | — | — | — | — | — | 100.0 | — | — | — |
+| Azerbaijani | 100.0 | 100.0 | — | — | — | — | — | — | 100.0 | — | — |
+| Uzbek | 100.0 | 100.0 | — | — | — | — | — | — | — | 100.0 | — |
+| Kazakh | 100.0 | 100.0 | — | — | — | — | — | — | — | — | 100.0 |
 
 **East Asia**
 
-| language | Gemma-4 | BLOOM | mT5 | LLM-jp-3-13B | Polyglot-Ko-12B |
-| --- | --- | --- | --- | --- | --- |
-| Chinese | 100.0 | 100.0 | — | — | — |
-| Japanese | 100.0 | 100.0 | — | 100.0 | — |
-| Korean | 100.0 | 100.0 | — | — | 100.0 |
+| language | Gemma-4 | BLOOM | mT5 | ChatGLM3-6B | LLM-jp-3-13B | Polyglot-Ko-12B |
+| --- | --- | --- | --- | --- | --- | --- |
+| Chinese | 100.0 | 100.0 | — | 100.0 | — | — |
+| Japanese | 100.0 | 100.0 | — | — | 100.0 | — |
+| Korean | 100.0 | 100.0 | — | — | — | 100.0 |
 
 **SEA**
 
-| language | Gemma-4 | BLOOM | mT5 | Arcee-VyLinh-3B | Typhoon2-7B | Nusantara-7B | MaLLaM-5B | Burmese-GPT-1B |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Vietnamese | 100.0 | 100.0 | — | 100.0 | — | — | — | — |
-| Thai | 100.0 | 100.0 | — | — | 100.0 | — | — | — |
-| Indonesian | 100.0 | 100.0 | — | — | — | 100.0 | — | — |
-| Malay | 100.0 | 100.0 | — | — | — | — | 100.0 | — |
-| Tagalog | 100.0 | 100.0 | — | — | — | — | — | — |
-| Burmese | 100.0 | 100.0 | — | — | — | — | — | 100.0 |
-| Khmer | 100.0 | 100.0 | — | — | — | — | — | — |
+| language | Gemma-4 | BLOOM | mT5 | Arcee-VyLinh-3B | Typhoon2-7B | Nusantara-7B | MaLLaM-5B | Burmese-GPT-1B | PrahokBART-62M |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Vietnamese | 100.0 | 100.0 | — | 100.0 | — | — | — | — | — |
+| Thai | 100.0 | 100.0 | — | — | 100.0 | — | — | — | — |
+| Indonesian | 100.0 | 100.0 | — | — | — | 100.0 | — | — | — |
+| Malay | 100.0 | 100.0 | — | — | — | — | 100.0 | — | — |
+| Tagalog | 100.0 | 100.0 | — | — | — | — | — | — | — |
+| Burmese | 100.0 | 100.0 | — | — | — | — | — | 100.0 | — |
+| Khmer | 100.0 | 100.0 | — | — | — | — | — | — | 0.0 |
 
 **Africa**
 
-| language | Gemma-4 | BLOOM | mT5 | Swahili-Gemma-7B | Kakugo-3B-Igbo | Wolof-Qwen-1.5B |
-| --- | --- | --- | --- | --- | --- | --- |
-| Swahili | 100.0 | 100.0 | — | 100.0 | — | — |
-| Amharic | 100.0 | 100.0 | — | — | — | — |
-| Hausa | 100.0 | 100.0 | — | — | — | — |
-| Yoruba | 100.0 | 100.0 | — | — | — | — |
-| Igbo | 100.0 | 100.0 | — | — | 100.0 | — |
-| Zulu | 100.0 | 100.0 | — | — | — | — |
-| Xhosa | 100.0 | 100.0 | — | — | — | — |
-| Somali | 100.0 | 100.0 | — | — | — | — |
-| Wolof | 100.0 | 100.0 | — | — | — | 100.0 |
-| Shona | 100.0 | 100.0 | — | — | — | — |
+| language | Gemma-4 | BLOOM | mT5 | Swahili-Gemma-7B | Walia-LLM-7B | HausaLlama-8B | YorubaLlama-8B | Kakugo-3B-Igbo | Xhosa-ZuluLlama3-8B | Wolof-Qwen-1.5B |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Swahili | 100.0 | 100.0 | — | 100.0 | — | — | — | — | — | — |
+| Amharic | 100.0 | 100.0 | — | — | 100.0 | — | — | — | — | — |
+| Hausa | 100.0 | 100.0 | — | — | — | 100.0 | — | — | — | — |
+| Yoruba | 100.0 | 100.0 | — | — | — | — | 100.0 | — | — | — |
+| Igbo | 100.0 | 100.0 | — | — | — | — | — | 100.0 | — | — |
+| Zulu | 100.0 | 100.0 | — | — | — | — | — | — | 100.0 | — |
+| Xhosa | 100.0 | 100.0 | — | — | — | — | — | — | 100.0 | — |
+| Somali | 100.0 | 100.0 | — | — | — | — | — | — | — | — |
+| Wolof | 100.0 | 100.0 | — | — | — | — | — | — | — | 100.0 |
+| Shona | 100.0 | 100.0 | — | — | — | — | — | — | — | — |
 
 **Europe**
 
@@ -834,71 +849,71 @@ Rows = languages. Columns = tokenizers. Scan across a row to compare models on o
 
 **Indic**
 
-| language | Gemma-4 | BLOOM | mT5 | BanglaLLama-3.1-8B | Tamil-Mistral-7B | Telugu-Llama2-7B | MalayaLLM-Gemma-9B | Gujju-Llama-7B | Dhee-Qwen3-Punjabi-2B | Qalb-1.0-8B | NEPALI-LLM-9B | llama3-sinhala-8B |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Hindi | 35.1 | 34.72 | — | — | — | — | — | — | — | — | — | — |
-| Bengali | 32.45 | 31.85 | — | 154.6 | — | — | — | — | — | — | — | — |
-| Tamil | 39.36 | 34.79 | — | — | 28.75 | — | — | — | — | — | — | — |
-| Telugu | 47.58 | 35.99 | — | — | — | 327.89 | — | — | — | — | — | — |
-| Kannada | 51.56 | 35.27 | — | — | — | — | — | — | — | — | — | — |
-| Malayalam | 49.52 | 37.48 | — | — | — | — | 86.67 | — | — | — | — | — |
-| Marathi | 37.39 | 33.02 | — | — | — | — | — | — | — | — | — | — |
-| Gujarati | 49.84 | 36.66 | — | — | — | — | — | 41.96 | — | — | — | — |
-| Punjabi | 72.18 | 39.1 | — | — | — | — | — | — | 198.6 | — | — | — |
-| Odia | 94.07 | 37.07 | — | — | — | — | — | — | — | — | — | — |
-| Assamese | 53.73 | 38.11 | — | — | — | — | — | — | — | — | — | — |
-| Urdu | 40.67 | 36.72 | — | — | — | — | — | — | — | 82.52 | — | — |
-| Nepali | 40.96 | 31.84 | — | — | — | — | — | — | — | — | 45.83 | — |
-| Sinhala | 61.33 | 218.73 | — | — | — | — | — | — | — | — | — | 231.72 |
-| Maithili | 43.92 | 42.18 | — | — | — | — | — | — | — | — | — | — |
+| language | Gemma-4 | BLOOM | mT5 | Airavata-7B | BanglaLLama-3.1-8B | Tamil-Mistral-7B | Telugu-Llama2-7B | Ambari-7B | MalayaLLM-Gemma-9B | MahaMarathi-7B | Gujju-Llama-7B | Dhee-Qwen3-Punjabi-2B | Qwen-Odia-7B | Qalb-1.0-8B | NEPALI-LLM-9B | llama3-sinhala-8B |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Hindi | 35.1 | 34.72 | — | 46.2 | — | — | — | — | — | — | — | — | — | — | — | — |
+| Bengali | 32.45 | 31.85 | — | — | 154.6 | — | — | — | — | — | — | — | — | — | — | — |
+| Tamil | 39.36 | 34.79 | — | — | — | 28.75 | — | — | — | — | — | — | — | — | — | — |
+| Telugu | 47.58 | 35.99 | — | — | — | — | 327.89 | — | — | — | — | — | — | — | — | — |
+| Kannada | 51.56 | 35.27 | — | — | — | — | — | 43.53 | — | — | — | — | — | — | — | — |
+| Malayalam | 49.52 | 37.48 | — | — | — | — | — | — | 86.67 | — | — | — | — | — | — | — |
+| Marathi | 37.39 | 33.02 | — | — | — | — | — | — | — | 30.83 | — | — | — | — | — | — |
+| Gujarati | 49.84 | 36.66 | — | — | — | — | — | — | — | — | 41.96 | — | — | — | — | — |
+| Punjabi | 72.18 | 39.1 | — | — | — | — | — | — | — | — | — | 198.6 | — | — | — | — |
+| Odia | 94.07 | 37.07 | — | — | — | — | — | — | — | — | — | — | 264.72 | — | — | — |
+| Assamese | 53.73 | 38.11 | — | — | — | — | — | — | — | — | — | — | — | — | — | — |
+| Urdu | 40.67 | 36.72 | — | — | — | — | — | — | — | — | — | — | — | 82.52 | — | — |
+| Nepali | 40.96 | 31.84 | — | — | — | — | — | — | — | — | — | — | — | — | 45.83 | — |
+| Sinhala | 61.33 | 218.73 | — | — | — | — | — | — | — | — | — | — | — | — | — | 231.72 |
+| Maithili | 43.92 | 42.18 | — | — | — | — | — | — | — | — | — | — | — | — | — | — |
 
 **Middle East**
 
-| language | Gemma-4 | BLOOM | mT5 | Maral-7B | Trendyol-8B | DictaLM-2.0-7B | Mistral-Nemo-Kurdish | Mistral-7B-Uz |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Arabic | 39.4 | 31.11 | — | — | — | — | — | — |
-| Persian | 39.04 | 47.79 | — | 119.46 | — | — | — | — |
-| Turkish | 36.7 | 53.08 | — | — | 44.31 | — | — | — |
-| Hebrew | 46.44 | 78.4 | — | — | — | 45.35 | — | — |
-| Kurdish | 52.84 | 54.81 | — | — | — | — | 55.7 | — |
-| Azerbaijani | 54.24 | 62.23 | — | — | — | — | — | — |
-| Uzbek | 51.09 | 53.51 | — | — | — | — | — | 63.25 |
-| Kazakh | 54.58 | 87.25 | — | — | — | — | — | — |
+| language | Gemma-4 | BLOOM | mT5 | Jais-2-8B | Maral-7B | Trendyol-8B | DictaLM-2.0-7B | Mistral-Nemo-Kurdish | mGPT-Azerbaijani-1.3B | Mistral-7B-Uz | KazLLM-8B |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Arabic | 39.4 | 31.11 | — | 28.36 | — | — | — | — | — | — | — |
+| Persian | 39.04 | 47.79 | — | — | 119.46 | — | — | — | — | — | — |
+| Turkish | 36.7 | 53.08 | — | — | — | 44.31 | — | — | — | — | — |
+| Hebrew | 46.44 | 78.4 | — | — | — | — | 45.35 | — | — | — | — |
+| Kurdish | 52.84 | 54.81 | — | — | — | — | — | 55.7 | — | — | — |
+| Azerbaijani | 54.24 | 62.23 | — | — | — | — | — | — | 67.07 | — | — |
+| Uzbek | 51.09 | 53.51 | — | — | — | — | — | — | — | 63.25 | — |
+| Kazakh | 54.58 | 87.25 | — | — | — | — | — | — | — | — | 82.81 |
 
 **East Asia**
 
-| language | Gemma-4 | BLOOM | mT5 | LLM-jp-3-13B | Polyglot-Ko-12B |
-| --- | --- | --- | --- | --- | --- |
-| Chinese | 28.89 | 24.77 | — | — | — |
-| Japanese | 32.51 | 47.88 | — | 27.37 | — |
-| Korean | 36.83 | 74.52 | — | — | 33.53 |
+| language | Gemma-4 | BLOOM | mT5 | ChatGLM3-6B | LLM-jp-3-13B | Polyglot-Ko-12B |
+| --- | --- | --- | --- | --- | --- | --- |
+| Chinese | 28.89 | 24.77 | — | 26.95 | — | — |
+| Japanese | 32.51 | 47.88 | — | — | 27.37 | — |
+| Korean | 36.83 | 74.52 | — | — | — | 33.53 |
 
 **SEA**
 
-| language | Gemma-4 | BLOOM | mT5 | Arcee-VyLinh-3B | Typhoon2-7B | Nusantara-7B | MaLLaM-5B | Burmese-GPT-1B |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Vietnamese | 36.75 | 34.26 | — | 39.17 | — | — | — | — |
-| Thai | 42.88 | 123.81 | — | — | 69.37 | — | — | — |
-| Indonesian | 30.83 | 26.09 | — | — | — | 42.02 | — | — |
-| Malay | 32.56 | 28.81 | — | — | — | — | 28.28 | — |
-| Tagalog | 48.66 | 50.13 | — | — | — | — | — | — |
-| Burmese | 64.52 | 270.74 | — | — | — | — | — | 112.72 |
-| Khmer | 73.25 | 169.46 | — | — | — | — | — | — |
+| language | Gemma-4 | BLOOM | mT5 | Arcee-VyLinh-3B | Typhoon2-7B | Nusantara-7B | MaLLaM-5B | Burmese-GPT-1B | PrahokBART-62M |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Vietnamese | 36.75 | 34.26 | — | 39.17 | — | — | — | — | — |
+| Thai | 42.88 | 123.81 | — | — | 69.37 | — | — | — | — |
+| Indonesian | 30.83 | 26.09 | — | — | — | 42.02 | — | — | — |
+| Malay | 32.56 | 28.81 | — | — | — | — | 28.28 | — | — |
+| Tagalog | 48.66 | 50.13 | — | — | — | — | — | — | — |
+| Burmese | 64.52 | 270.74 | — | — | — | — | — | 112.72 | — |
+| Khmer | 73.25 | 169.46 | — | — | — | — | — | — | 83.38 |
 
 **Africa**
 
-| language | Gemma-4 | BLOOM | mT5 | Swahili-Gemma-7B | Kakugo-3B-Igbo | Wolof-Qwen-1.5B |
-| --- | --- | --- | --- | --- | --- | --- |
-| Swahili | 43.91 | 33.71 | — | 43.06 | — | — |
-| Amharic | 51.93 | 135.37 | — | — | — | — |
-| Hausa | 46.33 | 47.84 | — | — | — | — |
-| Yoruba | 64.46 | 43.8 | — | — | — | — |
-| Igbo | 58.05 | 46.58 | — | — | 66.19 | — |
-| Zulu | 52.92 | 47.59 | — | — | — | — |
-| Xhosa | 50.6 | 44.93 | — | — | — | — |
-| Somali | 51.75 | 55.36 | — | — | — | — |
-| Wolof | 47.54 | 45.68 | — | — | — | 52.06 |
-| Shona | 50.18 | 48.83 | — | — | — | — |
+| language | Gemma-4 | BLOOM | mT5 | Swahili-Gemma-7B | Walia-LLM-7B | HausaLlama-8B | YorubaLlama-8B | Kakugo-3B-Igbo | Xhosa-ZuluLlama3-8B | Wolof-Qwen-1.5B |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Swahili | 43.91 | 33.71 | — | 43.06 | — | — | — | — | — | — |
+| Amharic | 51.93 | 135.37 | — | — | 27.79 | — | — | — | — | — |
+| Hausa | 46.33 | 47.84 | — | — | — | 52.94 | — | — | — | — |
+| Yoruba | 64.46 | 43.8 | — | — | — | — | 73.07 | — | — | — |
+| Igbo | 58.05 | 46.58 | — | — | — | — | — | 66.19 | — | — |
+| Zulu | 52.92 | 47.59 | — | — | — | — | — | — | 58.71 | — |
+| Xhosa | 50.6 | 44.93 | — | — | — | — | — | — | 54.65 | — |
+| Somali | 51.75 | 55.36 | — | — | — | — | — | — | — | — |
+| Wolof | 47.54 | 45.68 | — | — | — | — | — | — | — | 52.06 |
+| Shona | 50.18 | 48.83 | — | — | — | — | — | — | — | — |
 
 **Europe**
 
@@ -1108,6 +1123,20 @@ Every tokenizer × language combination from `data/results.csv`.
 | BLOOM | Samoan | Oceania | 1.823 | 2.632 | 0.02 | 0.0 | 97.37 | 100.0 | 57.33 | 58022 | 152724 | 1012 |
 | Gemma-4 | Tok Pisin | Oceania | 1.644 | 3.247 | 0.0 | 0.0 | 100.0 | 100.0 | 51.44 | 52053 | 169011 | 1012 |
 | BLOOM | Tok Pisin | Oceania | 1.668 | 3.201 | 0.0 | 0.0 | 100.0 | 100.0 | 52.18 | 52803 | 169011 | 1012 |
+| Airavata-7B | Hindi | Indic | 1.823 | 2.803 | 3.99 | 0.0 | 60.81 | 100.0 | 46.2 | 46750 | 131058 | 1012 |
+| Ambari-7B | Kannada | Indic | 2.736 | 3.133 | 0.0 | 0.0 | 81.69 | 100.0 | 43.53 | 44057 | 138040 | 1012 |
+| MahaMarathi-7B | Marathi | Indic | 1.638 | 4.265 | 0.0 | 0.0 | 84.87 | 100.0 | 30.83 | 31195 | 133051 | 1012 |
+| Qwen-Odia-7B | Odia | Indic | 13.654 | 0.503 | 25.78 | 0.0 | 56.44 | 75.69 | 264.72 | 267893 | 134839 | 1012 |
+| Jais-2-8B | Arabic | Middle East | 1.462 | 4.052 | 3.71 | 0.0 | 86.82 | 100.0 | 28.36 | 28705 | 116307 | 1012 |
+| mGPT-Azerbaijani-1.3B | Azerbaijani | Middle East | 3.553 | 2.118 | 0.96 | 0.0 | 97.09 | 100.0 | 67.07 | 67872 | 143739 | 1012 |
+| KazLLM-8B | Kazakh | Middle East | 4.831 | 1.616 | 8.27 | 0.0 | 91.3 | 100.0 | 82.81 | 83807 | 135404 | 1012 |
+| ChatGLM3-6B | Chinese | East Asia | 13.184 | 1.585 | 0.02 | 0.0 | 10.85 | 100.0 | 26.95 | 27278 | 43248 | 1012 |
+| PrahokBART-62M | Khmer | SEA | 14.511 | 1.816 | 0.0 | 8.97 | 75.14 | 0.0 | 83.38 | 84384 | 153212 | 1012 |
+| Walia-LLM-7B | Amharic | Africa | 1.623 | 3.098 | 0.03 | 0.0 | 88.0 | 100.0 | 27.79 | 28128 | 87132 | 1012 |
+| HausaLlama-8B | Hausa | Africa | 2.13 | 2.614 | 2.93 | 0.0 | 93.46 | 100.0 | 52.94 | 53580 | 140067 | 1012 |
+| YorubaLlama-8B | Yoruba | Africa | 2.934 | 1.715 | 1.84 | 0.0 | 96.09 | 100.0 | 73.07 | 73947 | 126844 | 1012 |
+| Xhosa-ZuluLlama3-8B | Zulu | Africa | 3.754 | 2.497 | 0.16 | 0.0 | 100.0 | 100.0 | 58.71 | 59413 | 148362 | 1012 |
+| Xhosa-ZuluLlama3-8B | Xhosa | Africa | 3.567 | 2.515 | 0.24 | 0.0 | 100.0 | 100.0 | 54.65 | 55310 | 139123 | 1012 |
 
 ---
 

@@ -1,0 +1,322 @@
+Skipping 2 language(s) not in FLORES-200: Nahuatl, Hawaiian
+Loaded 165 existing rows; will skip 165 completed pairs.
+
+────────────────────────────────────────────────────────────
+Language: Hindi  [Indic]  FLORES: hin_Deva
+  Loading FLORES-200 [hin_Deva] ...
+  [1/56] Airavata-7B (ai4bharat/Airavata) ... [transformers] PyTorch was not found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.
+fertility=1.823  vcov=60.81%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Bengali  [Indic]  FLORES: ben_Beng
+  Loading FLORES-200 [ben_Beng] ...
+  [2/56] BanglaLLama-3.1-8B — skipped (already in results)
+
+────────────────────────────────────────────────────────────
+Language: Tamil  [Indic]  FLORES: tam_Taml
+  Loading FLORES-200 [tam_Taml] ...
+  [3/56] Tamil-Mistral-7B — skipped (already in results)
+
+────────────────────────────────────────────────────────────
+Language: Telugu  [Indic]  FLORES: tel_Telu
+  Loading FLORES-200 [tel_Telu] ...
+  [4/56] Telugu-Llama2-7B — skipped (already in results)
+
+────────────────────────────────────────────────────────────
+Language: Kannada  [Indic]  FLORES: kan_Knda
+  Loading FLORES-200 [kan_Knda] ...
+  [5/56] Ambari-7B (Cognitive-Lab/Ambari-7B-base-v0.1) ... fertility=2.736  vcov=81.69%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Malayalam  [Indic]  FLORES: mal_Mlym
+  Loading FLORES-200 [mal_Mlym] ...
+  [6/56] MalayaLLM-Gemma-9B — skipped (already in results)
+
+────────────────────────────────────────────────────────────
+Language: Marathi  [Indic]  FLORES: mar_Deva
+  Loading FLORES-200 [mar_Deva] ...
+  [7/56] MahaMarathi-7B (marathi-llm/MahaMarathi-7B-v24.01-Base) ... fertility=1.638  vcov=84.87%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Gujarati  [Indic]  FLORES: guj_Gujr
+  Loading FLORES-200 [guj_Gujr] ...
+  [8/56] Gujju-Llama-7B — skipped (already in results)
+
+────────────────────────────────────────────────────────────
+Language: Punjabi  [Indic]  FLORES: pan_Guru
+  Loading FLORES-200 [pan_Guru] ...
+  [9/56] Dhee-Qwen3-Punjabi-2B — skipped (already in results)
+
+────────────────────────────────────────────────────────────
+Language: Odia  [Indic]  FLORES: ory_Orya
+  Loading FLORES-200 [ory_Orya] ...
+  [10/56] Qwen-Odia-7B (OdiaGenAI-LLM/qwen_1.5_odia_7b) ... fertility=13.654  vcov=56.44%  roundtrip=75.69%
+
+────────────────────────────────────────────────────────────
+Language: Assamese  [Indic]  FLORES: asm_Beng
+  Loading FLORES-200 [asm_Beng] ...
+  [11/56] Goldfish-ASM-125M (goldfish-models/asm_beng_full) ... FAILED — argument 'special_tokens': Expected Union[Tuple[str, int], Tuple[int, str], dict]
+
+────────────────────────────────────────────────────────────
+Language: Urdu  [Indic]  FLORES: urd_Arab
+  Loading FLORES-200 [urd_Arab] ...
+  [12/56] Qalb-1.0-8B — skipped (already in results)
+
+────────────────────────────────────────────────────────────
+Language: Nepali  [Indic]  FLORES: npi_Deva
+  Loading FLORES-200 [npi_Deva] ...
+  [13/56] NEPALI-LLM-9B — skipped (already in results)
+
+────────────────────────────────────────────────────────────
+Language: Sinhala  [Indic]  FLORES: sin_Sinh
+  Loading FLORES-200 [sin_Sinh] ...
+  [14/56] llama3-sinhala-8B — skipped (already in results)
+
+────────────────────────────────────────────────────────────
+Language: Maithili  [Indic]  FLORES: mai_Deva
+  Loading FLORES-200 [mai_Deva] ...
+
+────────────────────────────────────────────────────────────
+Language: Arabic  [Middle East]  FLORES: arb_Arab
+  Loading FLORES-200 [arb_Arab] ...
+  [15/56] Jais-2-8B (inceptionai/Jais-2-8B-Chat) ... [transformers] Ignoring clean_up_tokenization_spaces=True for BPE tokenizer TokenizersBackend. The clean_up_tokenization post-processing step is designed for WordPiece tokenizers and is destructive for BPE (it strips spaces before punctuation). Set clean_up_tokenization_spaces=False to suppress this warning, or set clean_up_tokenization_spaces_for_bpe_even_though_it_will_corrupt_output=True to force cleanup anyway.
+fertility=1.462  vcov=86.82%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Persian  [Middle East]  FLORES: pes_Arab
+  Loading FLORES-200 [pes_Arab] ...
+  [16/56] Maral-7B — skipped (already in results)
+
+────────────────────────────────────────────────────────────
+Language: Turkish  [Middle East]  FLORES: tur_Latn
+  Loading FLORES-200 [tur_Latn] ...
+  [17/56] Trendyol-8B — skipped (already in results)
+
+────────────────────────────────────────────────────────────
+Language: Hebrew  [Middle East]  FLORES: heb_Hebr
+  Loading FLORES-200 [heb_Hebr] ...
+  [18/56] DictaLM-2.0-7B — skipped (already in results)
+
+────────────────────────────────────────────────────────────
+Language: Kurdish  [Middle East]  FLORES: kmr_Latn
+  Loading FLORES-200 [kmr_Latn] ...
+  [19/56] Mistral-Nemo-Kurdish — skipped (already in results)
+
+────────────────────────────────────────────────────────────
+Language: Azerbaijani  [Middle East]  FLORES: azj_Latn
+  Loading FLORES-200 [azj_Latn] ...
+  [20/56] mGPT-Azerbaijani-1.3B (ai-forever/mGPT-1.3B-azerbaijan) ... [transformers] Ignoring clean_up_tokenization_spaces=True for BPE tokenizer GPT2Tokenizer. The clean_up_tokenization post-processing step is designed for WordPiece tokenizers and is destructive for BPE (it strips spaces before punctuation). Set clean_up_tokenization_spaces=False to suppress this warning, or set clean_up_tokenization_spaces_for_bpe_even_though_it_will_corrupt_output=True to force cleanup anyway.
+fertility=3.553  vcov=97.09%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Uzbek  [Middle East]  FLORES: uzn_Latn
+  Loading FLORES-200 [uzn_Latn] ...
+  [21/56] Mistral-7B-Uz — skipped (already in results)
+
+────────────────────────────────────────────────────────────
+Language: Kazakh  [Middle East]  FLORES: kaz_Cyrl
+  Loading FLORES-200 [kaz_Cyrl] ...
+  [22/56] KazLLM-8B (issai/LLama-3.1-KazLLM-1.0-8B) ... fertility=4.831  vcov=91.3%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Chinese  [East Asia]  FLORES: zho_Hans
+  Loading FLORES-200 [zho_Hans] ...
+  [23/56] ChatGLM3-6B (THUDM/chatglm3-6b) ... fertility=13.184  vcov=10.85%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Japanese  [East Asia]  FLORES: jpn_Jpan
+  Loading FLORES-200 [jpn_Jpan] ...
+  [24/56] LLM-jp-3-13B — skipped (already in results)
+
+────────────────────────────────────────────────────────────
+Language: Korean  [East Asia]  FLORES: kor_Hang
+  Loading FLORES-200 [kor_Hang] ...
+  [25/56] Polyglot-Ko-12B — skipped (already in results)
+
+────────────────────────────────────────────────────────────
+Language: Vietnamese  [SEA]  FLORES: vie_Latn
+  Loading FLORES-200 [vie_Latn] ...
+  [26/56] Arcee-VyLinh-3B — skipped (already in results)
+
+────────────────────────────────────────────────────────────
+Language: Thai  [SEA]  FLORES: tha_Thai
+  Loading FLORES-200 [tha_Thai] ...
+  [27/56] Typhoon2-7B — skipped (already in results)
+
+────────────────────────────────────────────────────────────
+Language: Indonesian  [SEA]  FLORES: ind_Latn
+  Loading FLORES-200 [ind_Latn] ...
+  [28/56] Nusantara-7B — skipped (already in results)
+
+────────────────────────────────────────────────────────────
+Language: Malay  [SEA]  FLORES: zsm_Latn
+  Loading FLORES-200 [zsm_Latn] ...
+  [29/56] MaLLaM-5B — skipped (already in results)
+
+────────────────────────────────────────────────────────────
+Language: Tagalog  [SEA]  FLORES: tgl_Latn
+  Loading FLORES-200 [tgl_Latn] ...
+
+────────────────────────────────────────────────────────────
+Language: Burmese  [SEA]  FLORES: mya_Mymr
+  Loading FLORES-200 [mya_Mymr] ...
+  [30/56] Burmese-GPT-1B — skipped (already in results)
+
+────────────────────────────────────────────────────────────
+Language: Khmer  [SEA]  FLORES: khm_Khmr
+  Loading FLORES-200 [khm_Khmr] ...
+  [31/56] PrahokBART-62M (nict-astrec-att/prahokbart_base) ... fertility=14.511  vcov=75.14%  roundtrip=0.0%
+
+────────────────────────────────────────────────────────────
+Language: Swahili  [Africa]  FLORES: swh_Latn
+  Loading FLORES-200 [swh_Latn] ...
+  [32/56] Swahili-Gemma-7B — skipped (already in results)
+
+────────────────────────────────────────────────────────────
+Language: Amharic  [Africa]  FLORES: amh_Ethi
+  Loading FLORES-200 [amh_Ethi] ...
+  [33/56] Walia-LLM-7B (israel/LLAMA-Walia-II) ... fertility=1.623  vcov=88.0%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Hausa  [Africa]  FLORES: hau_Latn
+  Loading FLORES-200 [hau_Latn] ...
+  [34/56] HausaLlama-8B (Jacaranda/HausaLlama) ... fertility=2.13  vcov=93.46%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Yoruba  [Africa]  FLORES: yor_Latn
+  Loading FLORES-200 [yor_Latn] ...
+  [35/56] YorubaLlama-8B (Jacaranda/YorubaLlama) ... fertility=2.934  vcov=96.09%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Igbo  [Africa]  FLORES: ibo_Latn
+  Loading FLORES-200 [ibo_Latn] ...
+  [36/56] Kakugo-3B-Igbo — skipped (already in results)
+
+────────────────────────────────────────────────────────────
+Language: Zulu  [Africa]  FLORES: zul_Latn
+  Loading FLORES-200 [zul_Latn] ...
+  [37/56] Xhosa-ZuluLlama3-8B (Jacaranda/Xhosa_ZuluLlama3_v1) ... fertility=3.754  vcov=100.0%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Xhosa  [Africa]  FLORES: xho_Latn
+  Loading FLORES-200 [xho_Latn] ...
+  [38/56] Xhosa-ZuluLlama3-8B (Jacaranda/Xhosa_ZuluLlama3_v1) ... fertility=3.567  vcov=100.0%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Somali  [Africa]  FLORES: som_Latn
+  Loading FLORES-200 [som_Latn] ...
+
+────────────────────────────────────────────────────────────
+Language: Wolof  [Africa]  FLORES: wol_Latn
+  Loading FLORES-200 [wol_Latn] ...
+  [39/56] Wolof-Qwen-1.5B — skipped (already in results)
+
+────────────────────────────────────────────────────────────
+Language: Shona  [Africa]  FLORES: sna_Latn
+  Loading FLORES-200 [sna_Latn] ...
+
+────────────────────────────────────────────────────────────
+Language: French  [Europe]  FLORES: fra_Latn
+  Loading FLORES-200 [fra_Latn] ...
+  [40/56] Lucie-7B — skipped (already in results)
+
+────────────────────────────────────────────────────────────
+Language: German  [Europe]  FLORES: deu_Latn
+  Loading FLORES-200 [deu_Latn] ...
+  [41/56] LeoLM-7B — skipped (already in results)
+
+────────────────────────────────────────────────────────────
+Language: Spanish  [Europe]  FLORES: spa_Latn
+  Loading FLORES-200 [spa_Latn] ...
+  [42/56] Salamandra-7B — skipped (already in results)
+
+────────────────────────────────────────────────────────────
+Language: Portuguese  [Europe]  FLORES: por_Latn
+  Loading FLORES-200 [por_Latn] ...
+  [43/56] Gervasio-8B — skipped (already in results)
+
+────────────────────────────────────────────────────────────
+Language: Italian  [Europe]  FLORES: ita_Latn
+  Loading FLORES-200 [ita_Latn] ...
+  [44/56] LLaMAntino-3-8B — skipped (already in results)
+
+────────────────────────────────────────────────────────────
+Language: Dutch  [Europe]  FLORES: nld_Latn
+  Loading FLORES-200 [nld_Latn] ...
+  [45/56] Fietje-2 — skipped (already in results)
+
+────────────────────────────────────────────────────────────
+Language: Polish  [Europe]  FLORES: pol_Latn
+  Loading FLORES-200 [pol_Latn] ...
+  [46/56] Bielik-11B — skipped (already in results)
+
+────────────────────────────────────────────────────────────
+Language: Russian  [Europe]  FLORES: rus_Cyrl
+  Loading FLORES-200 [rus_Cyrl] ...
+  [47/56] Vikhr-Nemo-12B — skipped (already in results)
+
+────────────────────────────────────────────────────────────
+Language: Ukrainian  [Europe]  FLORES: ukr_Cyrl
+  Loading FLORES-200 [ukr_Cyrl] ...
+  [48/56] MamayLM-12B — skipped (already in results)
+
+────────────────────────────────────────────────────────────
+Language: Romanian  [Europe]  FLORES: ron_Latn
+  Loading FLORES-200 [ron_Latn] ...
+  [49/56] LLMic-3B — skipped (already in results)
+
+────────────────────────────────────────────────────────────
+Language: Swedish  [Europe]  FLORES: swe_Latn
+  Loading FLORES-200 [swe_Latn] ...
+  [50/56] Viking-7B — skipped (already in results)
+
+────────────────────────────────────────────────────────────
+Language: Czech  [Europe]  FLORES: ces_Latn
+  Loading FLORES-200 [ces_Latn] ...
+  [51/56] CSMPT-7B — skipped (already in results)
+
+────────────────────────────────────────────────────────────
+Language: Greek  [Europe]  FLORES: ell_Grek
+  Loading FLORES-200 [ell_Grek] ...
+  [52/56] Meltemi-7B — skipped (already in results)
+
+────────────────────────────────────────────────────────────
+Language: Lat.Am. Spanish  [Americas]  FLORES: spa_Latn
+  [53/56] LatamGPT-70B — skipped (already in results)
+
+────────────────────────────────────────────────────────────
+Language: Brazilian Portuguese  [Americas]  FLORES: por_Latn
+  [54/56] Tucano-2b4 — skipped (already in results)
+
+────────────────────────────────────────────────────────────
+Language: Quechua  [Americas]  FLORES: quy_Latn
+  Loading FLORES-200 [quy_Latn] ...
+
+────────────────────────────────────────────────────────────
+Language: Haitian Creole  [Americas]  FLORES: hat_Latn
+  Loading FLORES-200 [hat_Latn] ...
+
+────────────────────────────────────────────────────────────
+Language: Māori  [Oceania]  FLORES: mri_Latn
+  Loading FLORES-200 [mri_Latn] ...
+  [55/56] Goldfish-mri-39M (goldfish-models/mri_latn_10mb) ... FAILED — argument 'special_tokens': Expected Union[Tuple[str, int], Tuple[int, str], dict]
+
+────────────────────────────────────────────────────────────
+Language: Samoan  [Oceania]  FLORES: smo_Latn
+  Loading FLORES-200 [smo_Latn] ...
+
+────────────────────────────────────────────────────────────
+Language: Tok Pisin  [Oceania]  FLORES: tpi_Latn
+  Loading FLORES-200 [tpi_Latn] ...
+  [56/56] Goldfish-tpi-125M (goldfish-models/tpi_latn_full) ... FAILED — argument 'special_tokens': Expected Union[Tuple[str, int], Tuple[int, str], dict]
+
+Wrote 179 rows → /Users/ramyogeshwaran/Documents/RamYogeshwaran/Repos/falcon-language/data/results.csv
+Traceback (most recent call last):
+  File "/Users/ramyogeshwaran/Documents/RamYogeshwaran/Repos/falcon-language/experiments/tokenizer_test.py", line 417, in <module>
+    main()
+    ~~~~^^
+  File "/Users/ramyogeshwaran/Documents/RamYogeshwaran/Repos/falcon-language/experiments/tokenizer_test.py", line 404, in main
+    summary = compute_summary(rows)
+  File "/Users/ramyogeshwaran/Documents/RamYogeshwaran/Repos/falcon-language/experiments/tokenizer_test.py", line 273, in compute_summary
+    total_chars = sum(r["total_chars"] for r in tok_rows)
+TypeError: unsupported operand type(s) for +: 'int' and 'str'
