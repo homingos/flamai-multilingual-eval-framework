@@ -1,0 +1,1049 @@
+Skipping 2 language(s) not in FLORES-200: Nahuatl, Hawaiian
+
+────────────────────────────────────────────────────────────
+Language: Hindi  [Indic]  FLORES: hin_Deva
+  Loading FLORES-200 [hin_Deva] ...
+  [1/245] Gemma-4 (google/gemma-4-12b-it) ... [transformers] PyTorch was not found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.
+fertility=1.385  vcov=100.0%  roundtrip=100.0%
+  [2/245] BLOOM (bigscience/bloom) ... fertility=1.37  vcov=98.65%  roundtrip=100.0%
+  [3/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [4/245] Airavata-7B (ai4bharat/Airavata) ... FAILED — You are trying to access a gated repo.
+Make sure to have access to it at https://huggingface.co/ai4bharat/Airavata.
+403 Client Error. (Request ID: Root=1-6a311b78-4ccc22b65588dff5490ccb9c;c5248c9c-590b-4f20-920c-5e93a4273b7d)
+
+Cannot access gated repo for url https://huggingface.co/ai4bharat/Airavata/resolve/main/config.json.
+Access to model ai4bharat/Airavata is restricted and you are not in the authorized list. Visit https://huggingface.co/ai4bharat/Airavata to ask for access.
+
+────────────────────────────────────────────────────────────
+Language: Bengali  [Indic]  FLORES: ben_Beng
+  Loading FLORES-200 [ben_Beng] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 162744.55 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 235029.66 examples/s]
+  [5/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=1.683  vcov=100.0%  roundtrip=100.0%
+  [6/245] BLOOM (bigscience/bloom) ... fertility=1.652  vcov=99.38%  roundtrip=100.0%
+  [7/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [8/245] BanglaLLama-3.1-8B (BanglaLLM/BanglaLLama-3.1-8b-bangla-alpaca-orca-instruct-v0.0.1) ... [transformers] Ignoring clean_up_tokenization_spaces=True for BPE tokenizer TokenizersBackend. The clean_up_tokenization post-processing step is designed for WordPiece tokenizers and is destructive for BPE (it strips spaces before punctuation). Set clean_up_tokenization_spaces=False to suppress this warning, or set clean_up_tokenization_spaces_for_bpe_even_though_it_will_corrupt_output=True to force cleanup anyway.
+fertility=8.021  vcov=58.02%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Tamil  [Indic]  FLORES: tam_Taml
+  Loading FLORES-200 [tam_Taml] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 209589.07 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 272546.27 examples/s]
+  [9/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=2.374  vcov=100.0%  roundtrip=100.0%
+  [10/245] BLOOM (bigscience/bloom) ... fertility=2.099  vcov=100.0%  roundtrip=100.0%
+  [11/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [12/245] Tamil-Mistral-7B (Hemanth-thunder/Tamil-Mistral-7B-Instruct-v0.1) ... fertility=1.734  vcov=86.61%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Telugu  [Indic]  FLORES: tel_Telu
+  Loading FLORES-200 [tel_Telu] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 225405.41 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 271170.74 examples/s]
+  [13/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=2.843  vcov=99.35%  roundtrip=100.0%
+  [14/245] BLOOM (bigscience/bloom) ... fertility=2.15  vcov=99.35%  roundtrip=100.0%
+  [15/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [16/245] Telugu-Llama2-7B (Telugu-LLM-Labs/Telugu-Llama2-7B-v0-Base) ... fertility=19.59  vcov=50.0%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Kannada  [Indic]  FLORES: kan_Knda
+  Loading FLORES-200 [kan_Knda] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 218400.85 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 275518.35 examples/s]
+  [17/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=3.241  vcov=100.0%  roundtrip=100.0%
+  [18/245] BLOOM (bigscience/bloom) ... fertility=2.217  vcov=100.0%  roundtrip=100.0%
+  [19/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [20/245] Ambari-7B (Cognitive-Lab/Ambari-7B-base-v0.1) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--Cognitive-Lab--Ambari-7B-base-v0.1/snapshots/447a9d99ab4d8fd021c6459525224794ce51faa7/tokenizer.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+
+────────────────────────────────────────────────────────────
+Language: Malayalam  [Indic]  FLORES: mal_Mlym
+  Loading FLORES-200 [mal_Mlym] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 269232.62 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 369355.70 examples/s]
+  [21/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=3.357  vcov=100.0%  roundtrip=100.0%
+  [22/245] BLOOM (bigscience/bloom) ... fertility=2.54  vcov=98.57%  roundtrip=100.0%
+  [23/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [24/245] MalayaLLM-Gemma-9B (VishnuPJ/MalayaLLM_Gemma_2_9B_Instruct_V1.0) ... fertility=5.875  vcov=100.0%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Marathi  [Indic]  FLORES: mar_Deva
+  Loading FLORES-200 [mar_Deva] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 231110.93 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 259230.22 examples/s]
+  [25/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=1.987  vcov=100.0%  roundtrip=100.0%
+  [26/245] BLOOM (bigscience/bloom) ... fertility=1.754  vcov=100.0%  roundtrip=100.0%
+  [27/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [28/245] MahaMarathi-7B (marathi-llm/MahaMarathi-7B-v24.01-Base) ... FAILED — You are trying to access a gated repo.
+Make sure to have access to it at https://huggingface.co/marathi-llm/MahaMarathi-7B-v24.01-Base.
+403 Client Error. (Request ID: Root=1-6a311c2d-5a0121d560e2cbb45085b6fe;8dbff57f-9791-4b23-8fe1-4be24312ea23)
+
+Cannot access gated repo for url https://huggingface.co/marathi-llm/MahaMarathi-7B-v24.01-Base/resolve/main/config.json.
+Access to model marathi-llm/MahaMarathi-7B-v24.01-Base is restricted and you are not in the authorized list. Visit https://huggingface.co/marathi-llm/MahaMarathi-7B-v24.01-Base to ask for access.
+
+────────────────────────────────────────────────────────────
+Language: Gujarati  [Indic]  FLORES: guj_Gujr
+  Loading FLORES-200 [guj_Gujr] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 223549.72 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 320035.86 examples/s]
+  [29/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=2.415  vcov=99.29%  roundtrip=100.0%
+  [30/245] BLOOM (bigscience/bloom) ... fertility=1.776  vcov=95.74%  roundtrip=100.0%
+  [31/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [32/245] Gujju-Llama-7B (sampoorna42/gujju-llama-base-v1.0) ... fertility=2.033  vcov=82.98%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Punjabi  [Indic]  FLORES: pan_Guru
+  Loading FLORES-200 [pan_Guru] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 261390.24 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 405138.46 examples/s]
+  [33/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=2.82  vcov=99.33%  roundtrip=100.0%
+  [34/245] BLOOM (bigscience/bloom) ... fertility=1.528  vcov=99.33%  roundtrip=100.0%
+  [35/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [36/245] Dhee-Qwen3-Punjabi-2B (dheeyantra/dhee-nxtgen-qwen3-punjabi-v2) ... fertility=7.758  vcov=67.33%  roundtrip=43.38%
+
+────────────────────────────────────────────────────────────
+Language: Odia  [Indic]  FLORES: ory_Orya
+  Loading FLORES-200 [ory_Orya] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 315601.59 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 360233.87 examples/s]
+  [37/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=4.852  vcov=96.32%  roundtrip=100.0%
+  [38/245] BLOOM (bigscience/bloom) ... fertility=1.912  vcov=96.32%  roundtrip=100.0%
+  [39/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [40/245] Qwen-Odia-7B (OdiaGenAI-LLM/qwen_1.5_odia_7b) ... FAILED — You are trying to access a gated repo.
+Make sure to have access to it at https://huggingface.co/OdiaGenAI-LLM/qwen_1.5_odia_7b.
+403 Client Error. (Request ID: Root=1-6a311c85-1edfb55075626c7621e5bb04;dbf65b85-6eea-4919-8bd6-f066f6561f8a)
+
+Cannot access gated repo for url https://huggingface.co/OdiaGenAI-LLM/qwen_1.5_odia_7b/resolve/main/config.json.
+Access to model OdiaGenAI-LLM/qwen_1.5_odia_7b is restricted and you are not in the authorized list. Visit https://huggingface.co/OdiaGenAI-LLM/qwen_1.5_odia_7b to ask for access.
+
+────────────────────────────────────────────────────────────
+Language: Assamese  [Indic]  FLORES: asm_Beng
+  Loading FLORES-200 [asm_Beng] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 208752.05 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 300909.94 examples/s]
+  [41/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=2.819  vcov=99.38%  roundtrip=100.0%
+  [42/245] BLOOM (bigscience/bloom) ... fertility=1.999  vcov=98.76%  roundtrip=100.0%
+  [43/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [44/245] Goldfish-ASM-125M (goldfish-models/asm_beng_full) ... FAILED — argument 'special_tokens': Expected Union[Tuple[str, int], Tuple[int, str], dict]
+
+────────────────────────────────────────────────────────────
+Language: Urdu  [Indic]  FLORES: urd_Arab
+  Loading FLORES-200 [urd_Arab] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 221653.83 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 332443.27 examples/s]
+  [45/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=1.489  vcov=100.0%  roundtrip=100.0%
+  [46/245] BLOOM (bigscience/bloom) ... fertility=1.344  vcov=98.52%  roundtrip=100.0%
+  [47/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [48/245] Qalb-1.0-8B (enstazao/Qalb-1.0-8B-Instruct) ... fertility=3.02  vcov=91.11%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Nepali  [Indic]  FLORES: npi_Deva
+  Loading FLORES-200 [npi_Deva] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 259026.33 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 382744.42 examples/s]
+  [49/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=2.216  vcov=99.35%  roundtrip=100.0%
+  [50/245] BLOOM (bigscience/bloom) ... fertility=1.723  vcov=100.0%  roundtrip=100.0%
+  [51/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [52/245] NEPALI-LLM-9B (shivam9980/NEPALI-LLM) ... fertility=2.48  vcov=100.0%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Sinhala  [Indic]  FLORES: sin_Sinh
+  Loading FLORES-200 [sin_Sinh] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 349350.13 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 435973.26 examples/s]
+  [53/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=2.997  vcov=98.64%  roundtrip=100.0%
+  [54/245] BLOOM (bigscience/bloom) ... fertility=10.689  vcov=52.38%  roundtrip=100.0%
+  [55/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [56/245] llama3-sinhala-8B (ihalage/llama3-sinhala) ... fertility=11.324  vcov=52.38%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Maithili  [Indic]  FLORES: mai_Deva
+  Loading FLORES-200 [mai_Deva] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 155050.84 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 216298.19 examples/s]
+  [57/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=1.806  vcov=100.0%  roundtrip=100.0%
+  [58/245] BLOOM (bigscience/bloom) ... fertility=1.734  vcov=99.34%  roundtrip=100.0%
+  [59/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+
+────────────────────────────────────────────────────────────
+Language: Arabic  [Middle East]  FLORES: arb_Arab
+  Loading FLORES-200 [arb_Arab] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 245882.35 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 257110.40 examples/s]
+  [60/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=2.031  vcov=100.0%  roundtrip=100.0%
+  [61/245] BLOOM (bigscience/bloom) ... fertility=1.603  vcov=100.0%  roundtrip=100.0%
+  [62/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [63/245] Jais-2-8B (inceptionai/Jais-2-8B-Chat) ... FAILED — You are trying to access a gated repo.
+Make sure to have access to it at https://huggingface.co/inceptionai/Jais-2-8B-Chat.
+403 Client Error. (Request ID: Root=1-6a311d1d-32db43203a69da0b25cca8eb;763c4eb8-c0ce-4098-a989-2820c6916bc2)
+
+Cannot access gated repo for url https://huggingface.co/inceptionai/Jais-2-8B-Chat/resolve/main/config.json.
+Access to model inceptionai/Jais-2-8B-Chat is restricted and you are not in the authorized list. Visit https://huggingface.co/inceptionai/Jais-2-8B-Chat to ask for access.
+
+────────────────────────────────────────────────────────────
+Language: Persian  [Middle East]  FLORES: pes_Arab
+  Loading FLORES-200 [pes_Arab] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 189905.59 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 293990.56 examples/s]
+  [64/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=1.679  vcov=100.0%  roundtrip=100.0%
+  [65/245] BLOOM (bigscience/bloom) ... fertility=2.055  vcov=99.22%  roundtrip=100.0%
+  [66/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [67/245] Maral-7B (MaralGPT/Maral-7B-alpha-1) ... fertility=5.138  vcov=53.49%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Turkish  [Middle East]  FLORES: tur_Latn
+  Loading FLORES-200 [tur_Latn] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 209547.06 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 298960.11 examples/s]
+  [68/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=2.109  vcov=100.0%  roundtrip=100.0%
+  [69/245] BLOOM (bigscience/bloom) ... fertility=3.051  vcov=98.15%  roundtrip=100.0%
+  [70/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [71/245] Trendyol-8B (Trendyol/Trendyol-LLM-8B-T1) ... fertility=2.547  vcov=100.0%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Hebrew  [Middle East]  FLORES: heb_Hebr
+  Loading FLORES-200 [heb_Hebr] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 187765.30 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 250627.99 examples/s]
+  [72/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=2.706  vcov=100.0%  roundtrip=100.0%
+  [73/245] BLOOM (bigscience/bloom) ... fertility=4.568  vcov=96.3%  roundtrip=100.0%
+  [74/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [75/245] DictaLM-2.0-7B (dicta-il/dictalm2.0-instruct) ... fertility=2.642  vcov=83.33%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Kurdish  [Middle East]  FLORES: kmr_Latn
+  Loading FLORES-200 [kmr_Latn] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 239037.45 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 237634.96 examples/s]
+  [76/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=2.358  vcov=100.0%  roundtrip=100.0%
+  [77/245] BLOOM (bigscience/bloom) ... fertility=2.446  vcov=99.05%  roundtrip=100.0%
+  [78/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [79/245] Mistral-Nemo-Kurdish (nazimali/Mistral-Nemo-Kurdish-Instruct) ... fertility=2.486  vcov=96.19%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Azerbaijani  [Middle East]  FLORES: azj_Latn
+  Loading FLORES-200 [azj_Latn] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 231123.70 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 347294.69 examples/s]
+  [80/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=2.873  vcov=100.0%  roundtrip=100.0%
+  [81/245] BLOOM (bigscience/bloom) ... fertility=3.296  vcov=97.09%  roundtrip=100.0%
+  [82/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [83/245] AzQ-1.7B (karabakh-nlp/AzQ-1.7B) ... FAILED — karabakh-nlp/AzQ-1.7B is not a local folder and is not a valid model identifier listed on 'https://huggingface.co/models'
+If this is a private repository, make sure to pass a token having permission to this repo either by logging in with `hf auth login` or by passing `token=<your_token>`
+
+────────────────────────────────────────────────────────────
+Language: Uzbek  [Middle East]  FLORES: uzn_Latn
+  Loading FLORES-200 [uzn_Latn] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 188825.12 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 303730.64 examples/s]
+  [84/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=2.839  vcov=97.85%  roundtrip=100.0%
+  [85/245] BLOOM (bigscience/bloom) ... fertility=2.974  vcov=98.92%  roundtrip=100.0%
+  [86/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [87/245] Mistral-7B-Uz (behbudiy/Mistral-7B-Instruct-Uz) ... fertility=3.515  vcov=100.0%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Kazakh  [Middle East]  FLORES: kaz_Cyrl
+  Loading FLORES-200 [kaz_Cyrl] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 184974.61 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 297389.17 examples/s]
+  [88/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=3.184  vcov=100.0%  roundtrip=100.0%
+  [89/245] BLOOM (bigscience/bloom) ... fertility=5.089  vcov=86.96%  roundtrip=100.0%
+  [90/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [91/245] KazLLM-8B (issai/LLama-3.1-KazLLM-1.0-8B) ... FAILED — You are trying to access a gated repo.
+Make sure to have access to it at https://huggingface.co/issai/LLama-3.1-KazLLM-1.0-8B.
+403 Client Error. (Request ID: Root=1-6a311dd0-343383c479f7172115974922;3c39d554-7247-4d17-b870-6305a646335d)
+
+Cannot access gated repo for url https://huggingface.co/issai/LLama-3.1-KazLLM-1.0-8B/resolve/main/config.json.
+Access to model issai/LLama-3.1-KazLLM-1.0-8B is restricted and you are not in the authorized list. Visit https://huggingface.co/issai/LLama-3.1-KazLLM-1.0-8B to ask for access.
+
+────────────────────────────────────────────────────────────
+Language: Chinese  [East Asia]  FLORES: zho_Hans
+  Loading FLORES-200 [zho_Hans] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 252458.41 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 267378.62 examples/s]
+  [92/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=14.132  vcov=99.86%  roundtrip=100.0%
+  [93/245] BLOOM (bigscience/bloom) ... fertility=12.117  vcov=98.06%  roundtrip=100.0%
+  [94/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [95/245] ChatGLM3-6B (THUDM/chatglm3-6b) ... [transformers] A new version of the following files was downloaded from https://huggingface.co/THUDM/chatglm3-6b:
+- configuration_chatglm.py
+. Make sure to double-check they do not contain any added malicious code. To avoid downloading new versions of the code file, you can pin a revision.
+[transformers] Encountered exception while importing sentencepiece: No module named 'sentencepiece'
+FAILED — This modeling file requires the following packages that were not found in your environment: sentencepiece. Run `pip install sentencepiece`
+
+────────────────────────────────────────────────────────────
+Language: Japanese  [East Asia]  FLORES: jpn_Jpan
+  Loading FLORES-200 [jpn_Jpan] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 210295.25 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 297660.28 examples/s]
+  [96/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=30.432  vcov=100.0%  roundtrip=100.0%
+  [97/245] BLOOM (bigscience/bloom) ... fertility=44.828  vcov=87.24%  roundtrip=100.0%
+  [98/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [99/245] LLM-jp-3-13B (llm-jp/llm-jp-3-13b-instruct) ... fertility=25.627  vcov=71.3%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Korean  [East Asia]  FLORES: kor_Hang
+  Loading FLORES-200 [kor_Hang] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 234296.34 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 257828.81 examples/s]
+  [100/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=2.415  vcov=99.35%  roundtrip=100.0%
+  [101/245] BLOOM (bigscience/bloom) ... fertility=4.887  vcov=19.36%  roundtrip=100.0%
+  [102/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [103/245] Polyglot-Ko-12B (EleutherAI/polyglot-ko-12.8b) ... fertility=2.199  vcov=93.26%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Vietnamese  [SEA]  FLORES: vie_Latn
+  Loading FLORES-200 [vie_Latn] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 228347.14 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 316150.43 examples/s]
+  [104/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=1.21  vcov=100.0%  roundtrip=100.0%
+  [105/245] BLOOM (bigscience/bloom) ... fertility=1.128  vcov=100.0%  roundtrip=100.0%
+  [106/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [107/245] Arcee-VyLinh-3B (arcee-ai/Arcee-VyLinh) ... fertility=1.29  vcov=100.0%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Thai  [SEA]  FLORES: tha_Thai
+  Loading FLORES-200 [tha_Thai] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 189406.70 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 357714.11 examples/s]
+  [108/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=10.084  vcov=100.0%  roundtrip=100.0%
+  [109/245] BLOOM (bigscience/bloom) ... fertility=29.119  vcov=81.48%  roundtrip=100.0%
+  [110/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [111/245] Typhoon2-7B (scb10x/typhoon2-qwen2.5-7b-instruct) ... fertility=16.315  vcov=98.77%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Indonesian  [SEA]  FLORES: ind_Latn
+  Loading FLORES-200 [ind_Latn] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 248305.98 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 274715.92 examples/s]
+  [112/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=1.575  vcov=100.0%  roundtrip=100.0%
+  [113/245] BLOOM (bigscience/bloom) ... fertility=1.333  vcov=99.03%  roundtrip=100.0%
+  [114/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [115/245] Nusantara-7B (kalisai/Nusantara-7b-Indo-Chat) ... fertility=2.146  vcov=100.0%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Malay  [SEA]  FLORES: zsm_Latn
+  Loading FLORES-200 [zsm_Latn] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 232939.01 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 328075.10 examples/s]
+  [116/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=1.632  vcov=100.0%  roundtrip=100.0%
+  [117/245] BLOOM (bigscience/bloom) ... fertility=1.444  vcov=100.0%  roundtrip=100.0%
+  [118/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [119/245] MaLLaM-5B (mesolitica/mallam-5B-4096) ... fertility=1.417  vcov=84.76%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Tagalog  [SEA]  FLORES: tgl_Latn
+  Loading FLORES-200 [tgl_Latn] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 232848.21 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 293401.23 examples/s]
+  [120/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=1.84  vcov=99.07%  roundtrip=100.0%
+  [121/245] BLOOM (bigscience/bloom) ... fertility=1.895  vcov=98.15%  roundtrip=100.0%
+  [122/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+
+────────────────────────────────────────────────────────────
+Language: Burmese  [SEA]  FLORES: mya_Mymr
+  Loading FLORES-200 [mya_Mymr] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 216602.15 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 238168.31 examples/s]
+  [123/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=6.136  vcov=100.0%  roundtrip=100.0%
+  [124/245] BLOOM (bigscience/bloom) ... fertility=25.746  vcov=53.59%  roundtrip=100.0%
+  [125/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [126/245] Burmese-GPT-1B (WYNN747/Burmese-GPT) ... [transformers] Ignoring clean_up_tokenization_spaces=True for BPE tokenizer GPT2Tokenizer. The clean_up_tokenization post-processing step is designed for WordPiece tokenizers and is destructive for BPE (it strips spaces before punctuation). Set clean_up_tokenization_spaces=False to suppress this warning, or set clean_up_tokenization_spaces_for_bpe_even_though_it_will_corrupt_output=True to force cleanup anyway.
+fertility=10.719  vcov=91.5%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Khmer  [SEA]  FLORES: khm_Khmr
+  Loading FLORES-200 [khm_Khmr] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 202436.03 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 227472.44 examples/s]
+  [127/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=12.747  vcov=98.38%  roundtrip=100.0%
+  [128/245] BLOOM (bigscience/bloom) ... fertility=29.492  vcov=63.78%  roundtrip=100.0%
+  [129/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [130/245] PrahokBART-62M (nict-astrec-att/prahokbart_base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--nict-astrec-att--prahokbart_base/snapshots/bb8d78ba7cca2cb0315511b86d81321eb6db9861/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+
+────────────────────────────────────────────────────────────
+Language: Swahili  [Africa]  FLORES: swh_Latn
+  Loading FLORES-200 [swh_Latn] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 240066.66 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 334644.88 examples/s]
+  [131/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=2.087  vcov=100.0%  roundtrip=100.0%
+  [132/245] BLOOM (bigscience/bloom) ... fertility=1.602  vcov=100.0%  roundtrip=100.0%
+  [133/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [134/245] Swahili-Gemma-7B (Mollel/Swahili_Gemma) ... fertility=2.047  vcov=100.0%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Amharic  [Africa]  FLORES: amh_Ethi
+  Loading FLORES-200 [amh_Ethi] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 208066.53 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 284989.64 examples/s]
+  [135/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=3.032  vcov=99.08%  roundtrip=100.0%
+  [136/245] BLOOM (bigscience/bloom) ... fertility=7.905  vcov=28.0%  roundtrip=100.0%
+  [137/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [138/245] Walia-LLM-7B (israel/LLAMA-Walia-II) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--israel--LLAMA-Walia-II/snapshots/66517db574a8092edcddfe0cb7c7c4c85b4318a9/tokenizer.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+
+────────────────────────────────────────────────────────────
+Language: Hausa  [Africa]  FLORES: hau_Latn
+  Loading FLORES-200 [hau_Latn] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 246840.27 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 393787.52 examples/s]
+  [139/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=1.864  vcov=99.07%  roundtrip=100.0%
+  [140/245] BLOOM (bigscience/bloom) ... fertility=1.924  vcov=93.46%  roundtrip=100.0%
+  [141/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [142/245] HausaLlama-8B (Jacaranda/HausaLlama) ... FAILED — You are trying to access a gated repo.
+Make sure to have access to it at https://huggingface.co/Jacaranda/HausaLlama.
+403 Client Error. (Request ID: Root=1-6a311f3f-238e7ea045a0065b3205787e;ab2268a8-1260-49ac-b0e2-92aa70d206d2)
+
+Cannot access gated repo for url https://huggingface.co/Jacaranda/HausaLlama/resolve/main/config.json.
+Access to model Jacaranda/HausaLlama is restricted and you are not in the authorized list. Visit https://huggingface.co/Jacaranda/HausaLlama to ask for access.
+
+────────────────────────────────────────────────────────────
+Language: Yoruba  [Africa]  FLORES: yor_Latn
+  Loading FLORES-200 [yor_Latn] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 203837.25 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 341208.65 examples/s]
+  [143/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=2.588  vcov=100.0%  roundtrip=100.0%
+  [144/245] BLOOM (bigscience/bloom) ... fertility=1.759  vcov=99.22%  roundtrip=100.0%
+  [145/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [146/245] YorubaLlama-8B (Jacaranda/YorubaLlama) ... FAILED — You are trying to access a gated repo.
+Make sure to have access to it at https://huggingface.co/Jacaranda/YorubaLlama.
+403 Client Error. (Request ID: Root=1-6a311f51-1c5d4a9773ec4f463fc4a908;98d97bf4-bed7-4ae7-ae6e-4739be361528)
+
+Cannot access gated repo for url https://huggingface.co/Jacaranda/YorubaLlama/resolve/main/config.json.
+Access to model Jacaranda/YorubaLlama is restricted and you are not in the authorized list. Visit https://huggingface.co/Jacaranda/YorubaLlama to ask for access.
+
+────────────────────────────────────────────────────────────
+Language: Igbo  [Africa]  FLORES: ibo_Latn
+  Loading FLORES-200 [ibo_Latn] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 214030.15 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 319337.62 examples/s]
+  [147/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=2.358  vcov=100.0%  roundtrip=100.0%
+  [148/245] BLOOM (bigscience/bloom) ... fertility=1.892  vcov=100.0%  roundtrip=100.0%
+  [149/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [150/245] Kakugo-3B-Igbo (ptrdvn/kakugo-3B-ibo) ... fertility=2.688  vcov=95.0%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Zulu  [Africa]  FLORES: zul_Latn
+  Loading FLORES-200 [zul_Latn] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 181144.51 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 332339.15 examples/s]
+  [151/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=3.384  vcov=100.0%  roundtrip=100.0%
+  [152/245] BLOOM (bigscience/bloom) ... fertility=3.043  vcov=99.09%  roundtrip=100.0%
+  [153/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [154/245] Xhosa-ZuluLlama3-8B (Jacaranda/Xhosa_ZuluLlama3_v1) ... FAILED — You are trying to access a gated repo.
+Make sure to have access to it at https://huggingface.co/Jacaranda/Xhosa_ZuluLlama3_v1.
+403 Client Error. (Request ID: Root=1-6a311f7e-0b6ad4cd1884170c62ee5b90;04aff758-fdb6-473f-abbd-3845d515b301)
+
+Cannot access gated repo for url https://huggingface.co/Jacaranda/Xhosa_ZuluLlama3_v1/resolve/main/config.json.
+Access to model Jacaranda/Xhosa_ZuluLlama3_v1 is restricted and you are not in the authorized list. Visit https://huggingface.co/Jacaranda/Xhosa_ZuluLlama3_v1 to ask for access.
+
+────────────────────────────────────────────────────────────
+Language: Xhosa  [Africa]  FLORES: xho_Latn
+  Loading FLORES-200 [xho_Latn] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 214965.36 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 285968.85 examples/s]
+  [155/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=3.302  vcov=99.03%  roundtrip=100.0%
+  [156/245] BLOOM (bigscience/bloom) ... fertility=2.933  vcov=99.03%  roundtrip=100.0%
+  [157/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [158/245] Xhosa-ZuluLlama3-8B (Jacaranda/Xhosa_ZuluLlama3_v1) ... FAILED — You are trying to access a gated repo.
+Make sure to have access to it at https://huggingface.co/Jacaranda/Xhosa_ZuluLlama3_v1.
+403 Client Error. (Request ID: Root=1-6a311f92-1c9801ba2b6b752559236d97;cf81aca2-cf0a-48f0-a884-01c8009ce813)
+
+Cannot access gated repo for url https://huggingface.co/Jacaranda/Xhosa_ZuluLlama3_v1/resolve/main/config.json.
+Access to model Jacaranda/Xhosa_ZuluLlama3_v1 is restricted and you are not in the authorized list. Visit https://huggingface.co/Jacaranda/Xhosa_ZuluLlama3_v1 to ask for access.
+
+────────────────────────────────────────────────────────────
+Language: Somali  [Africa]  FLORES: som_Latn
+  Loading FLORES-200 [som_Latn] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 228922.16 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 307894.65 examples/s]
+  [159/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=2.246  vcov=100.0%  roundtrip=100.0%
+  [160/245] BLOOM (bigscience/bloom) ... fertility=2.402  vcov=100.0%  roundtrip=100.0%
+  [161/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+
+────────────────────────────────────────────────────────────
+Language: Wolof  [Africa]  FLORES: wol_Latn
+  Loading FLORES-200 [wol_Latn] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 215886.48 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 318117.04 examples/s]
+  [162/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=1.921  vcov=99.19%  roundtrip=100.0%
+  [163/245] BLOOM (bigscience/bloom) ... fertility=1.845  vcov=100.0%  roundtrip=100.0%
+  [164/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [165/245] Wolof-Qwen-1.5B (ciskoM/wolof-qwen-1.5b) ... fertility=2.103  vcov=100.0%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Shona  [Africa]  FLORES: sna_Latn
+  Loading FLORES-200 [sna_Latn] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 252093.14 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 299318.50 examples/s]
+  [166/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=2.927  vcov=100.0%  roundtrip=100.0%
+  [167/245] BLOOM (bigscience/bloom) ... fertility=2.848  vcov=100.0%  roundtrip=100.0%
+  [168/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+
+────────────────────────────────────────────────────────────
+Language: French  [Europe]  FLORES: fra_Latn
+  Loading FLORES-200 [fra_Latn] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 221747.86 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 338730.80 examples/s]
+  [169/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=1.49  vcov=98.31%  roundtrip=100.0%
+  [170/245] BLOOM (bigscience/bloom) ... fertility=1.289  vcov=100.0%  roundtrip=100.0%
+  [171/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [172/245] Lucie-7B (OpenLLM-France/Lucie-7B) ... fertility=1.427  vcov=82.2%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: German  [Europe]  FLORES: deu_Latn
+  Loading FLORES-200 [deu_Latn] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 211636.27 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 322712.36 examples/s]
+  [173/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=1.655  vcov=100.0%  roundtrip=100.0%
+  [174/245] BLOOM (bigscience/bloom) ... fertility=2.12  vcov=100.0%  roundtrip=100.0%
+  [175/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [176/245] LeoLM-7B (LeoLM/leo-mistral-hessianai-7b-chat) ... fertility=2.18  vcov=81.48%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Spanish  [Europe]  FLORES: spa_Latn
+  Loading FLORES-200 [spa_Latn] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 193777.62 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 346020.68 examples/s]
+  [177/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=1.347  vcov=100.0%  roundtrip=100.0%
+  [178/245] BLOOM (bigscience/bloom) ... fertility=1.269  vcov=100.0%  roundtrip=100.0%
+  [179/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [180/245] Salamandra-7B (BSC-LT/salamandra-7b) ... fertility=1.354  vcov=85.58%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Portuguese  [Europe]  FLORES: por_Latn
+  Loading FLORES-200 [por_Latn] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 248941.61 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 364033.93 examples/s]
+  [181/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=1.453  vcov=100.0%  roundtrip=100.0%
+  [182/245] BLOOM (bigscience/bloom) ... fertility=1.312  vcov=100.0%  roundtrip=100.0%
+  [183/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [184/245] Gervasio-8B (PORTULAN/gervasio-8b-portuguese-ptpt-decoder) ... fertility=1.709  vcov=100.0%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Italian  [Europe]  FLORES: ita_Latn
+  Loading FLORES-200 [ita_Latn] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 254532.90 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 375100.36 examples/s]
+  [185/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=1.535  vcov=100.0%  roundtrip=100.0%
+  [186/245] BLOOM (bigscience/bloom) ... fertility=1.828  vcov=100.0%  roundtrip=100.0%
+  [187/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [188/245] LLaMAntino-3-8B (swap-uniba/LLaMAntino-3-ANITA-8B-Inst-DPO-ITA) ... fertility=1.831  vcov=100.0%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Dutch  [Europe]  FLORES: nld_Latn
+  Loading FLORES-200 [nld_Latn] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 214865.95 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 329988.00 examples/s]
+  [189/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=1.63  vcov=100.0%  roundtrip=100.0%
+  [190/245] BLOOM (bigscience/bloom) ... fertility=2.04  vcov=98.11%  roundtrip=100.0%
+  [191/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [192/245] Fietje-2 (BramVanroy/fietje-2) ... [transformers] Ignoring clean_up_tokenization_spaces=True for BPE tokenizer CodeGenTokenizer. The clean_up_tokenization post-processing step is designed for WordPiece tokenizers and is destructive for BPE (it strips spaces before punctuation). Set clean_up_tokenization_spaces=False to suppress this warning, or set clean_up_tokenization_spaces_for_bpe_even_though_it_will_corrupt_output=True to force cleanup anyway.
+fertility=2.325  vcov=94.34%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Polish  [Europe]  FLORES: pol_Latn
+  Loading FLORES-200 [pol_Latn] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 235298.28 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 314977.42 examples/s]
+  [193/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=2.096  vcov=100.0%  roundtrip=100.0%
+  [194/245] BLOOM (bigscience/bloom) ... fertility=2.99  vcov=97.17%  roundtrip=100.0%
+  [195/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [196/245] Bielik-11B (speakleash/Bielik-11B-v2.3-Instruct) ... fertility=2.924  vcov=81.13%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Russian  [Europe]  FLORES: rus_Cyrl
+  Loading FLORES-200 [rus_Cyrl] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 273959.71 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 312243.32 examples/s]
+  [197/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=1.884  vcov=99.33%  roundtrip=100.0%
+  [198/245] BLOOM (bigscience/bloom) ... fertility=3.425  vcov=92.67%  roundtrip=100.0%
+  [199/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [200/245] Vikhr-Nemo-12B (Vikhrmodels/Vikhr-Nemo-12B-Instruct-R-21-09-24) ... [transformers] The tokenizer you are loading from 'Vikhrmodels/Vikhr-Nemo-12B-Instruct-R-21-09-24' with an incorrect regex pattern: https://huggingface.co/mistralai/Mistral-Small-3.1-24B-Instruct-2503/discussions/84#69121093e8b480e709447d5e. This will lead to incorrect tokenization. You should set the `fix_mistral_regex=True` flag when loading this tokenizer to fix this issue.
+fertility=2.13  vcov=98.67%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Ukrainian  [Europe]  FLORES: ukr_Cyrl
+  Loading FLORES-200 [ukr_Cyrl] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 204046.12 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 266723.37 examples/s]
+  [201/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=2.273  vcov=100.0%  roundtrip=100.0%
+  [202/245] BLOOM (bigscience/bloom) ... fertility=3.899  vcov=88.44%  roundtrip=100.0%
+  [203/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [204/245] MamayLM-12B (INSAIT-Institute/MamayLM-Gemma-3-12B-IT-v1.0) ... fertility=2.273  vcov=100.0%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Romanian  [Europe]  FLORES: ron_Latn
+  Loading FLORES-200 [ron_Latn] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 249431.62 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 352720.26 examples/s]
+  [205/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=1.8  vcov=100.0%  roundtrip=100.0%
+  [206/245] BLOOM (bigscience/bloom) ... fertility=2.205  vcov=96.43%  roundtrip=100.0%
+  [207/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [208/245] LLMic-3B (faur-ai/LLMic) ... [transformers] Ignoring clean_up_tokenization_spaces=True for BPE tokenizer GPTNeoXTokenizer. The clean_up_tokenization post-processing step is designed for WordPiece tokenizers and is destructive for BPE (it strips spaces before punctuation). Set clean_up_tokenization_spaces=False to suppress this warning, or set clean_up_tokenization_spaces_for_bpe_even_though_it_will_corrupt_output=True to force cleanup anyway.
+fertility=2.192  vcov=77.68%  roundtrip=4.15%
+
+────────────────────────────────────────────────────────────
+Language: Swedish  [Europe]  FLORES: swe_Latn
+  Loading FLORES-200 [swe_Latn] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 208481.46 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 291988.42 examples/s]
+  [209/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=1.841  vcov=100.0%  roundtrip=100.0%
+  [210/245] BLOOM (bigscience/bloom) ... fertility=2.222  vcov=99.05%  roundtrip=100.0%
+  [211/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [212/245] Viking-7B (LumiOpen/Viking-7B) ... fertility=1.474  vcov=100.0%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Czech  [Europe]  FLORES: ces_Latn
+  Loading FLORES-200 [ces_Latn] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 188501.67 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 345992.47 examples/s]
+  [213/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=2.157  vcov=99.13%  roundtrip=100.0%
+  [214/245] BLOOM (bigscience/bloom) ... fertility=2.885  vcov=95.65%  roundtrip=100.0%
+  [215/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [216/245] CSMPT-7B (BUT-FIT/csmpt7b) ... fertility=1.407  vcov=96.52%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Greek  [Europe]  FLORES: ell_Grek
+  Loading FLORES-200 [ell_Grek] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 252962.38 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 262646.84 examples/s]
+  [217/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=2.472  vcov=100.0%  roundtrip=100.0%
+  [218/245] BLOOM (bigscience/bloom) ... fertility=4.341  vcov=86.27%  roundtrip=100.0%
+  [219/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [220/245] Meltemi-7B (ilsp/Meltemi-7B-Instruct-v1.5) ... fertility=1.397  vcov=95.42%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Lat.Am. Spanish  [Americas]  FLORES: spa_Latn
+  [221/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=1.347  vcov=100.0%  roundtrip=100.0%
+  [222/245] BLOOM (bigscience/bloom) ... fertility=1.269  vcov=100.0%  roundtrip=100.0%
+  [223/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [224/245] LatamGPT-70B (latam-gpt/Llama-3.1-70B-LatamGPT-SFT-1.0) ... [transformers] `rope_parameters`'s original_max_position_embeddings field must be less than max_position_embeddings, got 4096 and max_position_embeddings=4096
+fertility=1.604  vcov=100.0%  roundtrip=100.0%
+
+────────────────────────────────────────────────────────────
+Language: Brazilian Portuguese  [Americas]  FLORES: por_Latn
+  [225/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=1.453  vcov=100.0%  roundtrip=100.0%
+  [226/245] BLOOM (bigscience/bloom) ... fertility=1.312  vcov=100.0%  roundtrip=100.0%
+  [227/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [228/245] Tucano-2b4 (TucanoBR/Tucano-2b4-Instruct) ... fertility=1.252  vcov=86.84%  roundtrip=99.31%
+
+────────────────────────────────────────────────────────────
+Language: Quechua  [Americas]  FLORES: quy_Latn
+  Loading FLORES-200 [quy_Latn] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 265152.56 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 280173.97 examples/s]
+  [229/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=3.147  vcov=100.0%  roundtrip=100.0%
+  [230/245] BLOOM (bigscience/bloom) ... fertility=3.158  vcov=100.0%  roundtrip=100.0%
+  [231/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+
+────────────────────────────────────────────────────────────
+Language: Haitian Creole  [Americas]  FLORES: hat_Latn
+  Loading FLORES-200 [hat_Latn] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 240813.19 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 302087.80 examples/s]
+  [232/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=1.796  vcov=100.0%  roundtrip=100.0%
+  [233/245] BLOOM (bigscience/bloom) ... fertility=1.85  vcov=99.13%  roundtrip=100.0%
+  [234/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+
+────────────────────────────────────────────────────────────
+Language: Māori  [Oceania]  FLORES: mri_Latn
+  Loading FLORES-200 [mri_Latn] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 251895.73 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 396546.68 examples/s]
+  [235/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=1.825  vcov=100.0%  roundtrip=100.0%
+  [236/245] BLOOM (bigscience/bloom) ... fertility=1.91  vcov=94.62%  roundtrip=100.0%
+  [237/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [238/245] Goldfish-mri-39M (goldfish-models/mri_latn_10mb) ... FAILED — argument 'special_tokens': Expected Union[Tuple[str, int], Tuple[int, str], dict]
+
+────────────────────────────────────────────────────────────
+Language: Samoan  [Oceania]  FLORES: smo_Latn
+  Loading FLORES-200 [smo_Latn] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 250252.61 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 339272.29 examples/s]
+  [239/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=1.821  vcov=100.0%  roundtrip=100.0%
+  [240/245] BLOOM (bigscience/bloom) ... fertility=1.823  vcov=97.37%  roundtrip=100.0%
+  [241/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+
+────────────────────────────────────────────────────────────
+Language: Tok Pisin  [Oceania]  FLORES: tpi_Latn
+  Loading FLORES-200 [tpi_Latn] ...
+Generating dev split:   0%|          | 0/997 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 997/997 [00:00<00:00, 239215.21 examples/s]
+Generating devtest split:   0%|          | 0/1012 [00:00<?, ? examples/s]Generating devtest split: 100%|██████████| 1012/1012 [00:00<00:00, 336662.09 examples/s]
+  [242/245] Gemma-4 (google/gemma-4-12b-it) ... fertility=1.644  vcov=100.0%  roundtrip=100.0%
+  [243/245] BLOOM (bigscience/bloom) ... fertility=1.668  vcov=100.0%  roundtrip=100.0%
+  [244/245] mT5 (google/mt5-base) ... [transformers] Could not extract SentencePiece model from /Users/ramyogeshwaran/.cache/huggingface/hub/models--google--mt5-base/snapshots/2eb15465c5dd7f72a8f7984306ad05ebc3dd1e1f/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+FAILED — `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+  [245/245] Goldfish-tpi-125M (goldfish-models/tpi_latn_full) ... FAILED — argument 'special_tokens': Expected Union[Tuple[str, int], Tuple[int, str], dict]
+
+Wrote 165 rows → /Users/ramyogeshwaran/Documents/RamYogeshwaran/Repos/falcon-language/data/results.csv
+Wrote summary → /Users/ramyogeshwaran/Documents/RamYogeshwaran/Repos/falcon-language/data/summary.json
+
+── Unweighted avg fertility per tokenizer ──
+  Tucano-2b4                      fertility=1.252  vcov=86.84%
+  Arcee-VyLinh-3B                 fertility=1.29  vcov=100.0%
+  Salamandra-7B                   fertility=1.354  vcov=85.58%
+  Meltemi-7B                      fertility=1.397  vcov=95.42%
+  CSMPT-7B                        fertility=1.407  vcov=96.52%
+  MaLLaM-5B                       fertility=1.417  vcov=84.76%
+  Lucie-7B                        fertility=1.427  vcov=82.2%
+  Viking-7B                       fertility=1.474  vcov=100.0%
+  LatamGPT-70B                    fertility=1.604  vcov=100.0%
+  Gervasio-8B                     fertility=1.709  vcov=100.0%
+  Tamil-Mistral-7B                fertility=1.734  vcov=86.61%
+  LLaMAntino-3-8B                 fertility=1.831  vcov=100.0%
+  Gujju-Llama-7B                  fertility=2.033  vcov=82.98%
+  Swahili-Gemma-7B                fertility=2.047  vcov=100.0%
+  Wolof-Qwen-1.5B                 fertility=2.103  vcov=100.0%
+  Vikhr-Nemo-12B                  fertility=2.13  vcov=98.67%
+  Nusantara-7B                    fertility=2.146  vcov=100.0%
+  LeoLM-7B                        fertility=2.18  vcov=81.48%
+  LLMic-3B                        fertility=2.192  vcov=77.68%
+  Polyglot-Ko-12B                 fertility=2.199  vcov=93.26%
+  MamayLM-12B                     fertility=2.273  vcov=100.0%
+  Fietje-2                        fertility=2.325  vcov=94.34%
+  NEPALI-LLM-9B                   fertility=2.48  vcov=100.0%
+  Mistral-Nemo-Kurdish            fertility=2.486  vcov=96.19%
+  Trendyol-8B                     fertility=2.547  vcov=100.0%
+  DictaLM-2.0-7B                  fertility=2.642  vcov=83.33%
+  Kakugo-3B-Igbo                  fertility=2.688  vcov=95.0%
+  Bielik-11B                      fertility=2.924  vcov=81.13%
+  Qalb-1.0-8B                     fertility=3.02  vcov=91.11%
+  Gemma-4                         fertility=3.217  vcov=99.672%
+  Mistral-7B-Uz                   fertility=3.515  vcov=100.0%
+  BLOOM                           fertility=4.548  vcov=93.277%
+  Maral-7B                        fertility=5.138  vcov=53.49%
+  MalayaLLM-Gemma-9B              fertility=5.875  vcov=100.0%
+  Dhee-Qwen3-Punjabi-2B           fertility=7.758  vcov=67.33%
+  BanglaLLama-3.1-8B              fertility=8.021  vcov=58.02%
+  Burmese-GPT-1B                  fertility=10.719  vcov=91.5%
+  llama3-sinhala-8B               fertility=11.324  vcov=52.38%
+  Typhoon2-7B                     fertility=16.315  vcov=98.77%
+  Telugu-Llama2-7B                fertility=19.59  vcov=50.0%
+  LLM-jp-3-13B                    fertility=25.627  vcov=71.3%
