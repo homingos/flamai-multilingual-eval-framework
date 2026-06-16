@@ -1,6 +1,6 @@
 # Global Tokenizer Evaluation — Detailed Report
 
-**Generated:** 2026-06-16 11:03 UTC  ·  **Source:** `data/results.csv`  ·  **Corpus:** FLORES-200 devtest (~1012 sentences/language)
+**Generated:** 2026-06-16 11:28 UTC  ·  **Source:** `data/results.csv`  ·  **Corpus:** FLORES-200 devtest (~1012 sentences/language)
 
 > **Caveats.** Fertility uses whitespace "words", which is imperfect for languages without whitespace
 > word boundaries (Japanese, Thai, Burmese, Khmer). For those languages, use `avg_tokens_per_sent`
@@ -26,7 +26,7 @@ Gemma-4 is the current default. Re-run after fixing those to get a full comparis
 | 8 | Gujarati | Indic | Gujju-Llama-7B | Gujju-Llama-7B | fertility 2.415→2.033, vcov 82.98% |
 | 9 | Punjabi | Indic | Gemma-4 | Dhee-Qwen3-Punjabi-2B | fertility 2.82→7.758, vcov 67.33% |
 | 10 | Odia | Indic | Gemma-4 | Qwen-Odia-7B | fertility 4.852→13.654, vcov 56.44% |
-| 11 | Assamese | Indic | Gemma-4 | No regional candidate tested | — |
+| 11 | Assamese | Indic | Gemma-4 | Goldfish-ASM-125M | fertility 2.819→1.42, vcov 93.17% |
 | 12 | Urdu | Indic | Gemma-4 | Qalb-1.0-8B | fertility 1.489→3.02, vcov 91.11% |
 | 13 | Nepali | Indic | Gemma-4 | NEPALI-LLM-9B | fertility 2.216→2.48, vcov 100.0% |
 | 14 | Sinhala | Indic | Gemma-4 | llama3-sinhala-8B | fertility 2.997→11.324, vcov 52.38% |
@@ -77,10 +77,10 @@ Gemma-4 is the current default. Re-run after fixing those to get a full comparis
 | 59 | Quechua | Americas | Gemma-4 | No regional candidate tested | — |
 | 60 | Nahuatl | Americas | — | Not in FLORES-200 | — |
 | 61 | Haitian Creole | Americas | Gemma-4 | No regional candidate tested | — |
-| 62 | Māori | Oceania | Gemma-4 | No regional candidate tested | — |
+| 62 | Māori | Oceania | Goldfish-mri-39M | Goldfish-mri-39M | fertility 1.825→1.22, vcov 92.47% |
 | 63 | Samoan | Oceania | Gemma-4 | No regional candidate tested | — |
 | 64 | Hawaiian | Oceania | — | Not in FLORES-200 | — |
-| 65 | Tok Pisin | Oceania | Gemma-4 | No regional candidate tested | — |
+| 65 | Tok Pisin | Oceania | Goldfish-tpi-125M | Goldfish-tpi-125M | fertility 1.644→1.311, vcov 83.02% |
 
 ---
 
@@ -201,6 +201,9 @@ Primary signals: fertility and vocab coverage. Secondary: byte fallback rate and
 | Yoruba | Africa | YorubaLlama-8B | 2.588 | 2.934 | 100.0 | 96.09 | 1.84 | 100.0 | ❌ Gemma-4 wins |
 | Zulu | Africa | Xhosa-ZuluLlama3-8B | 3.384 | 3.754 | 100.0 | 100.0 | 0.16 | 100.0 | ⚠️ Mixed |
 | Xhosa | Africa | Xhosa-ZuluLlama3-8B | 3.302 | 3.567 | 99.03 | 100.0 | 0.24 | 100.0 | ⚠️ Mixed |
+| Assamese | Indic | Goldfish-ASM-125M | 2.819 | 1.42 | 99.38 | 93.17 | 0.0 | 25.89 | ⚠️ Mixed |
+| Māori | Oceania | Goldfish-mri-39M | 1.825 | 1.22 | 100.0 | 92.47 | 0.12 | 99.7 | ✅ Candidate wins |
+| Tok Pisin | Oceania | Goldfish-tpi-125M | 1.644 | 1.311 | 100.0 | 83.02 | 0.0 | 98.42 | ✅ Candidate wins |
 
 ---
 
@@ -213,23 +216,23 @@ Rows = languages. Columns = tokenizers. Scan across a row to compare models on o
 
 **Indic**
 
-| language | Gemma-4 | BLOOM | mT5 | Airavata-7B | BanglaLLama-3.1-8B | Tamil-Mistral-7B | Telugu-Llama2-7B | Ambari-7B | MalayaLLM-Gemma-9B | MahaMarathi-7B | Gujju-Llama-7B | Dhee-Qwen3-Punjabi-2B | Qwen-Odia-7B | Qalb-1.0-8B | NEPALI-LLM-9B | llama3-sinhala-8B |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Hindi | 1.385 | 1.37 | — | 1.823 | — | — | — | — | — | — | — | — | — | — | — | — |
-| Bengali | 1.683 | 1.652 | — | — | 8.021 | — | — | — | — | — | — | — | — | — | — | — |
-| Tamil | 2.374 | 2.099 | — | — | — | 1.734 | — | — | — | — | — | — | — | — | — | — |
-| Telugu | 2.843 | 2.15 | — | — | — | — | 19.59 | — | — | — | — | — | — | — | — | — |
-| Kannada | 3.241 | 2.217 | — | — | — | — | — | 2.736 | — | — | — | — | — | — | — | — |
-| Malayalam | 3.357 | 2.54 | — | — | — | — | — | — | 5.875 | — | — | — | — | — | — | — |
-| Marathi | 1.987 | 1.754 | — | — | — | — | — | — | — | 1.638 | — | — | — | — | — | — |
-| Gujarati | 2.415 | 1.776 | — | — | — | — | — | — | — | — | 2.033 | — | — | — | — | — |
-| Punjabi | 2.82 | 1.528 | — | — | — | — | — | — | — | — | — | 7.758 | — | — | — | — |
-| Odia | 4.852 | 1.912 | — | — | — | — | — | — | — | — | — | — | 13.654 | — | — | — |
-| Assamese | 2.819 | 1.999 | — | — | — | — | — | — | — | — | — | — | — | — | — | — |
-| Urdu | 1.489 | 1.344 | — | — | — | — | — | — | — | — | — | — | — | 3.02 | — | — |
-| Nepali | 2.216 | 1.723 | — | — | — | — | — | — | — | — | — | — | — | — | 2.48 | — |
-| Sinhala | 2.997 | 10.689 | — | — | — | — | — | — | — | — | — | — | — | — | — | 11.324 |
-| Maithili | 1.806 | 1.734 | — | — | — | — | — | — | — | — | — | — | — | — | — | — |
+| language | Gemma-4 | BLOOM | mT5 | Airavata-7B | BanglaLLama-3.1-8B | Tamil-Mistral-7B | Telugu-Llama2-7B | Ambari-7B | MalayaLLM-Gemma-9B | MahaMarathi-7B | Gujju-Llama-7B | Dhee-Qwen3-Punjabi-2B | Qwen-Odia-7B | Goldfish-ASM-125M | Qalb-1.0-8B | NEPALI-LLM-9B | llama3-sinhala-8B |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Hindi | 1.385 | 1.37 | — | 1.823 | — | — | — | — | — | — | — | — | — | — | — | — | — |
+| Bengali | 1.683 | 1.652 | — | — | 8.021 | — | — | — | — | — | — | — | — | — | — | — | — |
+| Tamil | 2.374 | 2.099 | — | — | — | 1.734 | — | — | — | — | — | — | — | — | — | — | — |
+| Telugu | 2.843 | 2.15 | — | — | — | — | 19.59 | — | — | — | — | — | — | — | — | — | — |
+| Kannada | 3.241 | 2.217 | — | — | — | — | — | 2.736 | — | — | — | — | — | — | — | — | — |
+| Malayalam | 3.357 | 2.54 | — | — | — | — | — | — | 5.875 | — | — | — | — | — | — | — | — |
+| Marathi | 1.987 | 1.754 | — | — | — | — | — | — | — | 1.638 | — | — | — | — | — | — | — |
+| Gujarati | 2.415 | 1.776 | — | — | — | — | — | — | — | — | 2.033 | — | — | — | — | — | — |
+| Punjabi | 2.82 | 1.528 | — | — | — | — | — | — | — | — | — | 7.758 | — | — | — | — | — |
+| Odia | 4.852 | 1.912 | — | — | — | — | — | — | — | — | — | — | 13.654 | — | — | — | — |
+| Assamese | 2.819 | 1.999 | — | — | — | — | — | — | — | — | — | — | — | 1.42 | — | — | — |
+| Urdu | 1.489 | 1.344 | — | — | — | — | — | — | — | — | — | — | — | — | 3.02 | — | — |
+| Nepali | 2.216 | 1.723 | — | — | — | — | — | — | — | — | — | — | — | — | — | 2.48 | — |
+| Sinhala | 2.997 | 10.689 | — | — | — | — | — | — | — | — | — | — | — | — | — | — | 11.324 |
+| Maithili | 1.806 | 1.734 | — | — | — | — | — | — | — | — | — | — | — | — | — | — | — |
 
 **Middle East**
 
@@ -308,34 +311,34 @@ Rows = languages. Columns = tokenizers. Scan across a row to compare models on o
 
 **Oceania**
 
-| language | Gemma-4 | BLOOM | mT5 |
-| --- | --- | --- | --- |
-| Māori | 1.825 | 1.91 | — |
-| Samoan | 1.821 | 1.823 | — |
-| Tok Pisin | 1.644 | 1.668 | — |
+| language | Gemma-4 | BLOOM | mT5 | Goldfish-mri-39M | Goldfish-tpi-125M |
+| --- | --- | --- | --- | --- | --- |
+| Māori | 1.825 | 1.91 | — | 1.22 | — |
+| Samoan | 1.821 | 1.823 | — | — | — |
+| Tok Pisin | 1.644 | 1.668 | — | — | 1.311 |
 
 ### Compression ratio (chars / token)
 *Higher is better.*
 
 **Indic**
 
-| language | Gemma-4 | BLOOM | mT5 | Airavata-7B | BanglaLLama-3.1-8B | Tamil-Mistral-7B | Telugu-Llama2-7B | Ambari-7B | MalayaLLM-Gemma-9B | MahaMarathi-7B | Gujju-Llama-7B | Dhee-Qwen3-Punjabi-2B | Qwen-Odia-7B | Qalb-1.0-8B | NEPALI-LLM-9B | llama3-sinhala-8B |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Hindi | 3.69 | 3.73 | — | 2.803 | — | — | — | — | — | — | — | — | — | — | — | — |
-| Bengali | 3.93 | 4.004 | — | — | 0.825 | — | — | — | — | — | — | — | — | — | — | — |
-| Tamil | 3.87 | 4.378 | — | — | — | 5.297 | — | — | — | — | — | — | — | — | — | — |
-| Telugu | 2.751 | 3.637 | — | — | — | — | 0.399 | — | — | — | — | — | — | — | — | — |
-| Kannada | 2.645 | 3.868 | — | — | — | — | — | 3.133 | — | — | — | — | — | — | — | — |
-| Malayalam | 2.98 | 3.937 | — | — | — | — | — | — | 1.703 | — | — | — | — | — | — | — |
-| Marathi | 3.517 | 3.982 | — | — | — | — | — | — | — | 4.265 | — | — | — | — | — | — |
-| Gujarati | 2.506 | 3.407 | — | — | — | — | — | — | — | — | 2.977 | — | — | — | — | — |
-| Punjabi | 1.827 | 3.372 | — | — | — | — | — | — | — | — | — | 0.664 | — | — | — | — |
-| Odia | 1.416 | 3.595 | — | — | — | — | — | — | — | — | — | — | 0.503 | — | — | — |
-| Assamese | 2.316 | 3.266 | — | — | — | — | — | — | — | — | — | — | — | — | — | — |
-| Urdu | 3.156 | 3.496 | — | — | — | — | — | — | — | — | — | — | — | 1.556 | — | — |
-| Nepali | 3.062 | 3.938 | — | — | — | — | — | — | — | — | — | — | — | — | 2.736 | — |
-| Sinhala | 2.112 | 0.592 | — | — | — | — | — | — | — | — | — | — | — | — | — | 0.559 |
-| Maithili | 2.912 | 3.032 | — | — | — | — | — | — | — | — | — | — | — | — | — | — |
+| language | Gemma-4 | BLOOM | mT5 | Airavata-7B | BanglaLLama-3.1-8B | Tamil-Mistral-7B | Telugu-Llama2-7B | Ambari-7B | MalayaLLM-Gemma-9B | MahaMarathi-7B | Gujju-Llama-7B | Dhee-Qwen3-Punjabi-2B | Qwen-Odia-7B | Goldfish-ASM-125M | Qalb-1.0-8B | NEPALI-LLM-9B | llama3-sinhala-8B |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Hindi | 3.69 | 3.73 | — | 2.803 | — | — | — | — | — | — | — | — | — | — | — | — | — |
+| Bengali | 3.93 | 4.004 | — | — | 0.825 | — | — | — | — | — | — | — | — | — | — | — | — |
+| Tamil | 3.87 | 4.378 | — | — | — | 5.297 | — | — | — | — | — | — | — | — | — | — | — |
+| Telugu | 2.751 | 3.637 | — | — | — | — | 0.399 | — | — | — | — | — | — | — | — | — | — |
+| Kannada | 2.645 | 3.868 | — | — | — | — | — | 3.133 | — | — | — | — | — | — | — | — | — |
+| Malayalam | 2.98 | 3.937 | — | — | — | — | — | — | 1.703 | — | — | — | — | — | — | — | — |
+| Marathi | 3.517 | 3.982 | — | — | — | — | — | — | — | 4.265 | — | — | — | — | — | — | — |
+| Gujarati | 2.506 | 3.407 | — | — | — | — | — | — | — | — | 2.977 | — | — | — | — | — | — |
+| Punjabi | 1.827 | 3.372 | — | — | — | — | — | — | — | — | — | 0.664 | — | — | — | — | — |
+| Odia | 1.416 | 3.595 | — | — | — | — | — | — | — | — | — | — | 0.503 | — | — | — | — |
+| Assamese | 2.316 | 3.266 | — | — | — | — | — | — | — | — | — | — | — | 4.599 | — | — | — |
+| Urdu | 3.156 | 3.496 | — | — | — | — | — | — | — | — | — | — | — | — | 1.556 | — | — |
+| Nepali | 3.062 | 3.938 | — | — | — | — | — | — | — | — | — | — | — | — | — | 2.736 | — |
+| Sinhala | 2.112 | 0.592 | — | — | — | — | — | — | — | — | — | — | — | — | — | — | 0.559 |
+| Maithili | 2.912 | 3.032 | — | — | — | — | — | — | — | — | — | — | — | — | — | — | — |
 
 **Middle East**
 
@@ -414,34 +417,34 @@ Rows = languages. Columns = tokenizers. Scan across a row to compare models on o
 
 **Oceania**
 
-| language | Gemma-4 | BLOOM | mT5 |
-| --- | --- | --- | --- |
-| Māori | 2.647 | 2.529 | — |
-| Samoan | 2.635 | 2.632 | — |
-| Tok Pisin | 3.247 | 3.201 | — |
+| language | Gemma-4 | BLOOM | mT5 | Goldfish-mri-39M | Goldfish-tpi-125M |
+| --- | --- | --- | --- | --- | --- |
+| Māori | 2.647 | 2.529 | — | 3.959 | — |
+| Samoan | 2.635 | 2.632 | — | — | — |
+| Tok Pisin | 3.247 | 3.201 | — | — | 4.071 |
 
 ### Byte fallback rate (%)
 *Lower is better.*
 
 **Indic**
 
-| language | Gemma-4 | BLOOM | mT5 | Airavata-7B | BanglaLLama-3.1-8B | Tamil-Mistral-7B | Telugu-Llama2-7B | Ambari-7B | MalayaLLM-Gemma-9B | MahaMarathi-7B | Gujju-Llama-7B | Dhee-Qwen3-Punjabi-2B | Qwen-Odia-7B | Qalb-1.0-8B | NEPALI-LLM-9B | llama3-sinhala-8B |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Hindi | 0.0 | 0.03 | — | 3.99 | — | — | — | — | — | — | — | — | — | — | — | — |
-| Bengali | 0.0 | 0.27 | — | — | 16.93 | — | — | — | — | — | — | — | — | — | — | — |
-| Tamil | 0.0 | 0.24 | — | — | — | 0.0 | — | — | — | — | — | — | — | — | — | — |
-| Telugu | 1.0 | 0.62 | — | — | — | — | 90.6 | — | — | — | — | — | — | — | — | — |
-| Kannada | 0.0 | 0.86 | — | — | — | — | — | 0.0 | — | — | — | — | — | — | — | — |
-| Malayalam | 0.0 | 0.17 | — | — | — | — | — | — | 0.0 | — | — | — | — | — | — | — |
-| Marathi | 0.0 | 0.23 | — | — | — | — | — | — | — | 0.0 | — | — | — | — | — | — |
-| Gujarati | 0.01 | 0.34 | — | — | — | — | — | — | — | — | 0.0 | — | — | — | — | — |
-| Punjabi | 0.01 | 0.07 | — | — | — | — | — | — | — | — | — | 19.43 | — | — | — | — |
-| Odia | 1.06 | 0.22 | — | — | — | — | — | — | — | — | — | — | 25.78 | — | — | — |
-| Assamese | 0.01 | 0.26 | — | — | — | — | — | — | — | — | — | — | — | — | — | — |
-| Urdu | 0.0 | 0.04 | — | — | — | — | — | — | — | — | — | — | — | 17.51 | — | — |
-| Nepali | 0.0 | 0.04 | — | — | — | — | — | — | — | — | — | — | — | — | 0.0 | — |
-| Sinhala | 0.02 | 30.3 | — | — | — | — | — | — | — | — | — | — | — | — | — | 28.31 |
-| Maithili | 0.0 | 0.01 | — | — | — | — | — | — | — | — | — | — | — | — | — | — |
+| language | Gemma-4 | BLOOM | mT5 | Airavata-7B | BanglaLLama-3.1-8B | Tamil-Mistral-7B | Telugu-Llama2-7B | Ambari-7B | MalayaLLM-Gemma-9B | MahaMarathi-7B | Gujju-Llama-7B | Dhee-Qwen3-Punjabi-2B | Qwen-Odia-7B | Goldfish-ASM-125M | Qalb-1.0-8B | NEPALI-LLM-9B | llama3-sinhala-8B |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Hindi | 0.0 | 0.03 | — | 3.99 | — | — | — | — | — | — | — | — | — | — | — | — | — |
+| Bengali | 0.0 | 0.27 | — | — | 16.93 | — | — | — | — | — | — | — | — | — | — | — | — |
+| Tamil | 0.0 | 0.24 | — | — | — | 0.0 | — | — | — | — | — | — | — | — | — | — | — |
+| Telugu | 1.0 | 0.62 | — | — | — | — | 90.6 | — | — | — | — | — | — | — | — | — | — |
+| Kannada | 0.0 | 0.86 | — | — | — | — | — | 0.0 | — | — | — | — | — | — | — | — | — |
+| Malayalam | 0.0 | 0.17 | — | — | — | — | — | — | 0.0 | — | — | — | — | — | — | — | — |
+| Marathi | 0.0 | 0.23 | — | — | — | — | — | — | — | 0.0 | — | — | — | — | — | — | — |
+| Gujarati | 0.01 | 0.34 | — | — | — | — | — | — | — | — | 0.0 | — | — | — | — | — | — |
+| Punjabi | 0.01 | 0.07 | — | — | — | — | — | — | — | — | — | 19.43 | — | — | — | — | — |
+| Odia | 1.06 | 0.22 | — | — | — | — | — | — | — | — | — | — | 25.78 | — | — | — | — |
+| Assamese | 0.01 | 0.26 | — | — | — | — | — | — | — | — | — | — | — | 0.0 | — | — | — |
+| Urdu | 0.0 | 0.04 | — | — | — | — | — | — | — | — | — | — | — | — | 17.51 | — | — |
+| Nepali | 0.0 | 0.04 | — | — | — | — | — | — | — | — | — | — | — | — | — | 0.0 | — |
+| Sinhala | 0.02 | 30.3 | — | — | — | — | — | — | — | — | — | — | — | — | — | — | 28.31 |
+| Maithili | 0.0 | 0.01 | — | — | — | — | — | — | — | — | — | — | — | — | — | — | — |
 
 **Middle East**
 
@@ -520,34 +523,34 @@ Rows = languages. Columns = tokenizers. Scan across a row to compare models on o
 
 **Oceania**
 
-| language | Gemma-4 | BLOOM | mT5 |
-| --- | --- | --- | --- |
-| Māori | 5.77 | 0.02 | — |
-| Samoan | 0.72 | 0.02 | — |
-| Tok Pisin | 0.0 | 0.0 | — |
+| language | Gemma-4 | BLOOM | mT5 | Goldfish-mri-39M | Goldfish-tpi-125M |
+| --- | --- | --- | --- | --- | --- |
+| Māori | 5.77 | 0.02 | — | 0.12 | — |
+| Samoan | 0.72 | 0.02 | — | — | — |
+| Tok Pisin | 0.0 | 0.0 | — | — | 0.0 |
 
 ### UNK rate (%)
 *Lower is better.*
 
 **Indic**
 
-| language | Gemma-4 | BLOOM | mT5 | Airavata-7B | BanglaLLama-3.1-8B | Tamil-Mistral-7B | Telugu-Llama2-7B | Ambari-7B | MalayaLLM-Gemma-9B | MahaMarathi-7B | Gujju-Llama-7B | Dhee-Qwen3-Punjabi-2B | Qwen-Odia-7B | Qalb-1.0-8B | NEPALI-LLM-9B | llama3-sinhala-8B |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Hindi | 0.0 | 0.0 | — | 0.0 | — | — | — | — | — | — | — | — | — | — | — | — |
-| Bengali | 0.0 | 0.0 | — | — | 0.0 | — | — | — | — | — | — | — | — | — | — | — |
-| Tamil | 0.0 | 0.0 | — | — | — | 0.0 | — | — | — | — | — | — | — | — | — | — |
-| Telugu | 0.0 | 0.0 | — | — | — | — | 0.0 | — | — | — | — | — | — | — | — | — |
-| Kannada | 0.0 | 0.0 | — | — | — | — | — | 0.0 | — | — | — | — | — | — | — | — |
-| Malayalam | 0.0 | 0.0 | — | — | — | — | — | — | 0.0 | — | — | — | — | — | — | — |
-| Marathi | 0.0 | 0.0 | — | — | — | — | — | — | — | 0.0 | — | — | — | — | — | — |
-| Gujarati | 0.0 | 0.0 | — | — | — | — | — | — | — | — | 0.0 | — | — | — | — | — |
-| Punjabi | 0.0 | 0.0 | — | — | — | — | — | — | — | — | — | 0.0 | — | — | — | — |
-| Odia | 0.0 | 0.0 | — | — | — | — | — | — | — | — | — | — | 0.0 | — | — | — |
-| Assamese | 0.0 | 0.0 | — | — | — | — | — | — | — | — | — | — | — | — | — | — |
-| Urdu | 0.0 | 0.0 | — | — | — | — | — | — | — | — | — | — | — | 0.0 | — | — |
-| Nepali | 0.0 | 0.0 | — | — | — | — | — | — | — | — | — | — | — | — | 0.0 | — |
-| Sinhala | 0.0 | 0.0 | — | — | — | — | — | — | — | — | — | — | — | — | — | 0.0 |
-| Maithili | 0.0 | 0.0 | — | — | — | — | — | — | — | — | — | — | — | — | — | — |
+| language | Gemma-4 | BLOOM | mT5 | Airavata-7B | BanglaLLama-3.1-8B | Tamil-Mistral-7B | Telugu-Llama2-7B | Ambari-7B | MalayaLLM-Gemma-9B | MahaMarathi-7B | Gujju-Llama-7B | Dhee-Qwen3-Punjabi-2B | Qwen-Odia-7B | Goldfish-ASM-125M | Qalb-1.0-8B | NEPALI-LLM-9B | llama3-sinhala-8B |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Hindi | 0.0 | 0.0 | — | 0.0 | — | — | — | — | — | — | — | — | — | — | — | — | — |
+| Bengali | 0.0 | 0.0 | — | — | 0.0 | — | — | — | — | — | — | — | — | — | — | — | — |
+| Tamil | 0.0 | 0.0 | — | — | — | 0.0 | — | — | — | — | — | — | — | — | — | — | — |
+| Telugu | 0.0 | 0.0 | — | — | — | — | 0.0 | — | — | — | — | — | — | — | — | — | — |
+| Kannada | 0.0 | 0.0 | — | — | — | — | — | 0.0 | — | — | — | — | — | — | — | — | — |
+| Malayalam | 0.0 | 0.0 | — | — | — | — | — | — | 0.0 | — | — | — | — | — | — | — | — |
+| Marathi | 0.0 | 0.0 | — | — | — | — | — | — | — | 0.0 | — | — | — | — | — | — | — |
+| Gujarati | 0.0 | 0.0 | — | — | — | — | — | — | — | — | 0.0 | — | — | — | — | — | — |
+| Punjabi | 0.0 | 0.0 | — | — | — | — | — | — | — | — | — | 0.0 | — | — | — | — | — |
+| Odia | 0.0 | 0.0 | — | — | — | — | — | — | — | — | — | — | 0.0 | — | — | — | — |
+| Assamese | 0.0 | 0.0 | — | — | — | — | — | — | — | — | — | — | — | 0.06 | — | — | — |
+| Urdu | 0.0 | 0.0 | — | — | — | — | — | — | — | — | — | — | — | — | 0.0 | — | — |
+| Nepali | 0.0 | 0.0 | — | — | — | — | — | — | — | — | — | — | — | — | — | 0.0 | — |
+| Sinhala | 0.0 | 0.0 | — | — | — | — | — | — | — | — | — | — | — | — | — | — | 0.0 |
+| Maithili | 0.0 | 0.0 | — | — | — | — | — | — | — | — | — | — | — | — | — | — | — |
 
 **Middle East**
 
@@ -626,34 +629,34 @@ Rows = languages. Columns = tokenizers. Scan across a row to compare models on o
 
 **Oceania**
 
-| language | Gemma-4 | BLOOM | mT5 |
-| --- | --- | --- | --- |
-| Māori | 0.0 | 0.0 | — |
-| Samoan | 0.0 | 0.0 | — |
-| Tok Pisin | 0.0 | 0.0 | — |
+| language | Gemma-4 | BLOOM | mT5 | Goldfish-mri-39M | Goldfish-tpi-125M |
+| --- | --- | --- | --- | --- | --- |
+| Māori | 0.0 | 0.0 | — | 0.0 | — |
+| Samoan | 0.0 | 0.0 | — | — | — |
+| Tok Pisin | 0.0 | 0.0 | — | — | 0.04 |
 
 ### Vocabulary coverage (%)
 *Higher is better.*
 
 **Indic**
 
-| language | Gemma-4 | BLOOM | mT5 | Airavata-7B | BanglaLLama-3.1-8B | Tamil-Mistral-7B | Telugu-Llama2-7B | Ambari-7B | MalayaLLM-Gemma-9B | MahaMarathi-7B | Gujju-Llama-7B | Dhee-Qwen3-Punjabi-2B | Qwen-Odia-7B | Qalb-1.0-8B | NEPALI-LLM-9B | llama3-sinhala-8B |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Hindi | 100.0 | 98.65 | — | 60.81 | — | — | — | — | — | — | — | — | — | — | — | — |
-| Bengali | 100.0 | 99.38 | — | — | 58.02 | — | — | — | — | — | — | — | — | — | — | — |
-| Tamil | 100.0 | 100.0 | — | — | — | 86.61 | — | — | — | — | — | — | — | — | — | — |
-| Telugu | 99.35 | 99.35 | — | — | — | — | 50.0 | — | — | — | — | — | — | — | — | — |
-| Kannada | 100.0 | 100.0 | — | — | — | — | — | 81.69 | — | — | — | — | — | — | — | — |
-| Malayalam | 100.0 | 98.57 | — | — | — | — | — | — | 100.0 | — | — | — | — | — | — | — |
-| Marathi | 100.0 | 100.0 | — | — | — | — | — | — | — | 84.87 | — | — | — | — | — | — |
-| Gujarati | 99.29 | 95.74 | — | — | — | — | — | — | — | — | 82.98 | — | — | — | — | — |
-| Punjabi | 99.33 | 99.33 | — | — | — | — | — | — | — | — | — | 67.33 | — | — | — | — |
-| Odia | 96.32 | 96.32 | — | — | — | — | — | — | — | — | — | — | 56.44 | — | — | — |
-| Assamese | 99.38 | 98.76 | — | — | — | — | — | — | — | — | — | — | — | — | — | — |
-| Urdu | 100.0 | 98.52 | — | — | — | — | — | — | — | — | — | — | — | 91.11 | — | — |
-| Nepali | 99.35 | 100.0 | — | — | — | — | — | — | — | — | — | — | — | — | 100.0 | — |
-| Sinhala | 98.64 | 52.38 | — | — | — | — | — | — | — | — | — | — | — | — | — | 52.38 |
-| Maithili | 100.0 | 99.34 | — | — | — | — | — | — | — | — | — | — | — | — | — | — |
+| language | Gemma-4 | BLOOM | mT5 | Airavata-7B | BanglaLLama-3.1-8B | Tamil-Mistral-7B | Telugu-Llama2-7B | Ambari-7B | MalayaLLM-Gemma-9B | MahaMarathi-7B | Gujju-Llama-7B | Dhee-Qwen3-Punjabi-2B | Qwen-Odia-7B | Goldfish-ASM-125M | Qalb-1.0-8B | NEPALI-LLM-9B | llama3-sinhala-8B |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Hindi | 100.0 | 98.65 | — | 60.81 | — | — | — | — | — | — | — | — | — | — | — | — | — |
+| Bengali | 100.0 | 99.38 | — | — | 58.02 | — | — | — | — | — | — | — | — | — | — | — | — |
+| Tamil | 100.0 | 100.0 | — | — | — | 86.61 | — | — | — | — | — | — | — | — | — | — | — |
+| Telugu | 99.35 | 99.35 | — | — | — | — | 50.0 | — | — | — | — | — | — | — | — | — | — |
+| Kannada | 100.0 | 100.0 | — | — | — | — | — | 81.69 | — | — | — | — | — | — | — | — | — |
+| Malayalam | 100.0 | 98.57 | — | — | — | — | — | — | 100.0 | — | — | — | — | — | — | — | — |
+| Marathi | 100.0 | 100.0 | — | — | — | — | — | — | — | 84.87 | — | — | — | — | — | — | — |
+| Gujarati | 99.29 | 95.74 | — | — | — | — | — | — | — | — | 82.98 | — | — | — | — | — | — |
+| Punjabi | 99.33 | 99.33 | — | — | — | — | — | — | — | — | — | 67.33 | — | — | — | — | — |
+| Odia | 96.32 | 96.32 | — | — | — | — | — | — | — | — | — | — | 56.44 | — | — | — | — |
+| Assamese | 99.38 | 98.76 | — | — | — | — | — | — | — | — | — | — | — | 93.17 | — | — | — |
+| Urdu | 100.0 | 98.52 | — | — | — | — | — | — | — | — | — | — | — | — | 91.11 | — | — |
+| Nepali | 99.35 | 100.0 | — | — | — | — | — | — | — | — | — | — | — | — | — | 100.0 | — |
+| Sinhala | 98.64 | 52.38 | — | — | — | — | — | — | — | — | — | — | — | — | — | — | 52.38 |
+| Maithili | 100.0 | 99.34 | — | — | — | — | — | — | — | — | — | — | — | — | — | — | — |
 
 **Middle East**
 
@@ -732,34 +735,34 @@ Rows = languages. Columns = tokenizers. Scan across a row to compare models on o
 
 **Oceania**
 
-| language | Gemma-4 | BLOOM | mT5 |
-| --- | --- | --- | --- |
-| Māori | 100.0 | 94.62 | — |
-| Samoan | 100.0 | 97.37 | — |
-| Tok Pisin | 100.0 | 100.0 | — |
+| language | Gemma-4 | BLOOM | mT5 | Goldfish-mri-39M | Goldfish-tpi-125M |
+| --- | --- | --- | --- | --- | --- |
+| Māori | 100.0 | 94.62 | — | 92.47 | — |
+| Samoan | 100.0 | 97.37 | — | — | — |
+| Tok Pisin | 100.0 | 100.0 | — | — | 83.02 |
 
 ### Roundtrip fidelity (%)
 *Higher is better.*
 
 **Indic**
 
-| language | Gemma-4 | BLOOM | mT5 | Airavata-7B | BanglaLLama-3.1-8B | Tamil-Mistral-7B | Telugu-Llama2-7B | Ambari-7B | MalayaLLM-Gemma-9B | MahaMarathi-7B | Gujju-Llama-7B | Dhee-Qwen3-Punjabi-2B | Qwen-Odia-7B | Qalb-1.0-8B | NEPALI-LLM-9B | llama3-sinhala-8B |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Hindi | 100.0 | 100.0 | — | 100.0 | — | — | — | — | — | — | — | — | — | — | — | — |
-| Bengali | 100.0 | 100.0 | — | — | 100.0 | — | — | — | — | — | — | — | — | — | — | — |
-| Tamil | 100.0 | 100.0 | — | — | — | 100.0 | — | — | — | — | — | — | — | — | — | — |
-| Telugu | 100.0 | 100.0 | — | — | — | — | 100.0 | — | — | — | — | — | — | — | — | — |
-| Kannada | 100.0 | 100.0 | — | — | — | — | — | 100.0 | — | — | — | — | — | — | — | — |
-| Malayalam | 100.0 | 100.0 | — | — | — | — | — | — | 100.0 | — | — | — | — | — | — | — |
-| Marathi | 100.0 | 100.0 | — | — | — | — | — | — | — | 100.0 | — | — | — | — | — | — |
-| Gujarati | 100.0 | 100.0 | — | — | — | — | — | — | — | — | 100.0 | — | — | — | — | — |
-| Punjabi | 100.0 | 100.0 | — | — | — | — | — | — | — | — | — | 43.38 | — | — | — | — |
-| Odia | 100.0 | 100.0 | — | — | — | — | — | — | — | — | — | — | 75.69 | — | — | — |
-| Assamese | 100.0 | 100.0 | — | — | — | — | — | — | — | — | — | — | — | — | — | — |
-| Urdu | 100.0 | 100.0 | — | — | — | — | — | — | — | — | — | — | — | 100.0 | — | — |
-| Nepali | 100.0 | 100.0 | — | — | — | — | — | — | — | — | — | — | — | — | 100.0 | — |
-| Sinhala | 100.0 | 100.0 | — | — | — | — | — | — | — | — | — | — | — | — | — | 100.0 |
-| Maithili | 100.0 | 100.0 | — | — | — | — | — | — | — | — | — | — | — | — | — | — |
+| language | Gemma-4 | BLOOM | mT5 | Airavata-7B | BanglaLLama-3.1-8B | Tamil-Mistral-7B | Telugu-Llama2-7B | Ambari-7B | MalayaLLM-Gemma-9B | MahaMarathi-7B | Gujju-Llama-7B | Dhee-Qwen3-Punjabi-2B | Qwen-Odia-7B | Goldfish-ASM-125M | Qalb-1.0-8B | NEPALI-LLM-9B | llama3-sinhala-8B |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Hindi | 100.0 | 100.0 | — | 100.0 | — | — | — | — | — | — | — | — | — | — | — | — | — |
+| Bengali | 100.0 | 100.0 | — | — | 100.0 | — | — | — | — | — | — | — | — | — | — | — | — |
+| Tamil | 100.0 | 100.0 | — | — | — | 100.0 | — | — | — | — | — | — | — | — | — | — | — |
+| Telugu | 100.0 | 100.0 | — | — | — | — | 100.0 | — | — | — | — | — | — | — | — | — | — |
+| Kannada | 100.0 | 100.0 | — | — | — | — | — | 100.0 | — | — | — | — | — | — | — | — | — |
+| Malayalam | 100.0 | 100.0 | — | — | — | — | — | — | 100.0 | — | — | — | — | — | — | — | — |
+| Marathi | 100.0 | 100.0 | — | — | — | — | — | — | — | 100.0 | — | — | — | — | — | — | — |
+| Gujarati | 100.0 | 100.0 | — | — | — | — | — | — | — | — | 100.0 | — | — | — | — | — | — |
+| Punjabi | 100.0 | 100.0 | — | — | — | — | — | — | — | — | — | 43.38 | — | — | — | — | — |
+| Odia | 100.0 | 100.0 | — | — | — | — | — | — | — | — | — | — | 75.69 | — | — | — | — |
+| Assamese | 100.0 | 100.0 | — | — | — | — | — | — | — | — | — | — | — | 25.89 | — | — | — |
+| Urdu | 100.0 | 100.0 | — | — | — | — | — | — | — | — | — | — | — | — | 100.0 | — | — |
+| Nepali | 100.0 | 100.0 | — | — | — | — | — | — | — | — | — | — | — | — | — | 100.0 | — |
+| Sinhala | 100.0 | 100.0 | — | — | — | — | — | — | — | — | — | — | — | — | — | — | 100.0 |
+| Maithili | 100.0 | 100.0 | — | — | — | — | — | — | — | — | — | — | — | — | — | — | — |
 
 **Middle East**
 
@@ -838,34 +841,34 @@ Rows = languages. Columns = tokenizers. Scan across a row to compare models on o
 
 **Oceania**
 
-| language | Gemma-4 | BLOOM | mT5 |
-| --- | --- | --- | --- |
-| Māori | 100.0 | 100.0 | — |
-| Samoan | 100.0 | 100.0 | — |
-| Tok Pisin | 100.0 | 100.0 | — |
+| language | Gemma-4 | BLOOM | mT5 | Goldfish-mri-39M | Goldfish-tpi-125M |
+| --- | --- | --- | --- | --- | --- |
+| Māori | 100.0 | 100.0 | — | 99.7 | — |
+| Samoan | 100.0 | 100.0 | — | — | — |
+| Tok Pisin | 100.0 | 100.0 | — | — | 98.42 |
 
 ### Avg tokens / segment
 *Lower is better.*
 
 **Indic**
 
-| language | Gemma-4 | BLOOM | mT5 | Airavata-7B | BanglaLLama-3.1-8B | Tamil-Mistral-7B | Telugu-Llama2-7B | Ambari-7B | MalayaLLM-Gemma-9B | MahaMarathi-7B | Gujju-Llama-7B | Dhee-Qwen3-Punjabi-2B | Qwen-Odia-7B | Qalb-1.0-8B | NEPALI-LLM-9B | llama3-sinhala-8B |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Hindi | 35.1 | 34.72 | — | 46.2 | — | — | — | — | — | — | — | — | — | — | — | — |
-| Bengali | 32.45 | 31.85 | — | — | 154.6 | — | — | — | — | — | — | — | — | — | — | — |
-| Tamil | 39.36 | 34.79 | — | — | — | 28.75 | — | — | — | — | — | — | — | — | — | — |
-| Telugu | 47.58 | 35.99 | — | — | — | — | 327.89 | — | — | — | — | — | — | — | — | — |
-| Kannada | 51.56 | 35.27 | — | — | — | — | — | 43.53 | — | — | — | — | — | — | — | — |
-| Malayalam | 49.52 | 37.48 | — | — | — | — | — | — | 86.67 | — | — | — | — | — | — | — |
-| Marathi | 37.39 | 33.02 | — | — | — | — | — | — | — | 30.83 | — | — | — | — | — | — |
-| Gujarati | 49.84 | 36.66 | — | — | — | — | — | — | — | — | 41.96 | — | — | — | — | — |
-| Punjabi | 72.18 | 39.1 | — | — | — | — | — | — | — | — | — | 198.6 | — | — | — | — |
-| Odia | 94.07 | 37.07 | — | — | — | — | — | — | — | — | — | — | 264.72 | — | — | — |
-| Assamese | 53.73 | 38.11 | — | — | — | — | — | — | — | — | — | — | — | — | — | — |
-| Urdu | 40.67 | 36.72 | — | — | — | — | — | — | — | — | — | — | — | 82.52 | — | — |
-| Nepali | 40.96 | 31.84 | — | — | — | — | — | — | — | — | — | — | — | — | 45.83 | — |
-| Sinhala | 61.33 | 218.73 | — | — | — | — | — | — | — | — | — | — | — | — | — | 231.72 |
-| Maithili | 43.92 | 42.18 | — | — | — | — | — | — | — | — | — | — | — | — | — | — |
+| language | Gemma-4 | BLOOM | mT5 | Airavata-7B | BanglaLLama-3.1-8B | Tamil-Mistral-7B | Telugu-Llama2-7B | Ambari-7B | MalayaLLM-Gemma-9B | MahaMarathi-7B | Gujju-Llama-7B | Dhee-Qwen3-Punjabi-2B | Qwen-Odia-7B | Goldfish-ASM-125M | Qalb-1.0-8B | NEPALI-LLM-9B | llama3-sinhala-8B |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Hindi | 35.1 | 34.72 | — | 46.2 | — | — | — | — | — | — | — | — | — | — | — | — | — |
+| Bengali | 32.45 | 31.85 | — | — | 154.6 | — | — | — | — | — | — | — | — | — | — | — | — |
+| Tamil | 39.36 | 34.79 | — | — | — | 28.75 | — | — | — | — | — | — | — | — | — | — | — |
+| Telugu | 47.58 | 35.99 | — | — | — | — | 327.89 | — | — | — | — | — | — | — | — | — | — |
+| Kannada | 51.56 | 35.27 | — | — | — | — | — | 43.53 | — | — | — | — | — | — | — | — | — |
+| Malayalam | 49.52 | 37.48 | — | — | — | — | — | — | 86.67 | — | — | — | — | — | — | — | — |
+| Marathi | 37.39 | 33.02 | — | — | — | — | — | — | — | 30.83 | — | — | — | — | — | — | — |
+| Gujarati | 49.84 | 36.66 | — | — | — | — | — | — | — | — | 41.96 | — | — | — | — | — | — |
+| Punjabi | 72.18 | 39.1 | — | — | — | — | — | — | — | — | — | 198.6 | — | — | — | — | — |
+| Odia | 94.07 | 37.07 | — | — | — | — | — | — | — | — | — | — | 264.72 | — | — | — | — |
+| Assamese | 53.73 | 38.11 | — | — | — | — | — | — | — | — | — | — | — | 27.06 | — | — | — |
+| Urdu | 40.67 | 36.72 | — | — | — | — | — | — | — | — | — | — | — | — | 82.52 | — | — |
+| Nepali | 40.96 | 31.84 | — | — | — | — | — | — | — | — | — | — | — | — | — | 45.83 | — |
+| Sinhala | 61.33 | 218.73 | — | — | — | — | — | — | — | — | — | — | — | — | — | — | 231.72 |
+| Maithili | 43.92 | 42.18 | — | — | — | — | — | — | — | — | — | — | — | — | — | — | — |
 
 **Middle East**
 
@@ -944,11 +947,11 @@ Rows = languages. Columns = tokenizers. Scan across a row to compare models on o
 
 **Oceania**
 
-| language | Gemma-4 | BLOOM | mT5 |
-| --- | --- | --- | --- |
-| Māori | 54.7 | 57.26 | — |
-| Samoan | 57.27 | 57.33 | — |
-| Tok Pisin | 51.44 | 52.18 | — |
+| language | Gemma-4 | BLOOM | mT5 | Goldfish-mri-39M | Goldfish-tpi-125M |
+| --- | --- | --- | --- | --- | --- |
+| Māori | 54.7 | 57.26 | — | 36.57 | — |
+| Samoan | 57.27 | 57.33 | — | — | — |
+| Tok Pisin | 51.44 | 52.18 | — | — | 41.02 |
 
 ---
 
@@ -1137,6 +1140,9 @@ Every tokenizer × language combination from `data/results.csv`.
 | YorubaLlama-8B | Yoruba | Africa | 2.934 | 1.715 | 1.84 | 0.0 | 96.09 | 100.0 | 73.07 | 73947 | 126844 | 1012 |
 | Xhosa-ZuluLlama3-8B | Zulu | Africa | 3.754 | 2.497 | 0.16 | 0.0 | 100.0 | 100.0 | 58.71 | 59413 | 148362 | 1012 |
 | Xhosa-ZuluLlama3-8B | Xhosa | Africa | 3.567 | 2.515 | 0.24 | 0.0 | 100.0 | 100.0 | 54.65 | 55310 | 139123 | 1012 |
+| Goldfish-ASM-125M | Assamese | Indic | 1.42 | 4.599 | 0.0 | 0.06 | 93.17 | 25.89 | 27.06 | 27383 | 125936 | 1012 |
+| Goldfish-mri-39M | Māori | Oceania | 1.22 | 3.959 | 0.12 | 0.0 | 92.47 | 99.7 | 36.57 | 37009 | 146527 | 1012 |
+| Goldfish-tpi-125M | Tok Pisin | Oceania | 1.311 | 4.071 | 0.0 | 0.04 | 83.02 | 98.42 | 41.02 | 41511 | 169011 | 1012 |
 
 ---
 
