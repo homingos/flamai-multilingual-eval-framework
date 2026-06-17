@@ -4,7 +4,56 @@ This document defines all evaluation metrics for the qualitative LLM comparison 
 
 ---
 
-## Dataset Overview
+## Dataset Structure
+
+### Current layout
+
+```
+data/datasets/
+├── translation/                    # Task 1
+│   ├── meta.json                   # Aggregate stats across all 17 languages
+│   └── <language_slug>/
+│       ├── samples.jsonl           # One JSON object per line
+│       └── meta.json               # Per-language stats (sample count, directions)
+│
+└── instructions/                   # Task 2
+    ├── meta.json
+    └── <language_slug>/
+        ├── samples.jsonl
+        └── meta.json
+```
+
+### Adding a new task
+
+Each new evaluation task gets its own top-level folder under `data/datasets/`. The framework is designed so that adding a new task requires touching exactly three things:
+
+1. **Dataset creator script** — `experiments/create_<task>_dataset.py`
+2. **Dataset folder** — `data/datasets/<task>/<language_slug>/samples.jsonl`
+3. **Metrics section** — add a new section to this file and a new key in the output JSON
+
+Nothing else changes. The 17-language list, the slug conventions, and the per-language `meta.json` pattern are shared across all tasks.
+
+---
+
+### Shared sample fields (required in every task)
+
+Every sample in every dataset must include these fields — they are the common envelope the framework uses for routing and filtering:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Unique ID: `<task_prefix>_<lang_slug>_<category?>_<index>` |
+| `language` | string | Full language name e.g. `"Tamil"` |
+| `region` | string | One of: `Indic`, `Middle East`, `East Asia`, `SEA`, `Africa`, `Europe`, `Americas`, `Oceania` |
+| `winner_model` | string | Regional candidate model name e.g. `"Tamil-Mistral-7B"` |
+| `category` | string | Sub-type within the task (use `"default"` if no sub-types) |
+
+Task-specific fields (source, reference, system_instruction, etc.) are added on top of these.
+
+---
+
+### Existing task schemas
+
+**Translation** (`data/datasets/translation/`)
 
 Two datasets per language (17 languages total):
 
@@ -13,11 +62,14 @@ Two datasets per language (17 languages total):
 | Translation | ~2,024 | `data/datasets/translation/<lang>/samples.jsonl` |
 | Instruction Following | 1,200 | `data/datasets/instructions/<lang>/samples.jsonl` |
 
-### Translation sample schema
+**Translation sample schema**
 ```json
 {
   "id": "trans_tamil_en_tgt_0001",
   "language": "Tamil",
+  "region": "Indic",
+  "winner_model": "Tamil-Mistral-7B",
+  "category": "default",
   "direction": "en→target",
   "source_lang": "English",
   "target_lang": "Tamil",
@@ -27,11 +79,15 @@ Two datasets per language (17 languages total):
 }
 ```
 
-### Instruction following sample schema
+**Instruction following** (`data/datasets/instructions/`)
+
+**Instruction following sample schema**
 ```json
 {
   "id": "inst_tamil_tone_style_001",
   "language": "Tamil",
+  "region": "Indic",
+  "winner_model": "Tamil-Mistral-7B",
   "category": "tone_style",
   "system_instruction": "You are a helpful avatar assistant. Respond in Tamil with a warm, friendly tone.",
   "user_prompt": "How do I reset my password?",
@@ -298,6 +354,132 @@ CURRENCY_WORDS = {
 ```
 pip install sacrebleu unbabel-comet bert-score langdetect sentence-transformers transformers
 ```
+
+---
+
+## Adding a New Task (Extensibility Guide)
+
+This section is a step-by-step reference for anyone adding a new evaluation task to the framework in the future (e.g. summarization, question answering, code generation, dialogue).
+
+### Step 1 — Create the dataset
+
+Create `experiments/create_<task>_dataset.py`. Follow these conventions:
+
+```python
+# Minimum required fields in every sample
+sample = {
+    "id": f"<task_prefix>_<lang_slug>_<category>_{i:03d}",  # e.g. "summ_tamil_default_001"
+    "language": lang["name"],         # e.g. "Tamil"
+    "region": lang["region"],         # e.g. "Indic"
+    "winner_model": lang["winner_model"],
+    "category": "<sub_type>",         # use "default" if no sub-types
+
+    # Task-specific fields below — name them whatever makes sense
+    "input": "...",                   # what the model receives
+    "reference": "...",               # gold answer to compare against (if applicable)
+    "expected_constraints": { ... },  # what the evaluator checks
+}
+```
+
+Output goes to `data/datasets/<task>/<language_slug>/samples.jsonl` — one JSON object per line.
+
+Also write a `data/datasets/<task>/<language_slug>/meta.json`:
+```json
+{
+  "language": "Tamil",
+  "slug": "tamil",
+  "region": "Indic",
+  "winner_model": "Tamil-Mistral-7B",
+  "total_samples": 500,
+  "categories": { "default": 500 }
+}
+```
+
+And a top-level `data/datasets/<task>/meta.json` that summarises across all 17 languages.
+
+---
+
+### Step 2 — Define the metrics
+
+Add a new numbered section to this file (after the existing sections 1, 2, 3) following the same format:
+
+```markdown
+## 4. <Task Name> Metrics
+
+### 4.1 <Metric Name>
+- **What:** ...
+- **Library:** ...
+- **Method:** ...
+```
+
+Include the metric in the Summary Table and in the Output Format below.
+
+---
+
+### Step 3 — Register the task in the comparison framework
+
+The framework should iterate over tasks dynamically. Suggested pattern:
+
+```python
+TASKS = {
+    "translation": {
+        "dataset_path": "data/datasets/translation/{lang}/samples.jsonl",
+        "metrics": ["bleu", "chrf", "comet", "bertscore", "back_translation"],
+        "input_fields": ["source"],
+        "reference_field": "reference",
+    },
+    "instructions": {
+        "dataset_path": "data/datasets/instructions/{lang}/samples.jsonl",
+        "metrics": ["language_adherence", "length_accuracy", "format_compliance",
+                    "topic_boundary", "number_verbalization"],
+        "input_fields": ["system_instruction", "user_prompt"],
+        "reference_field": None,  # no gold reference; evaluated against expected_constraints
+    },
+    # New task — just add an entry here
+    "summarization": {
+        "dataset_path": "data/datasets/summarization/{lang}/samples.jsonl",
+        "metrics": ["rouge", "bertscore", "compression_ratio"],
+        "input_fields": ["source_document"],
+        "reference_field": "reference_summary",
+    },
+}
+```
+
+Each task entry tells the framework where to find data, which fields to pass to the model, and which metrics to run.
+
+---
+
+### Step 4 — Add the task to the output format
+
+Extend the per-language output JSON with a new top-level key:
+
+```json
+{
+  "language": "Tamil",
+  "model": "Tamil-Mistral-7B",
+  "translation": { ... },
+  "instruction_following": { ... },
+  "number_verbalization": { ... },
+  "summarization": {
+    "rouge1": 0.42,
+    "rouge2": 0.21,
+    "bertscore_f1": 0.81,
+    "compression_ratio": 0.31
+  }
+}
+```
+
+---
+
+### Task registry (current + planned)
+
+| Task key | Status | Samples/language | Dataset script |
+|----------|--------|-----------------|----------------|
+| `translation` | ✅ Done | 2,024 | `create_translation_dataset.py` |
+| `instructions` | ✅ Done | 1,200 | `create_instruction_dataset.py` |
+| `summarization` | Planned | — | — |
+| `question_answering` | Planned | — | — |
+| `dialogue` | Planned | — | — |
 
 ---
 
