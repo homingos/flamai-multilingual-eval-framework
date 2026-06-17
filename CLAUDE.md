@@ -4,7 +4,7 @@
 
 AI/ML research and implementation project for adding robust multilingual support to Flam AI's Talking Avatar product. The work involves evaluating regional language models, fine-tuning Whisper (audio encoder), and establishing cross-language validation methodology.
 
-**Current LLM in production:** Gemma-4 36B (multilingual pre-trained)
+**Current LLM in production:** Gemma-4 26B A4B IT (multilingual pre-trained)
 **Project status:** Experimentation
 
 ## Key References
@@ -75,7 +75,7 @@ falcon-language/
 
 | Component | Tool |
 |---|---|
-| LLM (production) | Gemma-4 36B |
+| LLM (production) | Gemma-4 26B A4B IT |
 | Audio encoder | OpenAI Whisper (`whisper-large-v3`) |
 | ML framework | HuggingFace `transformers` + `datasets` |
 | GPU environment | Google Colab (start) |

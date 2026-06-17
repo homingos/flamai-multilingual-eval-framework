@@ -39,9 +39,8 @@ RESULTS_CSV  = DATA_DIR / "results.csv"
 SUMMARY_JSON = DATA_DIR / "summary.json"
 
 # ── Tokenizer IDs ─────────────────────────────────────────────────────────────
-# All Gemma 4 variants (4B, 12B, 27B, 36B) share the same tokenizer.
-# Use whichever model ID the team already has HF access to — any size works.
-GEMMA4_HF_ID = "google/gemma-4-12b-it"  # swap for any other Gemma 4 variant if needed
+# All Gemma 4 variants share the same tokenizer; production model is gemma-4-27b-it (26B A4B IT).
+GEMMA4_HF_ID = "google/gemma-4-27b-it"
 
 BASELINES = {
     "Gemma-4": GEMMA4_HF_ID,

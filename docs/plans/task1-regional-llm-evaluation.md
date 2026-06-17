@@ -1,7 +1,7 @@
 # Task 1 Plan: Regional LLM Evaluation
 
 ## Goal
-Identify the best open-weight language model per target language by running tokenizer efficiency tests against Gemma-4 36B as the baseline.
+Identify the best open-weight language model per target language by running tokenizer efficiency tests against Gemma-4 26B A4B IT as the baseline.
 
 ## Reference Research
 - `docs/pdfs/Regional LLMs by Continent.pdf` — ChatGPT-generated report ranking top 10 LLMs per continent by regional language fit. Use as a starting shortlist; our tokenizer tests verify their claims independently.

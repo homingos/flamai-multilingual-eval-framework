@@ -7,7 +7,7 @@
 
 ## Overview
 
-Flam AI's Talking Avatar uses **Gemma-4 36B** as its production LLM. This framework evaluates whether specialist regional models tokenize each language more efficiently — fewer tokens means faster inference, lower cost, and better language fidelity for TTS pipelines.
+Flam AI's Talking Avatar uses **Gemma-4 26B A4B IT** as its production LLM. This framework evaluates whether specialist regional models tokenize each language more efficiently — fewer tokens means faster inference, lower cost, and better language fidelity for TTS pipelines.
 
 Evaluation uses the **FLORES-200** corpus (~1,012 sentences per language) and measures 7 tokenizer metrics per model per language.
 
@@ -142,7 +142,7 @@ Open `docs/viz/language-map.html` in any browser for the full interactive visual
 | Component | Tool |
 |-----------|------|
 | Corpus | FLORES-200 (`facebook/flores`, devtest split) |
-| Baseline LLM | Gemma-4 36B (`google/gemma-4-12b-it` tokenizer) |
+| Baseline LLM | Gemma-4 26B A4B IT (`google/gemma-4-27b-it` tokenizer) |
 | Secondary baselines | BLOOM (`bigscience/bloom`), mT5 (`google/mt5-base`) |
 | ML framework | HuggingFace `transformers` + `datasets` |
 | Visualization | Plotly (choropleth + GeoJSON) |
