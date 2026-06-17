@@ -17,21 +17,13 @@ GitHub repos will be cloned into this directory as sub-folders once available.
 
 - `/concept <term>` — explains the term clearly (beginner-friendly) and automatically adds it to the "Concepts & Terminology" section on the Notion page
 
-## Priority Tasks (work in this order)
+## Research Areas
 
-### 1. Regional LLM Evaluation
-Find the best language model per target language/region (e.g. Sarvam for Indian languages).
+### Regional LLM Evaluation (complete)
+Find the best language model per target language/region via tokenizer benchmarking against Gemma-4.
+Results in `data/results.csv`, report in `docs/llm-evaluation.md`, visualisation in `docs/viz/`.
 
-**Approach — Tokenizer Test:**
-- Run representative sentences in the target language through the candidate model's tokenizer
-- Count tokens produced vs Gemma-4 baseline on the same sentences
-- Fewer tokens = better native language support
-- Document: model name, size, token count vs baseline, license, API availability
-
-**Starting points:** Sarvam (Hindi/Indian), AceGPT (Arabic), SeaLLM (Southeast Asian), BLOOM (multilingual)
-**Tool:** Hugging Face (huggingface.co), run tokenizers via `transformers` library
-
-### 2. Whisper Fine-tuning per Language
+### Whisper Fine-tuning per Language
 Improve speech-to-text accuracy for user questions in each target language.
 
 **Dataset needed:** (audio clip → correct transcript) pairs per language
@@ -43,7 +35,7 @@ Improve speech-to-text accuracy for user questions in each target language.
 - Libraries: HuggingFace `transformers`, `datasets`
 - Environment: Google Colab (free GPU) to start
 
-### 3. Cross-language Validation
+### Cross-language Validation
 Ensure fine-tuning on language A doesn't silently degrade performance on languages B, C, D (catastrophic forgetting).
 
 **Approach:**
@@ -65,12 +57,19 @@ These are product features to implement once the AI pipeline is stable:
 
 ```
 falcon-language/
-├── experiments/     # tokenizer tests, evaluation scripts, notebooks
-├── data/            # datasets (audio clips, transcripts, validation sets)
-├── scripts/         # training and fine-tuning scripts
-├── docs/            # notes, findings, language research
-└── <repos>/         # GitHub repos cloned here as sub-folders
+├── experiments/        # evaluation scripts, tokenizer tests, notebooks
+├── data/               # results.csv, summary.json, datasets
+├── scripts/            # training and fine-tuning scripts
+├── docs/
+│   ├── viz/            # interactive map (language-map.html) and map image
+│   ├── reports/        # generated PDF reports
+│   ├── plans/          # internal planning docs (not for repo consumers)
+│   ├── llm-evaluation.md
+│   └── llm-research-raw.md
+└── <repos>/            # GitHub repos cloned here as sub-folders
 ```
+
+**Note:** `.claude/` is excluded via `.gitignore` — it contains session-local data (memory, task state) used only by the developer's Claude Code instance.
 
 ## Tech Stack
 
@@ -85,6 +84,6 @@ falcon-language/
 ## Working Conventions
 
 - Ram is new to AI model training and dataset creation — explain concepts before implementing
-- One task at a time: implement, test, then move to next
+- One area at a time: implement, test, then move to next
 - Commit per meaningful milestone, push at end of session
 - `docs/` for findings and research notes during experimentation

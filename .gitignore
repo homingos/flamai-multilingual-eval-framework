@@ -1,0 +1,28 @@
+# Claude Code session data (local only)
+.claude/
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+venv/
+.venv/
+*.egg-info/
+dist/
+build/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Logs
+*.log
+
+# Large model/dataset caches
+*.bin
+*.safetensors
+*.gguf

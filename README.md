@@ -76,12 +76,14 @@ falcon-language/
 ├── experiments/
 │   ├── tokenizer_test.py    # Main evaluation runner (--append, --skip-baselines flags)
 │   ├── detailed_report.py   # Generates docs/llm-evaluation.md from results.csv
-│   └── language_map.py      # Interactive Plotly world map generator
+│   ├── language_map.py      # Interactive Plotly world map → docs/viz/language-map.html
+│   └── generate_pdf.py      # PDF report generator → docs/reports/
 ├── docs/
-│   ├── language-map.html    # Interactive world map (open in browser)
-│   ├── world-map.png        # Static map image
-│   └── llm-evaluation.md   # Full per-language report (339 lines)
-└── scripts/                 # (future) fine-tuning scripts
+│   ├── viz/                 # language-map.html, world-map.png
+│   ├── reports/             # Generated PDF reports
+│   ├── llm-evaluation.md    # Full per-language report
+│   └── llm-research-raw.md  # Raw research notes
+└── scripts/                 # Fine-tuning scripts (future)
 ```
 
 ---
@@ -113,7 +115,7 @@ python experiments/language_map.py
 
 ## Interactive World Map
 
-Open `docs/language-map.html` in any browser for the full interactive visualization:
+Open `docs/viz/language-map.html` in any browser for the full interactive visualization:
 
 - **Choropleth map** — 163 countries colored by best LLM for their primary language
 - **India state layer** — 24 states colored by state language (Tamil Nadu, Karnataka, etc.)
@@ -150,7 +152,6 @@ Open `docs/language-map.html` in any browser for the full interactive visualizat
 
 ## Project Context
 
-This is **Task 1** of the Falcon Language Support initiative for Flam AI's Talking Avatar product. The goal is to identify the best LLM per target language for the full pipeline: STT (Whisper) → LLM → TTS.
+Part of the Falcon Language Support initiative for Flam AI's Talking Avatar product. The goal is to identify the best LLM per target language for the full pipeline: STT (Whisper) → LLM → TTS.
 
-- **Task 2:** Whisper fine-tuning per language (STT accuracy)
-- **Task 3:** Cross-language validation (prevent catastrophic forgetting)
+Ongoing research areas: Whisper fine-tuning per language (STT accuracy) and cross-language validation to prevent catastrophic forgetting across supported languages.

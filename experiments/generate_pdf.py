@@ -14,8 +14,8 @@ import tempfile
 # ---------------------------------------------------------------------------
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MD_PATH = os.path.join(BASE, "docs", "llm-evaluation.md")
-MAP_PATH = os.path.join(BASE, "docs", "world-map.png")
-OUT_PDF = os.path.join(BASE, "docs", "falcon-tokenizer-eval-report.pdf")
+MAP_PATH = os.path.join(BASE, "docs", "viz", "world-map.png")
+OUT_PDF = os.path.join(BASE, "docs", "reports", "falcon-tokenizer-eval-report.pdf")
 
 # ---------------------------------------------------------------------------
 # Load files
@@ -270,7 +270,7 @@ MAP_HTML = """
 CSS_STYLE = """
 @page {
     size: A4;
-    margin: 18mm 15mm 22mm 15mm;
+    margin: 0;
 }
 
 @media print {
@@ -287,15 +287,15 @@ body {
     line-height: 1.5;
     color: #1a1a2e;
     margin: 0;
-    padding: 0;
+    padding: 0 15mm 18mm 15mm;  /* side + bottom padding; header handles top */
 }
 
 /* ---- Cover / header bar ---- */
 .report-header {
     background: #0D1117;
     color: #ffffff;
-    padding: 24px 24px 20px 24px;
-    margin: -18mm -15mm 20px -15mm;
+    padding: 24px 15mm 20px 15mm;
+    margin: 0 -15mm 20px -15mm;   /* bleed to body padding edge, not negative page margin */
     border-bottom: 4px solid #1565c0;
 }
 
@@ -576,13 +576,12 @@ try:
     result = subprocess.run(
         [
             CHROME,
-            "--headless=new",
+            "--headless",          # old headless — respects --print-to-pdf-no-header
             "--disable-gpu",
             "--no-sandbox",
             "--disable-extensions",
-            "--run-all-compositor-stages-before-draw",
             f"--print-to-pdf={OUT_PDF}",
-            "--print-to-pdf-no-header",
+            "--print-to-pdf-no-header",  # suppress Chrome's default file:// footer/header
             f"file://{tmp_html}",
         ],
         capture_output=True, text=True, timeout=120,

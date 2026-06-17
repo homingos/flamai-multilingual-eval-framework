@@ -3,7 +3,7 @@ Interactive world map: best tokenizer per language.
 v3 — dark theme, India state layer, full 7-metric sidebar, stats popovers,
      region filters, collapsible floating legend.
 
-Output: docs/language-map.html
+Output: docs/viz/language-map.html
 Usage:  python experiments/language_map.py
 """
 
@@ -14,7 +14,7 @@ from pathlib import Path
 
 ROOT        = Path(__file__).resolve().parent.parent
 RESULTS_CSV = ROOT / "data" / "results.csv"
-OUT         = ROOT / "docs" / "language-map.html"
+OUT         = ROOT / "docs" / "viz" / "language-map.html"
 
 # ── Language → ISO-3166-1 alpha-3 primary countries ──────────────────────────
 LANG_COUNTRIES = {
