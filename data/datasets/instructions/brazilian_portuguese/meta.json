@@ -3,12 +3,13 @@
   "slug": "brazilian_portuguese",
   "region": "Americas",
   "winner_model": "Tucano-2b4",
-  "total_samples": 1000,
+  "total_samples": 1200,
   "categories": {
     "tone_style": 200,
     "length_constraint": 200,
     "language_compliance": 200,
     "topic_boundary": 200,
-    "structured_output": 200
+    "structured_output": 200,
+    "number_verbalization": 200
   }
 }

@@ -1,13 +1,14 @@
 {
   "total_languages": 17,
-  "total_samples": 17000,
+  "total_samples": 20400,
   "samples_per_language": 1000,
   "categories": {
     "tone_style": 200,
     "length_constraint": 200,
     "language_compliance": 200,
     "topic_boundary": 200,
-    "structured_output": 200
+    "structured_output": 200,
+    "number_verbalization": 200
   },
   "languages": [
     {
@@ -15,13 +16,14 @@
       "slug": "tamil",
       "region": "Indic",
       "winner_model": "Tamil-Mistral-7B",
-      "total_samples": 1000,
+      "total_samples": 1200,
       "categories": {
         "tone_style": 200,
         "length_constraint": 200,
         "language_compliance": 200,
         "topic_boundary": 200,
-        "structured_output": 200
+        "structured_output": 200,
+        "number_verbalization": 200
       }
     },
     {
@@ -29,13 +31,14 @@
       "slug": "marathi",
       "region": "Indic",
       "winner_model": "MahaMarathi-7B",
-      "total_samples": 1000,
+      "total_samples": 1200,
       "categories": {
         "tone_style": 200,
         "length_constraint": 200,
         "language_compliance": 200,
         "topic_boundary": 200,
-        "structured_output": 200
+        "structured_output": 200,
+        "number_verbalization": 200
       }
     },
     {
@@ -43,13 +46,14 @@
       "slug": "kannada",
       "region": "Indic",
       "winner_model": "Ambari-7B",
-      "total_samples": 1000,
+      "total_samples": 1200,
       "categories": {
         "tone_style": 200,
         "length_constraint": 200,
         "language_compliance": 200,
         "topic_boundary": 200,
-        "structured_output": 200
+        "structured_output": 200,
+        "number_verbalization": 200
       }
     },
     {
@@ -57,13 +61,14 @@
       "slug": "gujarati",
       "region": "Indic",
       "winner_model": "Gujju-Llama-7B",
-      "total_samples": 1000,
+      "total_samples": 1200,
       "categories": {
         "tone_style": 200,
         "length_constraint": 200,
         "language_compliance": 200,
         "topic_boundary": 200,
-        "structured_output": 200
+        "structured_output": 200,
+        "number_verbalization": 200
       }
     },
     {
@@ -71,13 +76,14 @@
       "slug": "arabic",
       "region": "Middle East",
       "winner_model": "Jais-2-8B",
-      "total_samples": 1000,
+      "total_samples": 1200,
       "categories": {
         "tone_style": 200,
         "length_constraint": 200,
         "language_compliance": 200,
         "topic_boundary": 200,
-        "structured_output": 200
+        "structured_output": 200,
+        "number_verbalization": 200
       }
     },
     {
@@ -85,13 +91,14 @@
       "slug": "hebrew",
       "region": "Middle East",
       "winner_model": "DictaLM-2.0-7B",
-      "total_samples": 1000,
+      "total_samples": 1200,
       "categories": {
         "tone_style": 200,
         "length_constraint": 200,
         "language_compliance": 200,
         "topic_boundary": 200,
-        "structured_output": 200
+        "structured_output": 200,
+        "number_verbalization": 200
       }
     },
     {
@@ -99,13 +106,14 @@
       "slug": "korean",
       "region": "East Asia",
       "winner_model": "Polyglot-Ko-12B",
-      "total_samples": 1000,
+      "total_samples": 1200,
       "categories": {
         "tone_style": 200,
         "length_constraint": 200,
         "language_compliance": 200,
         "topic_boundary": 200,
-        "structured_output": 200
+        "structured_output": 200,
+        "number_verbalization": 200
       }
     },
     {
@@ -113,13 +121,14 @@
       "slug": "malay",
       "region": "SEA",
       "winner_model": "MaLLaM-5B",
-      "total_samples": 1000,
+      "total_samples": 1200,
       "categories": {
         "tone_style": 200,
         "length_constraint": 200,
         "language_compliance": 200,
         "topic_boundary": 200,
-        "structured_output": 200
+        "structured_output": 200,
+        "number_verbalization": 200
       }
     },
     {
@@ -127,13 +136,14 @@
       "slug": "swahili",
       "region": "Africa",
       "winner_model": "Swahili-Gemma-7B",
-      "total_samples": 1000,
+      "total_samples": 1200,
       "categories": {
         "tone_style": 200,
         "length_constraint": 200,
         "language_compliance": 200,
         "topic_boundary": 200,
-        "structured_output": 200
+        "structured_output": 200,
+        "number_verbalization": 200
       }
     },
     {
@@ -141,13 +151,14 @@
       "slug": "amharic",
       "region": "Africa",
       "winner_model": "Walia-LLM-7B",
-      "total_samples": 1000,
+      "total_samples": 1200,
       "categories": {
         "tone_style": 200,
         "length_constraint": 200,
         "language_compliance": 200,
         "topic_boundary": 200,
-        "structured_output": 200
+        "structured_output": 200,
+        "number_verbalization": 200
       }
     },
     {
@@ -155,13 +166,14 @@
       "slug": "french",
       "region": "Europe",
       "winner_model": "Lucie-7B",
-      "total_samples": 1000,
+      "total_samples": 1200,
       "categories": {
         "tone_style": 200,
         "length_constraint": 200,
         "language_compliance": 200,
         "topic_boundary": 200,
-        "structured_output": 200
+        "structured_output": 200,
+        "number_verbalization": 200
       }
     },
     {
@@ -169,13 +181,14 @@
       "slug": "swedish",
       "region": "Europe",
       "winner_model": "Viking-7B",
-      "total_samples": 1000,
+      "total_samples": 1200,
       "categories": {
         "tone_style": 200,
         "length_constraint": 200,
         "language_compliance": 200,
         "topic_boundary": 200,
-        "structured_output": 200
+        "structured_output": 200,
+        "number_verbalization": 200
       }
     },
     {
@@ -183,13 +196,14 @@
       "slug": "czech",
       "region": "Europe",
       "winner_model": "CSMPT-7B",
-      "total_samples": 1000,
+      "total_samples": 1200,
       "categories": {
         "tone_style": 200,
         "length_constraint": 200,
         "language_compliance": 200,
         "topic_boundary": 200,
-        "structured_output": 200
+        "structured_output": 200,
+        "number_verbalization": 200
       }
     },
     {
@@ -197,13 +211,14 @@
       "slug": "greek",
       "region": "Europe",
       "winner_model": "Meltemi-7B",
-      "total_samples": 1000,
+      "total_samples": 1200,
       "categories": {
         "tone_style": 200,
         "length_constraint": 200,
         "language_compliance": 200,
         "topic_boundary": 200,
-        "structured_output": 200
+        "structured_output": 200,
+        "number_verbalization": 200
       }
     },
     {
@@ -211,13 +226,14 @@
       "slug": "brazilian_portuguese",
       "region": "Americas",
       "winner_model": "Tucano-2b4",
-      "total_samples": 1000,
+      "total_samples": 1200,
       "categories": {
         "tone_style": 200,
         "length_constraint": 200,
         "language_compliance": 200,
         "topic_boundary": 200,
-        "structured_output": 200
+        "structured_output": 200,
+        "number_verbalization": 200
       }
     },
     {
@@ -225,13 +241,14 @@
       "slug": "maori",
       "region": "Oceania",
       "winner_model": "Goldfish-mri-39M",
-      "total_samples": 1000,
+      "total_samples": 1200,
       "categories": {
         "tone_style": 200,
         "length_constraint": 200,
         "language_compliance": 200,
         "topic_boundary": 200,
-        "structured_output": 200
+        "structured_output": 200,
+        "number_verbalization": 200
       }
     },
     {
@@ -239,13 +256,14 @@
       "slug": "tok_pisin",
       "region": "Oceania",
       "winner_model": "Goldfish-tpi-125M",
-      "total_samples": 1000,
+      "total_samples": 1200,
       "categories": {
         "tone_style": 200,
         "length_constraint": 200,
         "language_compliance": 200,
         "topic_boundary": 200,
-        "structured_output": 200
+        "structured_output": 200,
+        "number_verbalization": 200
       }
     }
   ]

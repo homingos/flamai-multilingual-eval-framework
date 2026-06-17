@@ -60,7 +60,7 @@ Each sample:
 
 Reference translations come from FLORES-200 gold annotations (already available).
 
-### 1b. Instruction Following Dataset (~1000 samples/language)
+### 1b. Instruction Following Dataset (~1200 samples/language)
 
 Domain: Talking Avatar use cases. Categories and sample distribution:
 
@@ -71,6 +71,7 @@ Domain: Talking Avatar use cases. Categories and sample distribution:
 | Language compliance | 200 | "Reply only in [language]", "Do not mix English words" |
 | Topic boundaries | 200 | "Only answer based on the provided context", "Do not speculate" |
 | Structured output | 200 | "Respond as a numbered list", "Start with a greeting, end with a question" |
+| Number verbalization | 200 | TTS normalization: postal codes/phone/OTP → digit-by-digit; money/measurements/percentages/dates → word form. Covers 8 number types: postal codes, phone numbers, OTPs/PINs, currency, decimal measurements, percentages, large quantities, dates + mixed sentences. |
 
 Each sample:
 ```
@@ -110,14 +111,29 @@ Third-party LLM evaluates candidate vs Gemma-4 head-to-head, providing:
 
 ### C. Instruction Following Metrics (automated)
 
-| Metric | What it measures | Method |
-|--------|-----------------|--------|
-| **Language adherence rate** | % of responses in the correct target language | `langdetect` or `lingua` |
-| **Length constraint accuracy** | % of responses within specified sentence/word bounds | Rule-based parser |
-| **Format compliance** | Structural adherence (lists, greeting/closing, numbered steps) | Regex + rule-based |
-| **Topic boundary respect** | Does the model stay on-topic when instructed? | Embedding cosine similarity to context |
-| **Keyword constraint** | Inclusion/exclusion of specified words | Exact match |
-| **Register/tone classifier** | Formal vs informal tone detection | Pre-trained multilingual classifier |
+| Metric | Applies to | What it measures | Method |
+|--------|-----------|-----------------|--------|
+| **Language adherence rate** | All categories | % of responses in the correct target language | `langdetect` or `lingua` |
+| **Length constraint accuracy** | length_constraint | % of responses within specified sentence/word bounds | Rule-based parser |
+| **Format compliance** | structured_output | Structural adherence (lists, greeting/closing, numbered steps) | Regex + rule-based |
+| **Topic boundary respect** | topic_boundary | Does the model stay on-topic when instructed? | Embedding cosine similarity to context |
+| **Keyword constraint** | All categories | Inclusion/exclusion of specified words | Exact match |
+| **Register/tone classifier** | tone_style | Formal vs informal tone detection | Pre-trained multilingual classifier |
+
+### D. Number Verbalization Metrics (automated, rule-based)
+
+Specific to the `number_verbalization` category. These are fully automated — no LLM-as-judge needed for most.
+
+| Metric | What it measures | Method | Target |
+|--------|-----------------|--------|--------|
+| **Digit-by-digit compliance** | For postal codes, phone numbers, OTPs, PINs: does the model read each digit individually (not as a composite number)? | Check that original digit string does not appear literally in output AND each digit maps to a word | 100% on identifier-type prompts |
+| **Word-form compliance** | For money, measurements, percentages, dates: does the model use word form with no raw digits remaining? | Regex: zero digit characters should remain in verbalized portion of output | 100% on value-type prompts |
+| **No literal digit leakage** | Overall: do any raw digit characters appear in the output where they should have been verbalized? | Count raw digit characters in output that correspond to input numbers | Lower is better; 0 = perfect |
+| **Digit preservation accuracy** | Are all digits from the input number accounted for in the output (none dropped or hallucinated)? | Compare digit count in input number vs digit-word count in output | 100% |
+| **Currency unit accuracy** | When a currency symbol is present ($, ₹, €, £, ¥), is the correct currency word included in the output? | Check for expected currency word (dollars, rupees, euros…) in output | 100% on currency prompts |
+| **Number type classification accuracy** | Did the model apply the correct rule for the number type? (postal code read digit-by-digit, not as "five lakh sixty thousand") | Label-based check: given `number_type` in the prompt, verify the rule applied matches expected | Higher is better |
+| **Language of number words** | Are the verbalized number words in the target language (not English)? | Language detection on the number-word spans; check against known digit words per language | 100% target language |
+| **Mixed-sentence consistency** | For prompts containing multiple number types, are ALL numbers handled correctly (right rule per type)? | Composite of digit-by-digit + word-form checks across all numbers in the sentence | Strictest test |
 
 ---
 
