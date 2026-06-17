@@ -1,0 +1,10 @@
+{
+  "language": "Czech",
+  "slug": "czech",
+  "region": "Europe",
+  "winner_model": "CSMPT-7B",
+  "flores_code": "ces_Latn",
+  "total_samples": 2024,
+  "en_to_target": 1012,
+  "target_to_en": 1012
+}

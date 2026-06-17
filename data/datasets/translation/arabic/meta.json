@@ -1,0 +1,10 @@
+{
+  "language": "Arabic",
+  "slug": "arabic",
+  "region": "Middle East",
+  "winner_model": "Jais-2-8B",
+  "flores_code": "arb_Arab",
+  "total_samples": 2024,
+  "en_to_target": 1012,
+  "target_to_en": 1012
+}

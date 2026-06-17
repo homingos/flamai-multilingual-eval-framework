@@ -1,0 +1,10 @@
+{
+  "language": "Māori",
+  "slug": "maori",
+  "region": "Oceania",
+  "winner_model": "Goldfish-mri-39M",
+  "flores_code": "mri_Latn",
+  "total_samples": 2024,
+  "en_to_target": 1012,
+  "target_to_en": 1012
+}

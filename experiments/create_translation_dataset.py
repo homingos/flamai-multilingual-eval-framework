@@ -54,16 +54,21 @@ ENGLISH_FLORES = "eng_Latn"
 
 def load_flores(flores_code: str):
     from datasets import load_dataset
-    try:
-        ds = load_dataset("facebook/flores", flores_code, split="devtest", token=HF_TOKEN)
-    except Exception as e:
-        raise RuntimeError(
-            f"Could not load FLORES-200 config '{flores_code}' from HuggingFace Hub.\n"
-            f"  Original error: {e}\n"
-            f"  Fix: ensure you have internet access (or set HF_TOKEN env var if the repo is gated).\n"
-            f"  The dataset is ~1MB per language config and downloads in seconds."
-        ) from e
-    return [{"flores_id": row["id"], "text": row["sentence"]} for row in ds]
+
+    # Try facebook/flores first (gated, needs HF_TOKEN), fall back to openlanguagedata/flores_plus
+    for repo, text_field in [("facebook/flores", "sentence"), ("openlanguagedata/flores_plus", "text")]:
+        try:
+            ds = load_dataset(repo, flores_code, split="devtest", token=HF_TOKEN)
+            # Align by row index (0-based) — consistent across both dataset sources
+            return [{"flores_id": i, "text": row[text_field]} for i, row in enumerate(ds)]
+        except Exception:
+            continue
+
+    raise RuntimeError(
+        f"Could not load FLORES-200 config '{flores_code}' from either:\n"
+        f"  facebook/flores  (gated — set HF_TOKEN with access)\n"
+        f"  openlanguagedata/flores_plus  (gated — authenticate at https://huggingface.co/datasets/openlanguagedata/flores_plus)\n"
+    )
 
 
 def build_samples(lang: dict, en_rows: list, tgt_rows: list) -> list:

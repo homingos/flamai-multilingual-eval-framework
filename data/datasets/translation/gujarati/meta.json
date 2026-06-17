@@ -1,0 +1,10 @@
+{
+  "language": "Gujarati",
+  "slug": "gujarati",
+  "region": "Indic",
+  "winner_model": "Gujju-Llama-7B",
+  "flores_code": "guj_Gujr",
+  "total_samples": 2024,
+  "en_to_target": 1012,
+  "target_to_en": 1012
+}

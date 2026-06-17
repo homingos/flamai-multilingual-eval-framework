@@ -1,0 +1,10 @@
+{
+  "language": "Korean",
+  "slug": "korean",
+  "region": "East Asia",
+  "winner_model": "Polyglot-Ko-12B",
+  "flores_code": "kor_Hang",
+  "total_samples": 2024,
+  "en_to_target": 1012,
+  "target_to_en": 1012
+}

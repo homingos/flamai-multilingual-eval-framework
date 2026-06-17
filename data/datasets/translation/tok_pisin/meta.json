@@ -1,0 +1,10 @@
+{
+  "language": "Tok Pisin",
+  "slug": "tok_pisin",
+  "region": "Oceania",
+  "winner_model": "Goldfish-tpi-125M",
+  "flores_code": "tpi_Latn",
+  "total_samples": 2024,
+  "en_to_target": 1012,
+  "target_to_en": 1012
+}

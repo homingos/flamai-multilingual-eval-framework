@@ -1,0 +1,10 @@
+{
+  "language": "Malay",
+  "slug": "malay",
+  "region": "SEA",
+  "winner_model": "MaLLaM-5B",
+  "flores_code": "zsm_Latn",
+  "total_samples": 2024,
+  "en_to_target": 1012,
+  "target_to_en": 1012
+}

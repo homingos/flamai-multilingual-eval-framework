@@ -1,0 +1,10 @@
+{
+  "language": "Brazilian Portuguese",
+  "slug": "brazilian_portuguese",
+  "region": "Americas",
+  "winner_model": "Tucano-2b4",
+  "flores_code": "por_Latn",
+  "total_samples": 2024,
+  "en_to_target": 1012,
+  "target_to_en": 1012
+}
