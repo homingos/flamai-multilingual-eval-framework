@@ -1,0 +1,252 @@
+{
+  "total_languages": 17,
+  "total_samples": 17000,
+  "samples_per_language": 1000,
+  "categories": {
+    "tone_style": 200,
+    "length_constraint": 200,
+    "language_compliance": 200,
+    "topic_boundary": 200,
+    "structured_output": 200
+  },
+  "languages": [
+    {
+      "language": "Tamil",
+      "slug": "tamil",
+      "region": "Indic",
+      "winner_model": "Tamil-Mistral-7B",
+      "total_samples": 1000,
+      "categories": {
+        "tone_style": 200,
+        "length_constraint": 200,
+        "language_compliance": 200,
+        "topic_boundary": 200,
+        "structured_output": 200
+      }
+    },
+    {
+      "language": "Marathi",
+      "slug": "marathi",
+      "region": "Indic",
+      "winner_model": "MahaMarathi-7B",
+      "total_samples": 1000,
+      "categories": {
+        "tone_style": 200,
+        "length_constraint": 200,
+        "language_compliance": 200,
+        "topic_boundary": 200,
+        "structured_output": 200
+      }
+    },
+    {
+      "language": "Kannada",
+      "slug": "kannada",
+      "region": "Indic",
+      "winner_model": "Ambari-7B",
+      "total_samples": 1000,
+      "categories": {
+        "tone_style": 200,
+        "length_constraint": 200,
+        "language_compliance": 200,
+        "topic_boundary": 200,
+        "structured_output": 200
+      }
+    },
+    {
+      "language": "Gujarati",
+      "slug": "gujarati",
+      "region": "Indic",
+      "winner_model": "Gujju-Llama-7B",
+      "total_samples": 1000,
+      "categories": {
+        "tone_style": 200,
+        "length_constraint": 200,
+        "language_compliance": 200,
+        "topic_boundary": 200,
+        "structured_output": 200
+      }
+    },
+    {
+      "language": "Arabic",
+      "slug": "arabic",
+      "region": "Middle East",
+      "winner_model": "Jais-2-8B",
+      "total_samples": 1000,
+      "categories": {
+        "tone_style": 200,
+        "length_constraint": 200,
+        "language_compliance": 200,
+        "topic_boundary": 200,
+        "structured_output": 200
+      }
+    },
+    {
+      "language": "Hebrew",
+      "slug": "hebrew",
+      "region": "Middle East",
+      "winner_model": "DictaLM-2.0-7B",
+      "total_samples": 1000,
+      "categories": {
+        "tone_style": 200,
+        "length_constraint": 200,
+        "language_compliance": 200,
+        "topic_boundary": 200,
+        "structured_output": 200
+      }
+    },
+    {
+      "language": "Korean",
+      "slug": "korean",
+      "region": "East Asia",
+      "winner_model": "Polyglot-Ko-12B",
+      "total_samples": 1000,
+      "categories": {
+        "tone_style": 200,
+        "length_constraint": 200,
+        "language_compliance": 200,
+        "topic_boundary": 200,
+        "structured_output": 200
+      }
+    },
+    {
+      "language": "Malay",
+      "slug": "malay",
+      "region": "SEA",
+      "winner_model": "MaLLaM-5B",
+      "total_samples": 1000,
+      "categories": {
+        "tone_style": 200,
+        "length_constraint": 200,
+        "language_compliance": 200,
+        "topic_boundary": 200,
+        "structured_output": 200
+      }
+    },
+    {
+      "language": "Swahili",
+      "slug": "swahili",
+      "region": "Africa",
+      "winner_model": "Swahili-Gemma-7B",
+      "total_samples": 1000,
+      "categories": {
+        "tone_style": 200,
+        "length_constraint": 200,
+        "language_compliance": 200,
+        "topic_boundary": 200,
+        "structured_output": 200
+      }
+    },
+    {
+      "language": "Amharic",
+      "slug": "amharic",
+      "region": "Africa",
+      "winner_model": "Walia-LLM-7B",
+      "total_samples": 1000,
+      "categories": {
+        "tone_style": 200,
+        "length_constraint": 200,
+        "language_compliance": 200,
+        "topic_boundary": 200,
+        "structured_output": 200
+      }
+    },
+    {
+      "language": "French",
+      "slug": "french",
+      "region": "Europe",
+      "winner_model": "Lucie-7B",
+      "total_samples": 1000,
+      "categories": {
+        "tone_style": 200,
+        "length_constraint": 200,
+        "language_compliance": 200,
+        "topic_boundary": 200,
+        "structured_output": 200
+      }
+    },
+    {
+      "language": "Swedish",
+      "slug": "swedish",
+      "region": "Europe",
+      "winner_model": "Viking-7B",
+      "total_samples": 1000,
+      "categories": {
+        "tone_style": 200,
+        "length_constraint": 200,
+        "language_compliance": 200,
+        "topic_boundary": 200,
+        "structured_output": 200
+      }
+    },
+    {
+      "language": "Czech",
+      "slug": "czech",
+      "region": "Europe",
+      "winner_model": "CSMPT-7B",
+      "total_samples": 1000,
+      "categories": {
+        "tone_style": 200,
+        "length_constraint": 200,
+        "language_compliance": 200,
+        "topic_boundary": 200,
+        "structured_output": 200
+      }
+    },
+    {
+      "language": "Greek",
+      "slug": "greek",
+      "region": "Europe",
+      "winner_model": "Meltemi-7B",
+      "total_samples": 1000,
+      "categories": {
+        "tone_style": 200,
+        "length_constraint": 200,
+        "language_compliance": 200,
+        "topic_boundary": 200,
+        "structured_output": 200
+      }
+    },
+    {
+      "language": "Brazilian Portuguese",
+      "slug": "brazilian_portuguese",
+      "region": "Americas",
+      "winner_model": "Tucano-2b4",
+      "total_samples": 1000,
+      "categories": {
+        "tone_style": 200,
+        "length_constraint": 200,
+        "language_compliance": 200,
+        "topic_boundary": 200,
+        "structured_output": 200
+      }
+    },
+    {
+      "language": "Māori",
+      "slug": "maori",
+      "region": "Oceania",
+      "winner_model": "Goldfish-mri-39M",
+      "total_samples": 1000,
+      "categories": {
+        "tone_style": 200,
+        "length_constraint": 200,
+        "language_compliance": 200,
+        "topic_boundary": 200,
+        "structured_output": 200
+      }
+    },
+    {
+      "language": "Tok Pisin",
+      "slug": "tok_pisin",
+      "region": "Oceania",
+      "winner_model": "Goldfish-tpi-125M",
+      "total_samples": 1000,
+      "categories": {
+        "tone_style": 200,
+        "length_constraint": 200,
+        "language_compliance": 200,
+        "topic_boundary": 200,
+        "structured_output": 200
+      }
+    }
+  ]
+}

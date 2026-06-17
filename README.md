@@ -71,13 +71,26 @@ Each tokenizer run measures 7 metrics:
 ```
 falcon-language/
 ├── data/
-│   ├── results.csv          # 245 tokenizer runs (63 langs × 3 baselines + 56 regional)
-│   └── summary.json         # Per-model aggregates (unweighted + char-weighted)
+│   ├── results.csv                      # 245 tokenizer runs (63 langs × 3 baselines + 56 regional)
+│   ├── summary.json                     # Per-model aggregates (unweighted + char-weighted)
+│   └── datasets/
+│       ├── instructions/                # 17,000 instruction-following samples (1000/language × 17)
+│       │   ├── meta.json
+│       │   └── <language>/
+│       │       ├── samples.jsonl        # 1000 samples: 200 per category
+│       │       └── meta.json
+│       └── translation/                 # ~34,000 translation samples (pending eng_Latn download)
+│           ├── meta.json
+│           └── <language>/
+│               ├── samples.jsonl        # ~2024 samples: 1012 en→target + 1012 target→en
+│               └── meta.json
 ├── experiments/
-│   ├── tokenizer_test.py    # Main evaluation runner (--append, --skip-baselines flags)
-│   ├── detailed_report.py   # Generates docs/llm-evaluation.md from results.csv
-│   ├── language_map.py      # Interactive Plotly world map → docs/viz/language-map.html
-│   └── generate_pdf.py      # PDF report generator → docs/reports/
+│   ├── tokenizer_test.py                # Main tokenizer evaluation runner
+│   ├── detailed_report.py               # Generates docs/llm-evaluation.md from results.csv
+│   ├── language_map.py                  # Interactive Plotly world map → docs/viz/language-map.html
+│   ├── generate_pdf.py                  # PDF report generator → docs/reports/
+│   ├── create_instruction_dataset.py    # Generates data/datasets/instructions/
+│   └── create_translation_dataset.py    # Generates data/datasets/translation/ (needs internet)
 ├── docs/
 │   ├── viz/                 # language-map.html, world-map.png
 │   ├── reports/             # Generated PDF reports

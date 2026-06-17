@@ -1,0 +1,14 @@
+{
+  "language": "Gujarati",
+  "slug": "gujarati",
+  "region": "Indic",
+  "winner_model": "Gujju-Llama-7B",
+  "total_samples": 1000,
+  "categories": {
+    "tone_style": 200,
+    "length_constraint": 200,
+    "language_compliance": 200,
+    "topic_boundary": 200,
+    "structured_output": 200
+  }
+}
