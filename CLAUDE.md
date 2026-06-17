@@ -23,6 +23,12 @@ GitHub repos will be cloned into this directory as sub-folders once available.
 Find the best language model per target language/region via tokenizer benchmarking against Gemma-4.
 Results in `data/results.csv`, report in `docs/llm-evaluation.md`, visualisation in `docs/viz/`.
 
+### Qualitative LLM Validation (next)
+Validate the 17 tokenizer winners qualitatively before committing to fine-tuning.
+Two tasks per language: **Translation** (English ↔ target, ~1000 samples) and **Instruction Following** (Talking Avatar domain, ~1000 samples).
+Evaluation via LLM-as-judge framework + automated metrics (BLEU, chrF, COMET, BERTScore for translation; language adherence, format compliance, length accuracy for instructions).
+Output: per-language verdict (confirmed winner / revert to Gemma-4). See `docs/plans/task1b-qualitative-llm-validation.md`.
+
 ### Whisper Fine-tuning per Language
 Improve speech-to-text accuracy for user questions in each target language.
 

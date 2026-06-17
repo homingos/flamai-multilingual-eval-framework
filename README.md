@@ -154,4 +154,26 @@ Open `docs/viz/language-map.html` in any browser for the full interactive visual
 
 Part of the Falcon Language Support initiative for Flam AI's Talking Avatar product. The goal is to identify the best LLM per target language for the full pipeline: STT (Whisper) → LLM → TTS.
 
-Ongoing research areas: Whisper fine-tuning per language (STT accuracy) and cross-language validation to prevent catastrophic forgetting across supported languages.
+### Research Roadmap
+
+| Phase | Status | Description |
+|-------|--------|-------------|
+| Tokenizer Evaluation | ✅ Complete | Benchmark 63 languages — 17 regional candidates beat Gemma-4 |
+| Qualitative Validation | 🔜 Next | Validate the 17 winners on translation + instruction following (1000 samples/language/task) |
+| Whisper Fine-tuning | Planned | Improve STT accuracy per language using confirmed winning LLMs |
+| Cross-language Validation | Planned | Prevent catastrophic forgetting across languages during fine-tuning |
+
+### Qualitative Validation Methodology
+
+For each of the 17 tokenizer winners, two tasks are evaluated head-to-head against Gemma-4 26B A4B IT:
+
+**Translation** (English ↔ target language, ~1000 samples from FLORES-200)
+- Automated: BLEU, chrF, COMET, BERTScore, back-translation consistency
+- LLM-as-judge: head-to-head blind comparison
+
+**Instruction Following** (~1000 Talking Avatar domain prompts)
+- Categories: tone/style, length constraints, language compliance, topic boundaries, structured output
+- Automated: language adherence rate, format compliance, length accuracy, keyword constraints
+- LLM-as-judge: head-to-head blind comparison
+
+See `docs/plans/task1b-qualitative-llm-validation.md` for full dataset spec and metric definitions.
