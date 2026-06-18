@@ -75,7 +75,7 @@ class RegistryService:
         model = await self._store.get_model(model_id)
         if model is None:
             return None
-        allowed = {"name", "hf_model_id", "gpu_preset", "dtype", "gpu_memory_utilization", "max_model_len", "notes"}
+        allowed = {"name", "hf_model_id", "gpu_preset", "dtype", "gpu_memory_utilization", "max_model_len", "notes", "chat_template"}
         for key, value in updates.items():
             if key in allowed and value is not None:
                 setattr(model, key, value)
@@ -101,6 +101,73 @@ class RegistryService:
         model.state = target
         model.updated_at = _now_iso()
         return await self._store.update_model(model)
+
+    async def fetch_and_store_chat_template(
+        self, model_id: str, hf_token: Optional[str] = None
+    ) -> dict:
+        """
+        Fetches the Jinja2 chat template from the HuggingFace tokenizer for a
+        model, stores it in the registry, and returns a result dict.
+
+        Requires `transformers` to be installed in the calling environment
+        (the registry image includes it via pip_install).
+
+        Args:
+            model_id: registry model ID e.g. "tamil-mistral-7b"
+            hf_token: optional HuggingFace API token for gated repos
+
+        Returns:
+            {
+                "model_id": str,
+                "hf_model_id": str,
+                "template_found": bool,
+                "template_length": int,   # 0 if not found
+                "stored": bool,
+            }
+
+        Raises:
+            ValueError if model not found in registry.
+        """
+        from transformers import AutoTokenizer
+
+        model = await self._store.get_model(model_id)
+        if model is None:
+            raise ValueError(f"Model '{model_id}' not found in registry.")
+
+        chat_template: Optional[str] = None
+        try:
+            tok_kwargs: dict = {
+                "trust_remote_code": True,
+                "use_fast": True,
+            }
+            if hf_token:
+                tok_kwargs["token"] = hf_token
+
+            tokenizer = AutoTokenizer.from_pretrained(
+                model.hf_model_id, **tok_kwargs
+            )
+            raw = getattr(tokenizer, "chat_template", None)
+            # Normalise: empty string → None
+            chat_template = raw if raw else None
+        except Exception as exc:
+            # Template fetch failed — store None so vLLM falls back to plain-text
+            print(
+                f"[fetch_chat_template] Could not load tokenizer for "
+                f"'{model.hf_model_id}': {exc}. Storing None."
+            )
+            chat_template = None
+
+        model.chat_template = chat_template
+        model.updated_at = _now_iso()
+        await self._store.update_model(model)
+
+        return {
+            "model_id":       model_id,
+            "hf_model_id":    model.hf_model_id,
+            "template_found": chat_template is not None,
+            "template_length": len(chat_template) if chat_template else 0,
+            "stored":         True,
+        }
 
     # ------------------------------------------------------------------
     # Hardware

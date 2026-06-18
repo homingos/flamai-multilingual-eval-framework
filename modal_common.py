@@ -44,6 +44,10 @@ registry_image = (
         "uvicorn[standard]",
         "pydantic>=2.0",
         "PyJWT",
+        # transformers is needed for fetch_and_store_chat_template —
+        # it loads the HF tokenizer to extract the Jinja2 chat_template string.
+        "transformers>=4.40",
+        "huggingface_hub",
     )
     .add_local_dir("src", remote_path="/root/src")
     .add_local_file("modal_app.py",    remote_path="/root/modal_app.py")

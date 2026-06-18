@@ -71,32 +71,94 @@ class RegistryService:
 # vLLM inference workers — one class per GPU tier
 # ---------------------------------------------------------------------------
 
-@app.cls(image=vllm_image, gpu="T4",        timeout=3600, secrets=_inference_secrets, volumes=VOLUME_MOUNTS)
+@app.cls(
+    image=vllm_image,
+    gpu="T4",
+    timeout=3600,
+    secrets=_inference_secrets,
+    volumes=VOLUME_MOUNTS,
+    enable_memory_snapshot=True,
+)
 class VLLMWorkerT4(_VLLMWorker):
     model_id: str = modal.parameter()
     run_id:   str = modal.parameter()
     task:     str = modal.parameter()
 
+    @modal.enter(snap=True)
+    def load_model(self) -> None:
+        super().load_model()
 
-@app.cls(image=vllm_image, gpu="L4",        timeout=3600, secrets=_inference_secrets, volumes=VOLUME_MOUNTS)
+    @modal.enter(snap=False)
+    def post_restore(self) -> None:
+        # Reinitialise anything that can't survive a memory snapshot —
+        # CUDA contexts are rebuilt by vLLM automatically on restore.
+        pass
+
+
+@app.cls(
+    image=vllm_image,
+    gpu="L4",
+    timeout=3600,
+    secrets=_inference_secrets,
+    volumes=VOLUME_MOUNTS,
+    enable_memory_snapshot=True,
+)
 class VLLMWorkerL4(_VLLMWorker):
     model_id: str = modal.parameter()
     run_id:   str = modal.parameter()
     task:     str = modal.parameter()
 
+    @modal.enter(snap=True)
+    def load_model(self) -> None:
+        super().load_model()
 
-@app.cls(image=vllm_image, gpu="L40S",      timeout=3600, secrets=_inference_secrets, volumes=VOLUME_MOUNTS)
+    @modal.enter(snap=False)
+    def post_restore(self) -> None:
+        pass
+
+
+@app.cls(
+    image=vllm_image,
+    gpu="L40S",
+    timeout=3600,
+    secrets=_inference_secrets,
+    volumes=VOLUME_MOUNTS,
+    enable_memory_snapshot=True,
+)
 class VLLMWorkerL40S(_VLLMWorker):
     model_id: str = modal.parameter()
     run_id:   str = modal.parameter()
     task:     str = modal.parameter()
 
+    @modal.enter(snap=True)
+    def load_model(self) -> None:
+        super().load_model()
 
-@app.cls(image=vllm_image, gpu="A100-80GB", timeout=3600, secrets=_inference_secrets, volumes=VOLUME_MOUNTS)
+    @modal.enter(snap=False)
+    def post_restore(self) -> None:
+        pass
+
+
+@app.cls(
+    image=vllm_image,
+    gpu="A100-80GB",
+    timeout=3600,
+    secrets=_inference_secrets,
+    volumes=VOLUME_MOUNTS,
+    enable_memory_snapshot=True,
+)
 class VLLMWorkerA100(_VLLMWorker):
     model_id: str = modal.parameter()
     run_id:   str = modal.parameter()
     task:     str = modal.parameter()
+
+    @modal.enter(snap=True)
+    def load_model(self) -> None:
+        super().load_model()
+
+    @modal.enter(snap=False)
+    def post_restore(self) -> None:
+        pass
 
 
 GPU_WORKER_MAP = {

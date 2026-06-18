@@ -26,6 +26,11 @@ class ModelConfig:
     gpu_memory_utilization: float = 0.88
     max_model_len: int = 2048
     notes: Optional[str] = None
+    # Chat template — Jinja2 string fetched from the HuggingFace tokenizer.
+    # None  → model has no tokenizer chat template; use plain-text prompts.
+    # ""    → template fetch was attempted but returned nothing; treat as None.
+    # str   → valid Jinja2 template; pass to vLLM via tokenizer_chat_template.
+    chat_template: Optional[str] = None
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
 
@@ -44,6 +49,7 @@ class ModelConfig:
             "gpu_memory_utilization": self.gpu_memory_utilization,
             "max_model_len": self.max_model_len,
             "notes": self.notes,
+            "chat_template": self.chat_template,
             "created_at": self.created_at,
             "updated_at": self.updated_at,
         }
@@ -64,6 +70,7 @@ class ModelConfig:
             gpu_memory_utilization=d.get("gpu_memory_utilization", 0.88),
             max_model_len=d.get("max_model_len", 2048),
             notes=d.get("notes"),
+            chat_template=d.get("chat_template"),
             created_at=d.get("created_at"),
             updated_at=d.get("updated_at"),
         )

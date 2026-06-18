@@ -37,6 +37,9 @@ class _ModelInfo:
     dtype: str
     gpu_memory_utilization: float
     max_model_len: int
+    # None  → no template; use plain-text prompts via llm.generate()
+    # str   → Jinja2 template; use structured chat via llm.chat()
+    chat_template: str | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -66,10 +69,12 @@ class VLLMWorker:
     @modal.enter()
     def load_model(self) -> None:
         """
-        Runs once when the container starts.
+        Runs once when the container starts (snapshotted — see modal_app.py).
         1. Sets HF_HOME so weights cache on the weights volume.
-        2. Fetches ModelConfig from the registry API.
-        3. Loads vLLM LLM instance from HuggingFace (or volume cache).
+        2. Fetches ModelConfig from the registry API (includes chat_template).
+        3. Loads vLLM LLM instance. If the model has a chat template stored in
+           the registry, passes it via tokenizer_chat_template so vLLM uses the
+           correct message formatting. Falls back to plain-text if None.
         """
         import os
         os.environ["HF_HOME"] = "/data/weights"
@@ -77,13 +82,32 @@ class VLLMWorker:
         self.config = self._fetch_model_config()
 
         from vllm import LLM
-        self.llm = LLM(
+
+        llm_kwargs: dict = dict(
             model=self.config.hf_model_id,
             dtype=self.config.dtype,
             gpu_memory_utilization=self.config.gpu_memory_utilization,
             max_model_len=self.config.max_model_len,
             trust_remote_code=True,
+            disable_log_stats=True,
         )
+
+        if self.config.chat_template:
+            # Explicit template stored in registry — use it.
+            # This ensures correctness even if the tokenizer on HF has no
+            # chat_template or uses a different default format.
+            llm_kwargs["tokenizer_chat_template"] = self.config.chat_template
+            print(
+                f"[VLLMWorker] {self.config.name}: using registry chat template "
+                f"({len(self.config.chat_template)} chars)"
+            )
+        else:
+            print(
+                f"[VLLMWorker] {self.config.name}: no chat template in registry — "
+                f"using plain-text prompt format"
+            )
+
+        self.llm = LLM(**llm_kwargs)
 
     def _fetch_model_config(self) -> _ModelInfo:
         """
@@ -127,6 +151,7 @@ class VLLMWorker:
             dtype=data.get("dtype", "bfloat16"),
             gpu_memory_utilization=data.get("gpu_memory_utilization", 0.88),
             max_model_len=data.get("max_model_len", 2048),
+            chat_template=data.get("chat_template"),  # None if not yet fetched
         )
 
     @modal.method()
@@ -203,21 +228,35 @@ class VLLMWorker:
                 })
             return base
 
-        # 4. Run in batches
+        # 4. Run in batches — use chat() if template exists, generate() otherwise
         results = []
         total_completed = len(completed_ids)
 
         for i in range(0, len(pending_samples), self.BATCH_SIZE):
             batch = pending_samples[i : i + self.BATCH_SIZE]
 
-            # Format as plain text — avoids chat-template issues for models
-            # like Tamil-Mistral-7B that don't define a tokenizer chat template.
-            prompts = []
-            for sample in batch:
-                system_prompt, user_prompt = build_prompt(self.task, sample)
-                prompts.append(f"{system_prompt}\n\n{user_prompt}")
-
-            outputs = self._safe_generate(prompts, sampling_params)
+            if self.config.chat_template:
+                # ── Chat mode ────────────────────────────────────────────────
+                # Build structured conversation dicts. vLLM applies the stored
+                # Jinja2 template to produce the correctly-formatted input string.
+                conversations = []
+                for sample in batch:
+                    system_prompt, user_prompt = build_prompt(self.task, sample)
+                    conversations.append([
+                        {"role": "system",  "content": system_prompt},
+                        {"role": "user",    "content": user_prompt},
+                    ])
+                outputs = self._safe_chat(conversations, sampling_params)
+            else:
+                # ── Plain-text mode ───────────────────────────────────────────
+                # Model has no chat template — concatenate system + user with a
+                # double newline. Works for base/pretrain models that don't
+                # support structured chat (e.g. Tamil-Mistral base variant).
+                prompts = []
+                for sample in batch:
+                    system_prompt, user_prompt = build_prompt(self.task, sample)
+                    prompts.append(f"{system_prompt}\n\n{user_prompt}")
+                outputs = self._safe_generate(prompts, sampling_params)
 
             for sample, output in zip(batch, outputs):
                 if output is None:
@@ -236,16 +275,28 @@ class VLLMWorker:
 
         return results
 
+    def _safe_chat(self, conversations: list, sampling_params) -> list:
+        """
+        Wraps llm.chat() — used when a chat template is stored in the registry.
+        Passes the template via the LLM instance (set at load_model time via
+        tokenizer_chat_template). Returns list of outputs, or list of None on error.
+        """
+        try:
+            return self.llm.chat(conversations, sampling_params=sampling_params)
+        except Exception as exc:
+            print(
+                f"[VLLMWorker] chat() failed ({len(conversations)} conversations): {exc}"
+            )
+            return [None] * len(conversations)
+
     def _safe_generate(self, prompts: list, sampling_params) -> list:
         """
-        Wraps self.llm.generate() in a try/except.
-        Uses generate() (not chat()) to avoid tokenizer chat-template issues
-        for models that don't define one (e.g. Tamil-Mistral-7B).
-        On failure: logs the error, returns a list of None values so the
-        caller can skip failed prompts without aborting the entire run.
+        Wraps llm.generate() — used when no chat template is stored in registry.
+        Prompts are plain-text strings (system + user concatenated with newlines).
+        Returns list of outputs, or list of None on error.
         """
         try:
             return self.llm.generate(prompts, sampling_params=sampling_params)
         except Exception as exc:
-            print(f"[VLLMWorker] Batch inference failed ({len(prompts)} prompts): {exc}")
+            print(f"[VLLMWorker] generate() failed ({len(prompts)} prompts): {exc}")
             return [None] * len(prompts)

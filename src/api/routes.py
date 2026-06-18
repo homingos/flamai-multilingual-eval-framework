@@ -16,6 +16,7 @@ from src.api.schemas import (
     CreateMetricRequest,
     CreateModelRequest,
     CreateRunRequest,
+    FetchChatTemplateResponse,
     HealthCheckResponse,
     HealthStatus,
     HardwareListResponse,
@@ -143,6 +144,34 @@ async def deprecate_model(
     if model is None:
         raise HTTPException(status_code=404, detail=f"Model '{model_id}' not found.")
     return ModelResponse(status="deprecated", data=model.to_dict())
+
+
+@router.post(
+    "/models/{model_id}/fetch-chat-template",
+    response_model=FetchChatTemplateResponse,
+    dependencies=[_WRITE],
+    summary="Fetch and store chat template from HuggingFace",
+    description=(
+        "Downloads the tokenizer for the model's hf_model_id from HuggingFace, "
+        "extracts the Jinja2 chat_template string, and stores it in the registry. "
+        "Idempotent — safe to call multiple times. If the tokenizer has no chat "
+        "template, stores None (vLLM will fall back to plain-text prompts). "
+        "Requires HF_TOKEN env var to be set on the registry container for gated repos."
+    ),
+)
+async def fetch_chat_template(
+    model_id: str,
+    svc: RegistryService = Depends(get_registry_service),
+) -> FetchChatTemplateResponse:
+    import os
+    hf_token = os.environ.get("HF_TOKEN")
+    try:
+        result = await svc.fetch_and_store_chat_template(model_id, hf_token=hf_token)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Template fetch failed: {exc}")
+    return FetchChatTemplateResponse(**result)
 
 
 # ---------------------------------------------------------------------------

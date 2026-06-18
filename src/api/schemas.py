@@ -62,6 +62,7 @@ class CreateModelRequest(BaseModel):
     gpu_memory_utilization: float = Field(0.88, ge=0.1, le=1.0)
     max_model_len: int = Field(2048, ge=128)
     notes: Optional[str] = None
+    chat_template: Optional[str] = None
 
 
 class UpdateModelRequest(BaseModel):
@@ -72,6 +73,15 @@ class UpdateModelRequest(BaseModel):
     gpu_memory_utilization: Optional[float] = Field(None, ge=0.1, le=1.0)
     max_model_len: Optional[int] = Field(None, ge=128)
     notes: Optional[str] = None
+    chat_template: Optional[str] = None
+
+
+class FetchChatTemplateResponse(BaseModel):
+    model_id: str
+    hf_model_id: str
+    template_found: bool
+    template_length: int
+    stored: bool
 
 
 class ModelResponse(BaseModel):
