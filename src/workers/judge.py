@@ -5,7 +5,7 @@ JudgeWorker — LLM-as-judge for pairwise output comparison.
 
 Supports two judge providers, selected automatically by model string prefix:
   - Anthropic  →  judge_model starts with "claude-"   (e.g. "claude-haiku-4-5")
-  - Gemini     →  judge_model starts with "gemini-"   (e.g. "gemini-2.0-flash")
+  - Gemini     →  judge_model starts with "gemini-"   (e.g. "models/gemini-3.5-flash")
 
 The worker reads whichever API key is present in the environment:
   ANTHROPIC_API_KEY  — for Anthropic models
@@ -297,7 +297,7 @@ class JudgeWorker:
         verdicts = judge.judge.remote(
             run_id="...", slug="tamil", task="translation",
             language="Tamil", regional_model_id="tamil-mistral-7b",
-            judge_model="gemini-2.0-flash", swap_runs=2,
+            judge_model="models/gemini-3.5-flash", swap_runs=2,
         )
     """
 
@@ -308,7 +308,7 @@ class JudgeWorker:
         task: str,
         language: str,
         regional_model_id: str,
-        judge_model: str = "gemini-2.0-flash",
+        judge_model: str = "models/gemini-3.5-flash",
         swap_runs: int = 2,
         limit: Optional[int] = None,
     ) -> List[dict]:
