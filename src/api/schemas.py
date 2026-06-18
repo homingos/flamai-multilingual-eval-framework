@@ -65,6 +65,8 @@ class CreateModelRequest(BaseModel):
 
 
 class UpdateModelRequest(BaseModel):
+    name: Optional[str] = None
+    hf_model_id: Optional[str] = None
     gpu_preset: Optional[str] = None
     dtype: Optional[str] = None
     gpu_memory_utilization: Optional[float] = Field(None, ge=0.1, le=1.0)

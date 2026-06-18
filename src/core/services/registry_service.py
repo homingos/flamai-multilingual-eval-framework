@@ -75,7 +75,7 @@ class RegistryService:
         model = await self._store.get_model(model_id)
         if model is None:
             return None
-        allowed = {"gpu_preset", "dtype", "gpu_memory_utilization", "max_model_len", "notes"}
+        allowed = {"name", "hf_model_id", "gpu_preset", "dtype", "gpu_memory_utilization", "max_model_len", "notes"}
         for key, value in updates.items():
             if key in allowed and value is not None:
                 setattr(model, key, value)

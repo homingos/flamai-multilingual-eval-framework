@@ -48,19 +48,17 @@ class VLLMWorker:
     Parameterised vLLM inference worker.
 
     Subclassed in modal_app.py with @app.cls() and the appropriate GPU tier.
-    Parameters are declared with modal.parameter() — no __init__ needed.
     Model loading happens once in @modal.enter() — not per-request.
     Output is written to the outputs volume incrementally as prompts complete.
     Checkpoint is written every CHECKPOINT_EVERY prompts for resume support.
     """
 
-    # Modal parameterisation — replaces __init__
-    model_id: str = modal.parameter()
-    run_id:   str = modal.parameter()
-    task:     str = modal.parameter()
+    # model_id, run_id, task are declared as modal.parameter() on each
+    # @app.cls() subclass in modal_app.py — Modal injects them as instance
+    # attributes before @modal.enter() is called.
 
-    CHECKPOINT_EVERY = 50   # write checkpoint after every N completed prompts
-    BATCH_SIZE       = 16   # vLLM batch size — tune per GPU
+    CHECKPOINT_EVERY = 50
+    BATCH_SIZE       = 16
     TEMPERATURE      = 0.0
     TOP_P            = 1.0
     MAX_NEW_TOKENS   = 512

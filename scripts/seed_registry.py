@@ -33,7 +33,7 @@ MODELS = [
     {
         "id": "gemma-4-26b",
         "name": "Gemma-4",
-        "hf_model_id": "google/gemma-4-27b-it",
+        "hf_model_id": "google/gemma-4-26B-A4B-it",
         "language": "Baseline",
         "slug": "baseline",
         "region": "Global",
@@ -44,7 +44,7 @@ MODELS = [
     {
         "id": "tamil-mistral-7b",
         "name": "Tamil-Mistral-7B",
-        "hf_model_id": "abhinand/tamil-mistral-7b-instruct-v0.1",
+        "hf_model_id": "Hemanth-thunder/Tamil-Mistral-7B-Instruct-v0.1",
         "language": "Tamil",
         "slug": "tamil",
         "region": "Indic",
@@ -54,7 +54,7 @@ MODELS = [
     {
         "id": "mahamarathi-7b",
         "name": "MahaMarathi-7B",
-        "hf_model_id": "marathi-dost/MahaMarathi-7B-v1",
+        "hf_model_id": "marathi-llm/MahaMarathi-7B-v24.01-Base",
         "language": "Marathi",
         "slug": "marathi",
         "region": "Indic",
@@ -64,7 +64,7 @@ MODELS = [
     {
         "id": "ambari-7b",
         "name": "Ambari-7B",
-        "hf_model_id": "ai4bharat/ambari-7b-instruct-v1",
+        "hf_model_id": "Cognitive-Lab/Ambari-7B-base-v0.1",
         "language": "Kannada",
         "slug": "kannada",
         "region": "Indic",
@@ -74,7 +74,7 @@ MODELS = [
     {
         "id": "gujju-llama-7b",
         "name": "Gujju-Llama-7B",
-        "hf_model_id": "l3cube-pune/gujju-llama-3.1-8b-instruct",
+        "hf_model_id": "sampoorna42/gujju-llama-base-v1.0",
         "language": "Gujarati",
         "slug": "gujarati",
         "region": "Indic",
@@ -84,7 +84,7 @@ MODELS = [
     {
         "id": "jais-2-8b",
         "name": "Jais-2-8B",
-        "hf_model_id": "inceptionai/jais-adapted-7b",
+        "hf_model_id": "inceptionai/Jais-2-8B-Chat",
         "language": "Arabic",
         "slug": "arabic",
         "region": "Middle East",
@@ -114,7 +114,7 @@ MODELS = [
     {
         "id": "mallam-5b",
         "name": "MaLLaM-5B",
-        "hf_model_id": "mesolitica/mallam-5b-instruct",
+        "hf_model_id": "mesolitica/mallam-5B-4096",
         "language": "Malay",
         "slug": "malay",
         "region": "SEA",
@@ -124,7 +124,7 @@ MODELS = [
     {
         "id": "swahili-gemma-7b",
         "name": "Swahili-Gemma-7B",
-        "hf_model_id": "Jacaranda-Teknolojia/SwahiliGemma-v2",
+        "hf_model_id": "Mollel/Swahili_Gemma",
         "language": "Swahili",
         "slug": "swahili",
         "region": "Africa",
@@ -134,7 +134,7 @@ MODELS = [
     {
         "id": "walia-llm-7b",
         "name": "Walia-LLM-7B",
-        "hf_model_id": "walia-ai/walia-llm-7b-instruct",
+        "hf_model_id": "israel/LLAMA-Walia-II",
         "language": "Amharic",
         "slug": "amharic",
         "region": "Africa",
@@ -144,7 +144,7 @@ MODELS = [
     {
         "id": "lucie-7b",
         "name": "Lucie-7B",
-        "hf_model_id": "OpenLLM-France/Lucie-7B-Instruct",
+        "hf_model_id": "OpenLLM-France/Lucie-7B",
         "language": "French",
         "slug": "french",
         "region": "Europe",
@@ -164,7 +164,7 @@ MODELS = [
     {
         "id": "csmpt-7b",
         "name": "CSMPT-7B",
-        "hf_model_id": "BUT-FIT/Czech-Mistral-7B-instruct-v0.1",
+        "hf_model_id": "BUT-FIT/csmpt7b",
         "language": "Czech",
         "slug": "czech",
         "region": "Europe",
@@ -194,7 +194,7 @@ MODELS = [
     {
         "id": "goldfish-mri-39m",
         "name": "Goldfish-mri-39M",
-        "hf_model_id": "kaitchup/Goldfish-Maori-39M",
+        "hf_model_id": "goldfish-models/mri_latn_10mb",
         "language": "Māori",
         "slug": "maori",
         "region": "Oceania",
@@ -204,7 +204,7 @@ MODELS = [
     {
         "id": "goldfish-tpi-125m",
         "name": "Goldfish-tpi-125M",
-        "hf_model_id": "kaitchup/Goldfish-Tpi-125M",
+        "hf_model_id": "goldfish-models/tpi_latn_full",
         "language": "Tok Pisin",
         "slug": "tok_pisin",
         "region": "Oceania",
@@ -280,10 +280,22 @@ def _patch(path: str, payload: dict) -> None:
 # Main
 # ---------------------------------------------------------------------------
 
-def main() -> None:
+def main(update: bool = False) -> None:
     if not JWT_TOKEN:
         print("ERROR: JWT_TOKEN env var is required.", file=sys.stderr)
         sys.exit(1)
+
+    if update:
+        print(f"\n=== Updating models in Phase 2A registry at {REGISTRY_URL} ===\n")
+        print("--- Updating model hf_model_id / name fields ---")
+        for m in MODELS:
+            model_id = m["id"]
+            _patch(f"/models/{model_id}", {
+                "hf_model_id": m["hf_model_id"],
+                "name": m["name"],
+            })
+        print("\n=== Update done ===")
+        return
 
     print(f"\n=== Seeding Phase 2A registry at {REGISTRY_URL} ===\n")
 
@@ -312,4 +324,9 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--update", action="store_true",
+                        help="PATCH existing models instead of POSTing new ones")
+    args = parser.parse_args()
+    main(update=args.update)
