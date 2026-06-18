@@ -193,25 +193,35 @@ def _run_compare(
     write_manifest(run_id, manifest)
     append_run_to_index(run_id, status="started")
 
-    # ── Step 4: Launch both inference containers simultaneously ──────────────
-    regional_cls = GPU_WORKER_MAP[regional_gpu_preset]
-    gemma_cls    = GPU_WORKER_MAP["a100_80gb"]
+    # ── Step 4: Launch inference (skip if outputs already complete) ─────────────
+    reg_path   = regional_output_path(run_id, slug, task)
+    gemma_path = gemma_output_path(run_id, task)
 
-    regional_worker = regional_cls(model_id=regional_model_id, run_id=run_id, task=task)
-    gemma_worker    = gemma_cls(   model_id="gemma-4-26b",      run_id=run_id, task=task)
+    reg_done   = os.path.exists(reg_path)   and os.path.getsize(reg_path)   > 0
+    gemma_done = os.path.exists(gemma_path) and os.path.getsize(gemma_path) > 0
 
-    print("Launching regional model and Gemma-4 simultaneously...")
-    regional_handle = regional_worker.generate.spawn(samples)
-    gemma_handle    = gemma_worker.generate.spawn(samples)
-    regional_out    = regional_handle.get()
-    gemma_out       = gemma_handle.get()
-    print(f"Inference complete — regional: {len(regional_out)}, Gemma-4: {len(gemma_out)} outputs")
+    if reg_done and gemma_done:
+        print("Both output files already exist — skipping inference, going straight to metrics.")
+    else:
+        regional_cls = GPU_WORKER_MAP[regional_gpu_preset]
+        gemma_cls    = GPU_WORKER_MAP["a100_80gb"]
+
+        regional_worker = regional_cls(model_id=regional_model_id, run_id=run_id, task=task)
+        gemma_worker    = gemma_cls(   model_id="gemma-4-26b",      run_id=run_id, task=task)
+
+        print("Launching regional model and Gemma-4 simultaneously...")
+        regional_handle = regional_worker.generate.spawn(samples)
+        gemma_handle    = gemma_worker.generate.spawn(samples)
+        regional_out    = regional_handle.get()
+        gemma_out       = gemma_handle.get()
+        print(f"Inference complete — regional: {len(regional_out)}, Gemma-4: {len(gemma_out)} new outputs")
+
+        # Reload volume so this container sees files written by worker containers
+        import modal as _modal
+        _modal.Volume.from_name("phase2a-outputs").reload()
 
     # ── Step 5: Gate — confirm both output files exist ───────────────────────
     update_manifest_status(run_id, "inference_complete")
-
-    reg_path   = regional_output_path(run_id, slug, task)
-    gemma_path = gemma_output_path(run_id, task)
 
     for path, label in [(reg_path, regional_model_id), (gemma_path, "Gemma-4")]:
         if not os.path.exists(path) or os.path.getsize(path) == 0:

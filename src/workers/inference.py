@@ -210,15 +210,14 @@ class VLLMWorker:
         for i in range(0, len(pending_samples), self.BATCH_SIZE):
             batch = pending_samples[i : i + self.BATCH_SIZE]
 
-            conversations = []
+            # Format as plain text — avoids chat-template issues for models
+            # like Tamil-Mistral-7B that don't define a tokenizer chat template.
+            prompts = []
             for sample in batch:
                 system_prompt, user_prompt = build_prompt(self.task, sample)
-                conversations.append([
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user",   "content": user_prompt},
-                ])
+                prompts.append(f"{system_prompt}\n\n{user_prompt}")
 
-            outputs = self._safe_generate(conversations, sampling_params)
+            outputs = self._safe_generate(prompts, sampling_params)
 
             for sample, output in zip(batch, outputs):
                 if output is None:
@@ -237,14 +236,16 @@ class VLLMWorker:
 
         return results
 
-    def _safe_generate(self, conversations: list, sampling_params) -> list:
+    def _safe_generate(self, prompts: list, sampling_params) -> list:
         """
-        Wraps self.llm.chat() in a try/except.
+        Wraps self.llm.generate() in a try/except.
+        Uses generate() (not chat()) to avoid tokenizer chat-template issues
+        for models that don't define one (e.g. Tamil-Mistral-7B).
         On failure: logs the error, returns a list of None values so the
         caller can skip failed prompts without aborting the entire run.
         """
         try:
-            return self.llm.chat(conversations, sampling_params=sampling_params)
+            return self.llm.generate(prompts, sampling_params=sampling_params)
         except Exception as exc:
-            print(f"[VLLMWorker] Batch inference failed ({len(conversations)} prompts): {exc}")
-            return [None] * len(conversations)
+            print(f"[VLLMWorker] Batch inference failed ({len(prompts)} prompts): {exc}")
+            return [None] * len(prompts)
