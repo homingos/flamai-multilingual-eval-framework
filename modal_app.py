@@ -84,14 +84,9 @@ class VLLMWorkerT4(_VLLMWorker):
     run_id:   str = modal.parameter()
     task:     str = modal.parameter()
 
-    @modal.enter(snap=True)
-    def load_model(self) -> None:
-        super().load_model()
-
     @modal.enter(snap=False)
     def post_restore(self) -> None:
-        # Reinitialise anything that can't survive a memory snapshot —
-        # CUDA contexts are rebuilt by vLLM automatically on restore.
+        # Runs after snapshot restore. CUDA context is rebuilt by vLLM automatically.
         pass
 
 
@@ -107,10 +102,6 @@ class VLLMWorkerL4(_VLLMWorker):
     model_id: str = modal.parameter()
     run_id:   str = modal.parameter()
     task:     str = modal.parameter()
-
-    @modal.enter(snap=True)
-    def load_model(self) -> None:
-        super().load_model()
 
     @modal.enter(snap=False)
     def post_restore(self) -> None:
@@ -130,10 +121,6 @@ class VLLMWorkerL40S(_VLLMWorker):
     run_id:   str = modal.parameter()
     task:     str = modal.parameter()
 
-    @modal.enter(snap=True)
-    def load_model(self) -> None:
-        super().load_model()
-
     @modal.enter(snap=False)
     def post_restore(self) -> None:
         pass
@@ -151,10 +138,6 @@ class VLLMWorkerA100(_VLLMWorker):
     model_id: str = modal.parameter()
     run_id:   str = modal.parameter()
     task:     str = modal.parameter()
-
-    @modal.enter(snap=True)
-    def load_model(self) -> None:
-        super().load_model()
 
     @modal.enter(snap=False)
     def post_restore(self) -> None:
