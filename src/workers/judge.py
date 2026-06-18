@@ -58,7 +58,10 @@ response is better according to the specified dimension.
 
 Rules:
 - Be BLIND to which model generated each response — judge content only.
-- If both responses are equally good (or bad), declare a tie.
+- You MUST pick a winner (A or B) whenever there is ANY detectable difference,
+  however small — word choice, naturalness, accuracy, register, fluency.
+- Only declare "tie" when the two responses are genuinely IDENTICAL or have
+  zero detectable difference after careful reading. Ties should be rare.
 - Be concise: 1-2 sentences of reasoning maximum.
 - Output JSON only — no preamble, no markdown fences.
 
@@ -66,7 +69,7 @@ Output format (JSON):
 {
   "winner": "A" | "B" | "tie",
   "confidence": "high" | "medium" | "low",
-  "reasoning": "<1-2 sentence explanation>"
+  "reasoning": "<1-2 sentence explanation citing a specific difference>"
 }
 """
 
@@ -234,9 +237,16 @@ def _call_gemini(
     Calls the Google Gemini generateContent REST API.
     Endpoint: https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent
 
-    Gemini models (including 2.5-flash) frequently add markdown fences or
-    preamble text around JSON output despite system prompt instructions.
-    _parse_verdict handles all known variants robustly.
+    Two deliberate choices:
+    - temperature=0.1 (not 0.0): at exactly 0.0 Gemini collapses to a deterministic
+      "tie" on near-equal comparisons. 0.1 adds just enough variance to break the tie
+      without meaningfully reducing judgment quality.
+    - No responseMimeType: setting responseMimeType="application/json" causes Gemini
+      to treat the JSON schema as a satisficing target — it returns the minimal valid
+      JSON (always "tie") rather than reasoning through the comparison. Without it,
+      Gemini reasons first and then formats, producing genuine verdicts.
+
+    _parse_verdict handles all output decoration (fences, preamble, etc.) robustly.
 
     Returns {"winner", "confidence", "reasoning", "error"}.
     """
@@ -258,10 +268,9 @@ def _call_gemini(
             }
         ],
         "generationConfig": {
-            "maxOutputTokens":  256,
-            "temperature":      0.0,
-            # Ask for JSON output explicitly — Gemini 2.5+ honours this
-            "responseMimeType": "application/json",
+            "maxOutputTokens": 8192,
+            "temperature":     0.1,
+            # NOTE: do NOT set responseMimeType here — see docstring above
         },
     }).encode()
 
@@ -276,16 +285,51 @@ def _call_gemini(
             with urllib.request.urlopen(req, timeout=30) as resp:
                 body = json.loads(resp.read())
 
-            # Gemini response shape:
-            # body["candidates"][0]["content"]["parts"][0]["text"]
-            raw_text = body["candidates"][0]["content"]["parts"][0]["text"]
+            # Gemini thinking models (2.5+, 3.x) return multiple parts:
+            #   parts[0]: {"text": "...", "thoughtSignature": "..."}  ← internal reasoning
+            #   parts[1]: {"text": "{\"winner\": ...}"}               ← actual answer
+            # Find the last part with text but without thoughtSignature.
+            parts = body["candidates"][0]["content"]["parts"]
+            raw_text = None
+            for part in reversed(parts):
+                if "text" in part and "thoughtSignature" not in part:
+                    raw_text = part["text"]
+                    break
+            if raw_text is None:
+                # Fallback: last part with any text
+                for part in reversed(parts):
+                    if "text" in part:
+                        raw_text = part["text"]
+                        break
+            if raw_text is None:
+                raise ValueError(f"No text part found in Gemini response. Parts: {parts}")
+
             verdict  = _parse_verdict(raw_text)
+
+            winner = verdict.get("winner", "tie")
+            # Warn if we still get a tie so we can spot systemic issues in logs
+            if winner == "tie":
+                print(f"[JudgeWorker] TIE verdict — raw: {repr(raw_text[:120])}")
+
             return {
-                "winner":     verdict.get("winner", "tie"),
+                "winner":     winner,
                 "confidence": verdict.get("confidence", "low"),
                 "reasoning":  verdict.get("reasoning", ""),
                 "error":      None,
             }
+        except urllib.error.HTTPError as exc:
+            if exc.code == 429:
+                # Rate limited — wait longer with each retry: 30s, 60s, 120s
+                wait = 30 * (2 ** attempt)
+                print(f"[JudgeWorker] 429 rate limit — waiting {wait}s (attempt {attempt+1}/{max_retries})")
+                time.sleep(wait)
+                if attempt == max_retries - 1:
+                    return {"winner": "tie", "confidence": "low", "reasoning": "",
+                            "error": f"HTTP Error 429: rate limited after {max_retries} retries"}
+            else:
+                err_body = exc.read().decode()[:200]
+                return {"winner": "tie", "confidence": "low", "reasoning": "",
+                        "error": f"HTTP Error {exc.code}: {err_body}"}
         except Exception as exc:
             if attempt < max_retries - 1:
                 time.sleep(2 ** attempt)
@@ -399,6 +443,12 @@ class JudgeWorker:
         print(f"[JudgeWorker] Provider: {'Gemini' if judge_model.startswith('gemini-') else 'Anthropic'}")
         print(f"[JudgeWorker] Model:    {judge_model}")
 
+        # Minimum delay between API calls.
+        # Free tier Gemini Flash is ~15 RPM → 4s per call keeps us safely under.
+        # Paid tier can reduce this to 1s.
+        call_delay_s = 4.0 if judge_model.startswith("gemini-") else 1.0
+        print(f"[JudgeWorker] Inter-call delay: {call_delay_s}s (free tier rate limit guard)")
+
         # Load outputs
         reg_path   = regional_output_path(run_id, slug, task)
         gemma_path = gemma_output_path(run_id, task)
@@ -498,8 +548,11 @@ class JudgeWorker:
                     append_output(out_path, verdict)
                     done += 1
 
-                    if done % 50 == 0:
+                    if done % 10 == 0:
                         print(f"[JudgeWorker] {done}/{total} judgments complete")
+
+                    # Respect rate limits between every call
+                    time.sleep(call_delay_s)
 
         print(f"[JudgeWorker] Done — {len(verdicts)} new verdicts written to {out_path}")
         return verdicts
@@ -620,7 +673,7 @@ def _call_gemini(
             }
         ],
         "generationConfig": {
-            "maxOutputTokens": 256,
+            "maxOutputTokens": 8192,
             "temperature":     0.0,
         },
     }).encode()
@@ -691,202 +744,3 @@ def _call_judge(
             f"Unknown judge model '{judge_model}'. "
             "Model string must start with 'claude-' (Anthropic) or 'gemini-' (Google)."
         )
-
-
-# ── JudgeWorker ───────────────────────────────────────────────────────────────
-
-class JudgeWorker:
-    """
-    LLM-as-judge worker. Compares regional model outputs vs Gemma-4 outputs.
-
-    Supports Anthropic (claude-*) and Gemini (gemini-*) judge models.
-    The active provider is selected by the judge_model argument — no code
-    change needed when switching between them.
-
-    Usage (from orchestrator):
-        judge = JudgeWorkerModal()
-        verdicts = judge.judge.remote(
-            run_id="...", slug="tamil", task="translation",
-            language="Tamil", regional_model_id="tamil-mistral-7b",
-            judge_model="gemini-2.0-flash", swap_runs=2,
-        )
-    """
-
-    def judge(
-        self,
-        run_id: str,
-        slug: str,
-        task: str,
-        language: str,
-        regional_model_id: str,
-        judge_model: str = "gemini-2.0-flash",
-        swap_runs: int = 2,
-        limit: Optional[int] = None,
-    ) -> List[dict]:
-        """
-        Runs pairwise judgment for all prompts in (run_id, slug, task).
-
-        For each prompt:
-        - Loads regional output and Gemma-4 output
-        - Judges each configured dimension
-        - Repeats swap_runs times with A/B order swapped
-        - Writes each verdict to JSONL and returns all verdicts
-
-        Returns list of verdict dicts.
-        """
-        from src.pipeline.run import (
-            gemma_output_path,
-            judge_path,
-            regional_output_path,
-            append_output,
-        )
-
-        anthropic_key = os.environ.get("ANTHROPIC_API_KEY", "")
-        gemini_key    = os.environ.get("GEMINI_API_KEY", "")
-
-        # Fail fast — check key availability before starting any work
-        if judge_model.startswith("gemini-") and not gemini_key:
-            raise RuntimeError(
-                "GEMINI_API_KEY is not set. Add it to the phase2a-judge Modal secret:\n"
-                "  modal secret create phase2a-judge GEMINI_API_KEY=<your-key>"
-            )
-        if judge_model.startswith("claude-") and not anthropic_key:
-            raise RuntimeError(
-                "ANTHROPIC_API_KEY is not set. Add it to the phase2a-judge Modal secret:\n"
-                "  modal secret create phase2a-judge ANTHROPIC_API_KEY=<your-key>"
-            )
-
-        print(f"[JudgeWorker] Provider: {'Gemini' if judge_model.startswith('gemini-') else 'Anthropic'}")
-        print(f"[JudgeWorker] Model:    {judge_model}")
-
-        # Load outputs
-        reg_path   = regional_output_path(run_id, slug, task)
-        gemma_path = gemma_output_path(run_id, task)
-
-        reg_outputs   = _load_jsonl(reg_path)
-        gemma_outputs = _load_jsonl(gemma_path)
-
-        if not reg_outputs or not gemma_outputs:
-            print(f"[JudgeWorker] Missing outputs — regional: {len(reg_outputs)}, gemma: {len(gemma_outputs)}")
-            return []
-
-        # Index by prompt_id for fast lookup
-        reg_by_id   = {o["prompt_id"]: o for o in reg_outputs}
-        gemma_by_id = {o["prompt_id"]: o for o in gemma_outputs}
-
-        common_ids = sorted(set(reg_by_id.keys()) & set(gemma_by_id.keys()))
-        if limit:
-            common_ids = common_ids[:limit]
-
-        out_path       = judge_path(run_id, slug, task)
-        already_judged = _load_judged_keys(out_path)
-
-        dimensions = DIMENSIONS.get(task, DIMENSIONS["instructions"])
-        verdicts   = []
-        total      = len(common_ids) * swap_runs * len(dimensions)
-        done       = 0
-
-        print(f"[JudgeWorker] {len(common_ids)} prompts × {swap_runs} swaps × "
-              f"{len(dimensions)} dimensions = {total} judgments")
-
-        for prompt_id in common_ids:
-            reg_out   = reg_by_id[prompt_id]
-            gemma_out = gemma_by_id[prompt_id]
-
-            if task == "translation":
-                source_text = reg_out.get("source", "")
-            else:
-                source_text = (
-                    reg_out.get("system_instruction", "")
-                    + "\n\n"
-                    + reg_out.get("user_prompt", "")
-                )
-
-            for swap_run in range(swap_runs):
-                # swap_run 0: A=regional, B=gemma  |  swap_run 1: A=gemma, B=regional
-                if swap_run == 0:
-                    output_a, output_b = reg_out.get("output", ""), gemma_out.get("output", "")
-                else:
-                    output_a, output_b = gemma_out.get("output", ""), reg_out.get("output", "")
-
-                for dim_label, dim_question in dimensions:
-                    key = f"{prompt_id}_{swap_run}_{dim_label}"
-                    if key in already_judged:
-                        done += 1
-                        continue
-
-                    user_msg = _build_user_message(
-                        dimension_label=dim_label,
-                        dimension_question=dim_question,
-                        source_or_instruction=source_text,
-                        output_a=output_a,
-                        output_b=output_b,
-                    )
-
-                    raw = _call_judge(
-                        user_message=user_msg,
-                        judge_model=judge_model,
-                        anthropic_api_key=anthropic_key,
-                        gemini_api_key=gemini_key,
-                    )
-
-                    # Translate A/B winner back to model identity
-                    winner_letter = raw["winner"]
-                    if winner_letter == "A":
-                        winner_model = "regional" if swap_run == 0 else "gemma4"
-                    elif winner_letter == "B":
-                        winner_model = "gemma4" if swap_run == 0 else "regional"
-                    else:
-                        winner_model = "tie"
-
-                    verdict = {
-                        "prompt_id":      prompt_id,
-                        "task":           task,
-                        "language":       language,
-                        "regional_model": regional_model_id,
-                        "dimension":      dim_label,
-                        "winner":         winner_letter,
-                        "winner_model":   winner_model,
-                        "confidence":     raw["confidence"],
-                        "reasoning":      raw["reasoning"],
-                        "swap_run":       swap_run,
-                        "judge_model":    judge_model,
-                        "judged_at":      datetime.now(timezone.utc).isoformat(),
-                        "error":          raw.get("error"),
-                    }
-                    verdicts.append(verdict)
-                    append_output(out_path, verdict)
-                    done += 1
-
-                    if done % 50 == 0:
-                        print(f"[JudgeWorker] {done}/{total} judgments complete")
-
-        print(f"[JudgeWorker] Done — {len(verdicts)} new verdicts written to {out_path}")
-        return verdicts
-
-
-# ── Helpers ───────────────────────────────────────────────────────────────────
-
-def _load_jsonl(path: str) -> List[dict]:
-    try:
-        with open(path, encoding="utf-8") as f:
-            return [json.loads(line) for line in f if line.strip()]
-    except FileNotFoundError:
-        return []
-
-
-def _load_judged_keys(path: str) -> set:
-    """Returns set of '{prompt_id}_{swap_run}_{dimension}' already in the verdicts file."""
-    keys = set()
-    try:
-        with open(path, encoding="utf-8") as f:
-            for line in f:
-                line = line.strip()
-                if not line:
-                    continue
-                v = json.loads(line)
-                k = f"{v['prompt_id']}_{v['swap_run']}_{v['dimension']}"
-                keys.add(k)
-    except FileNotFoundError:
-        pass
-    return keys
