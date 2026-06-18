@@ -66,15 +66,15 @@ class VLLMWorker:
     TOP_P            = 1.0
     MAX_NEW_TOKENS   = 512
 
-    @modal.enter()
+    @modal.enter(snap=True)
     def load_model(self) -> None:
         """
         Runs once when the container starts (snapshotted — see modal_app.py).
         1. Sets HF_HOME so weights cache on the weights volume.
         2. Fetches ModelConfig from the registry API (includes chat_template).
         3. Loads vLLM LLM instance. If the model has a chat template stored in
-           the registry, passes it via tokenizer_chat_template so vLLM uses the
-           correct message formatting. Falls back to plain-text if None.
+           the registry, it is passed to llm.chat() at inference time.
+           Falls back to plain-text llm.generate() if None.
         """
         import os
         os.environ["HF_HOME"] = "/data/weights"
@@ -93,10 +93,7 @@ class VLLMWorker:
         )
 
         if self.config.chat_template:
-            # Explicit template stored in registry — use it.
-            # This ensures correctness even if the tokenizer on HF has no
-            # chat_template or uses a different default format.
-            llm_kwargs["tokenizer_chat_template"] = self.config.chat_template
+            # Template will be passed to llm.chat() at inference time, not here.
             print(
                 f"[VLLMWorker] {self.config.name}: using registry chat template "
                 f"({len(self.config.chat_template)} chars)"
@@ -278,11 +275,16 @@ class VLLMWorker:
     def _safe_chat(self, conversations: list, sampling_params) -> list:
         """
         Wraps llm.chat() — used when a chat template is stored in the registry.
-        Passes the template via the LLM instance (set at load_model time via
-        tokenizer_chat_template). Returns list of outputs, or list of None on error.
+        The template is passed directly to chat() at inference time, which is
+        the correct vLLM API (tokenizer_chat_template is not an LLM() constructor arg).
+        Returns list of outputs, or list of None on error.
         """
         try:
-            return self.llm.chat(conversations, sampling_params=sampling_params)
+            return self.llm.chat(
+                conversations,
+                sampling_params=sampling_params,
+                chat_template=self.config.chat_template,
+            )
         except Exception as exc:
             print(
                 f"[VLLMWorker] chat() failed ({len(conversations)} conversations): {exc}"
