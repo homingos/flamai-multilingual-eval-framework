@@ -73,6 +73,34 @@ vllm_image = (
     .add_local_file("modal_common.py", remote_path="/root/modal_common.py")
 )
 
+# MODEL-tier metrics image — GPU, COMET + BERTScore
+model_metrics_image = (
+    modal.Image.from_registry(
+        "nvidia/cuda:12.4.1-devel-ubuntu22.04",
+        add_python="3.11",
+    )
+    .apt_install("curl")
+    .pip_install(
+        "torch",
+        "transformers",
+        "unbabel-comet",
+        "bert-score",
+        "huggingface_hub",
+    )
+    .add_local_dir("src", remote_path="/root/src")
+    .add_local_file("modal_app.py",    remote_path="/root/modal_app.py")
+    .add_local_file("modal_common.py", remote_path="/root/modal_common.py")
+)
+
+# Judge image — CPU only, Anthropic API calls
+judge_image = (
+    modal.Image.debian_slim(python_version="3.11")
+    .apt_install("curl")
+    .add_local_dir("src", remote_path="/root/src")
+    .add_local_file("modal_app.py",    remote_path="/root/modal_app.py")
+    .add_local_file("modal_common.py", remote_path="/root/modal_common.py")
+)
+
 # ---------------------------------------------------------------------------
 # GPU Presets  (Modal live prices, June 2026)
 # ---------------------------------------------------------------------------

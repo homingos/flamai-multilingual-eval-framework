@@ -2,26 +2,35 @@
 Phase 2A — Modal application entrypoint.
 
 Defines:
-  RegistryService       — FastAPI registry (CPU, Phase 0/1)
-  VLLMWorkerT4/L4/L40S/A100 — inference workers per GPU tier
-  LightMetricWorkerModal    — CPU metric worker (Phase 3)
+  RegistryService            — FastAPI registry (CPU, Phase 0/1)
+  VLLMWorkerT4/L4/L40S/A100  — inference workers per GPU tier (Phase 2/3)
+  LightMetricWorkerModal     — CPU metric worker (Phase 3)
+  ModelMetricWorkerModal     — GPU metric worker — COMET, BERTScore (Phase 4)
+  JudgeWorkerModal           — LLM-as-judge via Anthropic or Gemini API (Phase 4)
 
 Usage:
     modal deploy modal_app.py                         # deploy all services
     modal run modal_app.py::compare                   # Phase 3 pilot: Tamil vs Gemma-4
     modal run modal_app.py::compare --task instructions --limit 100
     modal run modal_app.py::compare --run-id <id>     # resume
+    modal run modal_app.py::phase4                    # Phase 4: COMET + judge + report
+    modal run modal_app.py::phase4 --slug greek --language Greek --regional-model-id meltemi-7b
 """
 import modal
 from modal_common import (
     build_registry_config,
     env_config,
+    judge_image,
+    model_metrics_image,
     registry_image,
     vllm_image,
     VOLUME_MOUNTS,
 )
 from src.workers.inference import VLLMWorker as _VLLMWorker
+from src.workers.judge import JudgeWorker as _JudgeWorker
 from src.workers.light_metrics import LightMetricWorker as _LightMetricWorker
+from src.workers.model_metrics import ModelMetricWorker as _ModelMetricWorker
+from src.workers.reporter import ReportGenerator as _ReportGenerator
 
 APP_NAME = f"flamai-Multilingual-Evaluation-Pipeline-{env_config.env_name}"
 app = modal.App(APP_NAME)
@@ -176,6 +185,60 @@ class LightMetricWorkerModal(_LightMetricWorker):
     @modal.method()
     def score(self, run_id, slug, task, language, model_id=""):
         return super().score(run_id, slug, task, language, model_id)
+
+
+# ---------------------------------------------------------------------------
+# Phase 4 — Model metric worker (COMET, BERTScore)
+# ---------------------------------------------------------------------------
+
+_judge_secret = modal.Secret.from_name("phase2a-judge")  # GEMINI_API_KEY and/or ANTHROPIC_API_KEY
+
+@app.cls(
+    image=model_metrics_image,
+    gpu="L4",
+    cpu=2,
+    memory=16384,
+    timeout=3600,
+    secrets=[_registry_secret],
+    volumes=VOLUME_MOUNTS,
+)
+class ModelMetricWorkerModal(_ModelMetricWorker):
+    """GPU metric worker — COMET, BERTScore. L4 is sufficient for inference-only scoring."""
+
+    @modal.method()
+    def score(self, run_id, slug, task, language, model_id=""):
+        return super().score(run_id, slug, task, language, model_id)
+
+
+# ---------------------------------------------------------------------------
+# Phase 4 — LLM judge worker (Anthropic or Gemini)
+# ---------------------------------------------------------------------------
+
+@app.cls(
+    image=judge_image,
+    cpu=2,
+    memory=2048,
+    timeout=7200,
+    secrets=[_judge_secret],
+    volumes=VOLUME_MOUNTS,
+)
+class JudgeWorkerModal(_JudgeWorker):
+    """
+    LLM-as-judge via Anthropic or Gemini API.
+    Provider is selected automatically by the judge_model string prefix:
+      "gemini-*"  → Google Gemini  (requires GEMINI_API_KEY in phase2a-judge secret)
+      "claude-*"  → Anthropic      (requires ANTHROPIC_API_KEY in phase2a-judge secret)
+    CPU-only — all calls are remote API calls, no local model loading.
+    """
+
+    @modal.method()
+    def judge(self, run_id, slug, task, language, regional_model_id,
+              judge_model="gemini-2.0-flash", swap_runs=2, limit=None):
+        return super().judge(
+            run_id=run_id, slug=slug, task=task, language=language,
+            regional_model_id=regional_model_id, judge_model=judge_model,
+            swap_runs=swap_runs, limit=limit,
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -353,3 +416,204 @@ def compare(
     )
     if result:
         print(f"Run complete: {result}")
+
+
+# ---------------------------------------------------------------------------
+# Phase 4 — full evaluation: COMET + judge + report
+# ---------------------------------------------------------------------------
+
+@app.function(
+    image=metrics_image,
+    cpu=2,
+    memory=4096,
+    timeout=14400,  # 4h — judge can be slow for large prompt sets
+    secrets=[_registry_secret],
+    volumes=VOLUME_MOUNTS,
+)
+def _run_phase4(
+    run_id: str,
+    slug: str,
+    language: str,
+    regional_model_id: str,
+    task: str = "translation",
+    judge_model: str = "gemini-2.0-flash",
+    swap_runs: int = 2,
+    judge_limit: int = 0,
+    skip_model_metrics: bool = False,
+    skip_judge: bool = False,
+) -> dict:
+    """
+    Phase 4 orchestrator. Assumes Phase 3 inference outputs already exist.
+
+    Steps:
+      1. MODEL-tier metrics  (COMET + BERTScore) for regional + Gemma-4  [parallel]
+      2. LLM judge           (pairwise comparison on all/limited prompts)
+      3. Report generation   (classifies model A–E, writes final_report.json)
+
+    Returns the final report dict.
+    """
+    import modal as _modal
+
+    from src.pipeline.run import (
+        gemma_output_path,
+        regional_output_path,
+        update_manifest_status,
+    )
+
+    print(f"\n{'='*60}")
+    print(f"  PHASE 4 — {language} ({slug}) / {task}")
+    print(f"  Run ID:         {run_id}")
+    print(f"  Regional model: {regional_model_id}")
+    print(f"  Judge model:    {judge_model}")
+    print(f"  Swap runs:      {swap_runs}")
+    print(f"  Judge limit:    {judge_limit or 'all'}")
+    print(f"{'='*60}\n")
+
+    # ── Verify inference outputs exist ───────────────────────────────────────
+    import os
+    reg_path   = regional_output_path(run_id, slug, task)
+    gemma_path = gemma_output_path(run_id, task)
+
+    for path, label in [(reg_path, regional_model_id), (gemma_path, "Gemma-4")]:
+        if not os.path.exists(path) or os.path.getsize(path) == 0:
+            raise RuntimeError(
+                f"Phase 4 requires Phase 3 inference outputs.\n"
+                f"Missing: {label} → {path}\n"
+                f"Run `modal run modal_app.py::compare --run-id {run_id}` first."
+            )
+
+    # ── Step 1: MODEL-tier metrics (COMET + BERTScore) ──────────────────────
+    if not skip_model_metrics:
+        print("Step 1: MODEL-tier metrics (COMET + BERTScore)...")
+        model_metric_worker = ModelMetricWorkerModal()
+
+        regional_mm_handle = model_metric_worker.score.spawn(
+            run_id=run_id, slug=slug, task=task,
+            language=language, model_id=regional_model_id,
+        )
+        gemma_mm_handle = model_metric_worker.score.spawn(
+            run_id=run_id, slug="baseline", task=task,
+            language="Baseline", model_id="gemma-4-26b",
+        )
+        regional_mm = regional_mm_handle.get()
+        gemma_mm    = gemma_mm_handle.get()
+
+        _modal.Volume.from_name("phase2a-outputs").reload()
+        print(f"  Regional model metrics: {regional_mm}")
+        print(f"  Gemma-4 model metrics:  {gemma_mm}")
+    else:
+        print("Step 1: MODEL-tier metrics — SKIPPED")
+
+    # ── Step 2: LLM judge ────────────────────────────────────────────────────
+    if not skip_judge:
+        print(f"\nStep 2: LLM judge ({judge_model}, {swap_runs} swap runs)...")
+        judge_worker = JudgeWorkerModal()
+        verdicts = judge_worker.judge.remote(
+            run_id=run_id,
+            slug=slug,
+            task=task,
+            language=language,
+            regional_model_id=regional_model_id,
+            judge_model=judge_model,
+            swap_runs=swap_runs,
+            limit=judge_limit if judge_limit > 0 else None,
+        )
+        _modal.Volume.from_name("phase2a-outputs").reload()
+        print(f"  Judge complete — {len(verdicts)} verdicts written")
+    else:
+        print("Step 2: LLM judge — SKIPPED")
+
+    # ── Step 3: Report ───────────────────────────────────────────────────────
+    print("\nStep 3: Generating report...")
+    reporter = _ReportGenerator()
+    report = reporter.generate(
+        run_id=run_id,
+        slug=slug,
+        task=task,
+        language=language,
+        regional_model_id=regional_model_id,
+    )
+
+    update_manifest_status(run_id, "completed")
+
+    cls  = report["languages"][slug]["classification"]
+    rat  = report["languages"][slug]["classification_rationale"]
+    print(f"\n{'='*60}")
+    print(f"  PHASE 4 COMPLETE — {language}")
+    print(f"  Classification: {cls}")
+    print(f"  Rationale:      {rat}")
+    print(f"{'='*60}\n")
+
+    return report
+
+
+@app.local_entrypoint()
+def phase4(
+    run_id: str = "",
+    slug: str = "tamil",
+    language: str = "Tamil",
+    regional_model_id: str = "tamil-mistral-7b",
+    task: str = "translation",
+    judge_model: str = "gemini-2.0-flash",
+    swap_runs: int = 2,
+    judge_limit: int = 50,       # default to 50 for calibration pilot
+    skip_model_metrics: bool = False,
+    skip_judge: bool = False,
+):
+    """
+    Phase 4: COMET + BERTScore + LLM judge + final report.
+    Requires Phase 3 inference outputs to already exist.
+
+    Judge model is selected by prefix — set via --judge-model:
+      gemini-2.0-flash         (default — requires GEMINI_API_KEY)
+      gemini-1.5-pro           (higher quality, slower)
+      claude-haiku-4-5         (requires ANTHROPIC_API_KEY)
+
+    Usage:
+        # Calibration pilot — 50 prompts judged with Gemini
+        modal run modal_app.py::phase4 --run-id <id>
+
+        # Full Greek/Meltemi run with Gemini
+        modal run modal_app.py::phase4 \\
+          --run-id <id> \\
+          --slug greek \\
+          --language Greek \\
+          --regional-model-id meltemi-7b \\
+          --judge-limit 0
+
+        # Use Gemini Pro instead
+        modal run modal_app.py::phase4 --run-id <id> --judge-model gemini-1.5-pro
+
+        # Skip model metrics (COMET/BERTScore) — judge only
+        modal run modal_app.py::phase4 --run-id <id> --skip-model-metrics
+
+        # Skip judge — COMET/BERTScore only
+        modal run modal_app.py::phase4 --run-id <id> --skip-judge
+    """
+    if not run_id:
+        print("ERROR: --run-id is required for Phase 4.")
+        print("Find your run ID with: modal run modal_app.py::compare (it prints at the top)")
+        return
+
+    report = _run_phase4.remote(
+        run_id=run_id,
+        slug=slug,
+        language=language,
+        regional_model_id=regional_model_id,
+        task=task,
+        judge_model=judge_model,
+        swap_runs=swap_runs,
+        judge_limit=judge_limit,
+        skip_model_metrics=skip_model_metrics,
+        skip_judge=skip_judge,
+    )
+
+    if report:
+        slug_report = report.get("languages", {}).get(slug, {})
+        cls = slug_report.get("classification", "?")
+        rat = slug_report.get("classification_rationale", "")
+        print(f"\nPhase 4 complete.")
+        print(f"  Classification: {cls}")
+        print(f"  Rationale:      {rat}")
+        print(f"  Run ID:         {run_id}")
+        print(f"  Report:         /data/outputs/runs/{run_id}/reports/final_report.json")
