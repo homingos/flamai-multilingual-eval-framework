@@ -160,6 +160,70 @@ class ReportGenerator:
         return report
 
 
+# ── Read-side API — shared by single-language and multi-language callers ────
+
+def load_report(run_id: str) -> dict:
+    """
+    Reads final_report.json for a run. Returns {} if it doesn't exist yet.
+    Single source of truth for reading report data — any presentation
+    layer (markdown renderer, future dashboard, etc.) should call this
+    instead of reopening the file directly.
+    """
+    from src.pipeline.run import report_path
+
+    try:
+        with open(report_path(run_id)) as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return {}
+
+
+def get_language_summary(report: dict, slug: str, task: str = "translation") -> dict:
+    """
+    Extracts the fields a presentation layer needs for one language:
+    BLEU (regional + gemma4), judge win rate, classification, rationale.
+    Centralizes the field-extraction logic that used to be duplicated
+    in the old per-renderer field-extraction code.
+    """
+    lang_data = report.get("languages", {}).get(slug, {})
+    tasks     = lang_data.get("tasks", {})
+    task_data = tasks.get(task) or (next(iter(tasks.values()), {}) if tasks else {})
+
+    light = task_data.get("light_metrics", {})
+    judge = task_data.get("judge", {})
+
+    baseline_data = report.get("languages", {}).get("baseline", {})
+    bl_tasks      = baseline_data.get("tasks", {})
+    bl_task       = bl_tasks.get(task) or (next(iter(bl_tasks.values()), {}) if bl_tasks else {})
+    bleu_gemma4   = (bl_task.get("light_metrics", {}).get("bleu") or {}).get("bleu_en_to_target")
+
+    return {
+        "language":               lang_data.get("language", slug),
+        "regional_model":         lang_data.get("regional_model", ""),
+        "bleu_regional":          (light.get("bleu") or {}).get("bleu_en_to_target"),
+        "bleu_gemma4":            bleu_gemma4,
+        "judge_win_rate":         judge.get("regional_win_rate"),
+        "classification":         lang_data.get("classification", "?"),
+        "classification_rationale": lang_data.get("classification_rationale", ""),
+    }
+
+
+def summarize_run(run_id: str, slugs: list, task: str = "translation") -> dict:
+    """
+    Builds the {slug: language_summary} dict for a set of slugs, plus
+    classification_counts. This is the shape both the JSON summary and
+    the markdown renderer consume — computed once, here, instead of
+    being re-derived by each presentation layer.
+    """
+    report = load_report(run_id)
+    results = {slug: get_language_summary(report, slug, task) for slug in slugs}
+    counts = {
+        grade: sum(1 for r in results.values() if r["classification"] == grade)
+        for grade in ["A", "B", "C", "D", "E", "?"]
+    }
+    return {"results": results, "classification_counts": counts}
+
+
 # ── Verdict aggregation ──────────────────────────────────────────────────────
 
 def _summarize_verdicts(verdicts: List[dict]) -> dict:
