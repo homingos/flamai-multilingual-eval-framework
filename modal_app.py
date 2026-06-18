@@ -27,6 +27,9 @@ APP_NAME = f"flamai-Multilingual-Evaluation-Pipeline-{env_config.env_name}"
 app = modal.App(APP_NAME)
 
 _registry_secret = modal.Secret.from_name("phase2a-registry-url")
+_auth_secret     = modal.Secret.from_name("phase2a-auth-secrets")  # JWT_SECRET + HF_TOKEN
+
+_inference_secrets = [_registry_secret, _auth_secret]
 
 # ---------------------------------------------------------------------------
 # Images
@@ -68,28 +71,32 @@ class RegistryService:
 # vLLM inference workers — one class per GPU tier
 # ---------------------------------------------------------------------------
 
-@app.cls(image=vllm_image, gpu="T4",       timeout=3600, secrets=[_registry_secret], volumes=VOLUME_MOUNTS)
+@app.cls(image=vllm_image, gpu="T4",        timeout=3600, secrets=_inference_secrets, volumes=VOLUME_MOUNTS)
 class VLLMWorkerT4(_VLLMWorker):
-    """T4 GPU — tiny models <500M (Goldfish series)."""
-    pass
+    model_id: str = modal.parameter()
+    run_id:   str = modal.parameter()
+    task:     str = modal.parameter()
 
 
-@app.cls(image=vllm_image, gpu="L4",       timeout=3600, secrets=[_registry_secret], volumes=VOLUME_MOUNTS)
+@app.cls(image=vllm_image, gpu="L4",        timeout=3600, secrets=_inference_secrets, volumes=VOLUME_MOUNTS)
 class VLLMWorkerL4(_VLLMWorker):
-    """L4 GPU — 7B/8B models (most regional models)."""
-    pass
+    model_id: str = modal.parameter()
+    run_id:   str = modal.parameter()
+    task:     str = modal.parameter()
 
 
-@app.cls(image=vllm_image, gpu="L40S",     timeout=3600, secrets=[_registry_secret], volumes=VOLUME_MOUNTS)
+@app.cls(image=vllm_image, gpu="L40S",      timeout=3600, secrets=_inference_secrets, volumes=VOLUME_MOUNTS)
 class VLLMWorkerL40S(_VLLMWorker):
-    """L40S GPU — 12B models (Polyglot-Ko-12B)."""
-    pass
+    model_id: str = modal.parameter()
+    run_id:   str = modal.parameter()
+    task:     str = modal.parameter()
 
 
-@app.cls(image=vllm_image, gpu="A100-80GB", timeout=3600, secrets=[_registry_secret], volumes=VOLUME_MOUNTS)
+@app.cls(image=vllm_image, gpu="A100-80GB", timeout=3600, secrets=_inference_secrets, volumes=VOLUME_MOUNTS)
 class VLLMWorkerA100(_VLLMWorker):
-    """A100-80GB — Gemma-4 26B baseline."""
-    pass
+    model_id: str = modal.parameter()
+    run_id:   str = modal.parameter()
+    task:     str = modal.parameter()
 
 
 GPU_WORKER_MAP = {
@@ -187,8 +194,6 @@ def _run_compare(
     append_run_to_index(run_id, status="started")
 
     # ── Step 4: Launch both inference containers simultaneously ──────────────
-    import modal as _modal
-
     regional_cls = GPU_WORKER_MAP[regional_gpu_preset]
     gemma_cls    = GPU_WORKER_MAP["a100_80gb"]
 
@@ -196,10 +201,10 @@ def _run_compare(
     gemma_worker    = gemma_cls(   model_id="gemma-4-26b",      run_id=run_id, task=task)
 
     print("Launching regional model and Gemma-4 simultaneously...")
-    regional_out, gemma_out = list(_modal.gather(
-        regional_worker.generate.remote(samples),
-        gemma_worker.generate.remote(samples),
-    ))
+    regional_handle = regional_worker.generate.spawn(samples)
+    gemma_handle    = gemma_worker.generate.spawn(samples)
+    regional_out    = regional_handle.get()
+    gemma_out       = gemma_handle.get()
     print(f"Inference complete — regional: {len(regional_out)}, Gemma-4: {len(gemma_out)} outputs")
 
     # ── Step 5: Gate — confirm both output files exist ───────────────────────
@@ -220,16 +225,16 @@ def _run_compare(
     print("Computing light metrics...")
     metric_worker = LightMetricWorkerModal()
 
-    regional_scores, gemma_scores = list(_modal.gather(
-        metric_worker.score.remote(
-            run_id=run_id, slug=slug, task=task,
-            language=language, model_id=regional_model_id,
-        ),
-        metric_worker.score.remote(
-            run_id=run_id, slug="baseline", task=task,
-            language="Baseline", model_id="gemma-4-26b",
-        ),
-    ))
+    regional_score_handle = metric_worker.score.spawn(
+        run_id=run_id, slug=slug, task=task,
+        language=language, model_id=regional_model_id,
+    )
+    gemma_score_handle = metric_worker.score.spawn(
+        run_id=run_id, slug="baseline", task=task,
+        language="Baseline", model_id="gemma-4-26b",
+    )
+    regional_scores = regional_score_handle.get()
+    gemma_scores    = gemma_score_handle.get()
 
     # ── Step 7: Side-by-side comparison table ────────────────────────────────
     regional_label = regional_model_id.split("-")[0].capitalize() + "-7B"

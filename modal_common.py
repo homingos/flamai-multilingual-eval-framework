@@ -51,8 +51,12 @@ registry_image = (
 )
 
 # vLLM inference image — GPU, Phase 2
+# Uses CUDA devel image (not debian_slim) so nvcc is present for flashinfer JIT.
 vllm_image = (
-    modal.Image.debian_slim(python_version="3.11")
+    modal.Image.from_registry(
+        "nvidia/cuda:12.4.1-devel-ubuntu22.04",
+        add_python="3.11",
+    )
     .apt_install("curl")
     .pip_install(
         "vllm>=0.4.0",
