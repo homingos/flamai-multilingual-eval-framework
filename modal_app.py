@@ -2,17 +2,15 @@
 Phase 2A — Modal application entrypoint.
 
 Defines:
-  RegistryService  — FastAPI registry (CPU, Phase 0/1)
-  VLLMWorkerT4     — inference worker for T4 GPU  (tiny models <500M)
-  VLLMWorkerL4     — inference worker for L4 GPU  (7B/8B models + metric workers)
-  VLLMWorkerL40S   — inference worker for L40S GPU (12B models)
-  VLLMWorkerA100   — inference worker for A100-80GB (Gemma-4 26B baseline)
+  RegistryService       — FastAPI registry (CPU, Phase 0/1)
+  VLLMWorkerT4/L4/L40S/A100 — inference workers per GPU tier
+  LightMetricWorkerModal    — CPU metric worker (Phase 3)
 
 Usage:
-    modal deploy modal_app.py                     # deploy all services
-    modal run modal_app.py::pilot                 # Phase 2 pilot run (runs on Modal)
-    modal run modal_app.py::pilot --model-id tamil-mistral-7b --limit 200
-    modal run modal_app.py::pilot --run-id 2026-06-17_143022_a3f9b1  # resume
+    modal deploy modal_app.py                         # deploy all services
+    modal run modal_app.py::compare                   # Phase 3 pilot: Tamil vs Gemma-4
+    modal run modal_app.py::compare --task instructions --limit 100
+    modal run modal_app.py::compare --run-id <id>     # resume
 """
 import modal
 from modal_common import (
@@ -23,12 +21,25 @@ from modal_common import (
     VOLUME_MOUNTS,
 )
 from src.workers.inference import VLLMWorker as _VLLMWorker
+from src.workers.light_metrics import LightMetricWorker as _LightMetricWorker
 
 APP_NAME = f"flamai-Multilingual-Evaluation-Pipeline-{env_config.env_name}"
 app = modal.App(APP_NAME)
 
 _registry_secret = modal.Secret.from_name("phase2a-registry-url")
 
+# ---------------------------------------------------------------------------
+# Images
+# ---------------------------------------------------------------------------
+
+metrics_image = (
+    modal.Image.debian_slim(python_version="3.11")
+    .apt_install("curl")
+    .pip_install("sacrebleu", "langdetect")
+    .add_local_dir("src", remote_path="/root/src")
+    .add_local_file("modal_app.py",    remote_path="/root/modal_app.py")
+    .add_local_file("modal_common.py", remote_path="/root/modal_common.py")
+)
 
 # ---------------------------------------------------------------------------
 # Registry Service (Phase 0/1 — unchanged)
@@ -57,57 +68,29 @@ class RegistryService:
 # vLLM inference workers — one class per GPU tier
 # ---------------------------------------------------------------------------
 
-@app.cls(
-    image=vllm_image,
-    gpu="T4",
-    timeout=3600,
-    secrets=[_registry_secret],
-    volumes=VOLUME_MOUNTS,
-)
+@app.cls(image=vllm_image, gpu="T4",       timeout=3600, secrets=[_registry_secret], volumes=VOLUME_MOUNTS)
 class VLLMWorkerT4(_VLLMWorker):
     """T4 GPU — tiny models <500M (Goldfish series)."""
     pass
 
 
-@app.cls(
-    image=vllm_image,
-    gpu="L4",
-    timeout=3600,
-    secrets=[_registry_secret],
-    volumes=VOLUME_MOUNTS,
-)
+@app.cls(image=vllm_image, gpu="L4",       timeout=3600, secrets=[_registry_secret], volumes=VOLUME_MOUNTS)
 class VLLMWorkerL4(_VLLMWorker):
-    """L4 GPU — 7B/8B models + metric workers (most regional models)."""
+    """L4 GPU — 7B/8B models (most regional models)."""
     pass
 
 
-@app.cls(
-    image=vllm_image,
-    gpu="L40S",
-    timeout=3600,
-    secrets=[_registry_secret],
-    volumes=VOLUME_MOUNTS,
-)
+@app.cls(image=vllm_image, gpu="L40S",     timeout=3600, secrets=[_registry_secret], volumes=VOLUME_MOUNTS)
 class VLLMWorkerL40S(_VLLMWorker):
     """L40S GPU — 12B models (Polyglot-Ko-12B)."""
     pass
 
 
-@app.cls(
-    image=vllm_image,
-    gpu="A100-80GB",
-    timeout=3600,
-    secrets=[_registry_secret],
-    volumes=VOLUME_MOUNTS,
-)
+@app.cls(image=vllm_image, gpu="A100-80GB", timeout=3600, secrets=[_registry_secret], volumes=VOLUME_MOUNTS)
 class VLLMWorkerA100(_VLLMWorker):
     """A100-80GB — Gemma-4 26B baseline."""
     pass
 
-
-# ---------------------------------------------------------------------------
-# GPU_WORKER_MAP — orchestrator looks up the right worker class by preset key
-# ---------------------------------------------------------------------------
 
 GPU_WORKER_MAP = {
     "t4":        VLLMWorkerT4,
@@ -118,77 +101,84 @@ GPU_WORKER_MAP = {
 
 
 def get_worker_class(gpu_preset: str):
-    """Returns the Modal worker class for a given gpu_preset key."""
     if gpu_preset not in GPU_WORKER_MAP:
-        raise ValueError(
-            f"No worker class for gpu_preset='{gpu_preset}'. "
-            f"Valid: {list(GPU_WORKER_MAP)}"
-        )
+        raise ValueError(f"No worker for gpu_preset='{gpu_preset}'. Valid: {list(GPU_WORKER_MAP)}")
     return GPU_WORKER_MAP[gpu_preset]
 
 
 # ---------------------------------------------------------------------------
-# Pilot orchestrator — runs entirely on Modal (Mac-compatible)
+# Light metric worker (Phase 3)
+# ---------------------------------------------------------------------------
+
+@app.cls(
+    image=metrics_image,
+    cpu=2,
+    memory=4096,
+    timeout=600,
+    secrets=[_registry_secret],
+    volumes=VOLUME_MOUNTS,
+)
+class LightMetricWorkerModal(_LightMetricWorker):
+    """CPU-only metric worker — sacrebleu, langdetect, rule-based checks."""
+
+    @modal.method()
+    def score(self, run_id, slug, task, language, model_id=""):
+        return super().score(run_id, slug, task, language, model_id)
+
+
+# ---------------------------------------------------------------------------
+# Phase 3 — compare orchestrator
 # ---------------------------------------------------------------------------
 
 @app.function(
-    image=registry_image,
-    volumes=VOLUME_MOUNTS,
-    secrets=[_registry_secret],
+    image=metrics_image,
+    cpu=2,
+    memory=4096,
     timeout=7200,
+    secrets=[_registry_secret],
+    volumes=VOLUME_MOUNTS,
 )
-def _run_pilot(model_id: str, task: str, limit: int, run_id: str) -> dict:
-    """
-    Pilot orchestrator that runs in a Modal container.
-    Has full access to benchmarks + outputs volumes.
-    Dispatches to the correct vLLM worker class and waits for results.
-    """
-    import json
+def _run_compare(
+    run_id: str = "",
+    slug: str = "tamil",
+    language: str = "Tamil",
+    regional_model_id: str = "tamil-mistral-7b",
+    regional_gpu_preset: str = "l4",
+    limit: int = 200,
+    task: str = "translation",
+) -> str:
+    """Runs in a Modal container with full volume access. Returns run_id."""
     import os
-    import urllib.request
 
     from src.pipeline.loader import load_samples
     from src.pipeline.run import (
         append_run_to_index,
+        gemma_output_path,
         generate_run_id,
         regional_output_path,
         update_manifest_status,
         write_manifest,
     )
 
+    # ── Step 1: Run ID ──────────────────────────────────────────────────────
     if not run_id:
         run_id = generate_run_id()
+    print(f"\nRun ID:   {run_id}")
+    print(f"Language: {language}  ({slug})")
+    print(f"Task:     {task}")
+    print(f"Limit:    {limit} prompts\n")
 
-    print(f"Run ID: {run_id}")
-    print(f"Model:  {model_id}")
-    print(f"Task:   {task}")
-    print(f"Limit:  {limit}")
-
-    # Fetch model config from registry (REGISTRY_URL + JWT_TOKEN from secret)
-    registry_url = os.environ["REGISTRY_URL"]
-    jwt_token    = os.environ["JWT_TOKEN"]
-    req = urllib.request.Request(
-        f"{registry_url}/models/{model_id}",
-        headers={"Authorization": f"Bearer {jwt_token}"},
-    )
-    with urllib.request.urlopen(req) as resp:
-        model_data = json.loads(resp.read())["data"]
-
-    slug       = model_data["slug"]
-    gpu_preset = model_data["gpu_preset"]
-
-    # Load samples from /data/benchmarks volume
+    # ── Step 2: Load samples ─────────────────────────────────────────────────
     samples = load_samples(task, slug, limit=limit)
     print(f"Loaded {len(samples)} samples from /data/benchmarks/{task}/{slug}/")
 
-    # Write manifest + runs index to /data/outputs volume
+    # ── Step 3: Write manifest ───────────────────────────────────────────────
     manifest = {
         "run_id":       run_id,
         "task_scope":   [task],
         "slug":         slug,
-        "model_id":     model_id,
-        "model_name":   model_data["name"],
-        "hf_model_id":  model_data["hf_model_id"],
+        "language":     language,
+        "models":       [regional_model_id, "gemma-4-26b"],
         "prompt_count": len(samples),
         "inference_config": {"temperature": 0.0, "top_p": 1.0, "max_tokens": 512},
         "status": "started",
@@ -196,40 +186,110 @@ def _run_pilot(model_id: str, task: str, limit: int, run_id: str) -> dict:
     write_manifest(run_id, manifest)
     append_run_to_index(run_id, status="started")
 
-    # Dispatch to the correct GPU worker and wait for results
-    WorkerCls = get_worker_class(gpu_preset)
-    worker = WorkerCls(model_id=model_id, run_id=run_id, task=task)
-    results = worker.generate.remote(samples)
+    # ── Step 4: Launch both inference containers simultaneously ──────────────
+    import modal as _modal
 
-    out_path = regional_output_path(run_id, slug, task)
-    print(f"\nDone.")
-    print(f"  Outputs: {len(results)}")
-    print(f"  Path:    {out_path}")
-    print(f"  Run ID:  {run_id}")
+    regional_cls = GPU_WORKER_MAP[regional_gpu_preset]
+    gemma_cls    = GPU_WORKER_MAP["a100_80gb"]
+
+    regional_worker = regional_cls(model_id=regional_model_id, run_id=run_id, task=task)
+    gemma_worker    = gemma_cls(   model_id="gemma-4-26b",      run_id=run_id, task=task)
+
+    print("Launching regional model and Gemma-4 simultaneously...")
+    regional_out, gemma_out = list(_modal.gather(
+        regional_worker.generate.remote(samples),
+        gemma_worker.generate.remote(samples),
+    ))
+    print(f"Inference complete — regional: {len(regional_out)}, Gemma-4: {len(gemma_out)} outputs")
+
+    # ── Step 5: Gate — confirm both output files exist ───────────────────────
+    update_manifest_status(run_id, "inference_complete")
+
+    reg_path   = regional_output_path(run_id, slug, task)
+    gemma_path = gemma_output_path(run_id, task)
+
+    for path, label in [(reg_path, regional_model_id), (gemma_path, "Gemma-4")]:
+        if not os.path.exists(path) or os.path.getsize(path) == 0:
+            print(f"WARNING: {label} output file missing or empty: {path}")
+            update_manifest_status(run_id, "inference_partial")
+            return run_id
+
+    print("Gate passed: both output files confirmed\n")
+
+    # ── Step 6: Light metrics on both models (in parallel) ───────────────────
+    print("Computing light metrics...")
+    metric_worker = LightMetricWorkerModal()
+
+    regional_scores, gemma_scores = list(_modal.gather(
+        metric_worker.score.remote(
+            run_id=run_id, slug=slug, task=task,
+            language=language, model_id=regional_model_id,
+        ),
+        metric_worker.score.remote(
+            run_id=run_id, slug="baseline", task=task,
+            language="Baseline", model_id="gemma-4-26b",
+        ),
+    ))
+
+    # ── Step 7: Side-by-side comparison table ────────────────────────────────
+    regional_label = regional_model_id.split("-")[0].capitalize() + "-7B"
+    width = 65
+
+    print(f"\n{'=' * width}")
+    print(f"  PHASE 3 COMPARISON — {language} ({task})")
+    print(f"{'=' * width}")
+    print(f"  {'Metric':<32} {regional_label:>14}  {'Gemma-4':>10}")
+    print(f"  {'-'*32} {'-'*14}  {'-'*10}")
+
+    all_keys = sorted(set(list(regional_scores.keys()) + list(gemma_scores.keys())))
+    for metric_name in all_keys:
+        reg_vals = regional_scores.get(metric_name, {})
+        gem_vals = gemma_scores.get(metric_name, {})
+        for score_key in sorted(set(list(reg_vals.keys()) + list(gem_vals.keys()))):
+            r_val = reg_vals.get(score_key)
+            g_val = gem_vals.get(score_key)
+            r_str = f"{r_val:.4f}" if isinstance(r_val, float) else str(r_val or "—")
+            g_str = f"{g_val:.4f}" if isinstance(g_val, float) else str(g_val or "—")
+            winner = " ↑" if isinstance(r_val, float) and isinstance(g_val, float) and r_val > g_val else ""
+            print(f"  {score_key:<32} {r_str + winner:>14}  {g_str:>10}")
+
+    print(f"{'=' * width}")
+    print(f"\nOutputs:  {reg_path}")
+    print(f"          {gemma_path}")
+    print(f"Metrics:  runs/{run_id}/metrics/")
+    print(f"Run ID:   {run_id}\n")
 
     update_manifest_status(run_id, "completed")
-    return {"run_id": run_id, "total_outputs": len(results), "output_path": out_path}
+    return run_id
 
 
 @app.local_entrypoint()
-def pilot(
-    model_id: str = "tamil-mistral-7b",
-    task: str = "translation",
+def compare(
+    slug: str = "tamil",
+    language: str = "Tamil",
+    regional_model_id: str = "tamil-mistral-7b",
+    regional_gpu_preset: str = "l4",
     limit: int = 200,
+    task: str = "translation",
     run_id: str = "",
 ):
     """
-    Fires the pilot on Modal. All work runs remotely — Mac-compatible.
+    Phase 3 pilot: run one regional model against Gemma-4 and compare.
+    All work runs on Modal — Mac-compatible.
 
     Usage:
-        modal run modal_app.py::pilot
-        modal run modal_app.py::pilot --model-id tamil-mistral-7b --limit 200
-        modal run modal_app.py::pilot --run-id <id>   # resume existing run
+        modal run modal_app.py::compare
+        modal run modal_app.py::compare --task instructions --limit 100
+        modal run modal_app.py::compare --run-id <id>   # resume
     """
-    result = _run_pilot.remote(
-        model_id=model_id, task=task, limit=limit, run_id=run_id
+    result = _run_compare.remote(
+        run_id=run_id,
+        slug=slug,
+        language=language,
+        regional_model_id=regional_model_id,
+        regional_gpu_preset=regional_gpu_preset,
+        limit=limit,
+        task=task,
     )
-    print(f"\nPilot complete:")
-    print(f"  Run ID:  {result['run_id']}")
-    print(f"  Outputs: {result['total_outputs']}")
-    print(f"  Path:    {result['output_path']}")
+    if result:
+        print(f"Run complete: {result}")
