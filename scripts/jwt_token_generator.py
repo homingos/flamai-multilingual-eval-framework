@@ -16,8 +16,8 @@ import jwt
 def make_token(
     secret: str,
     scopes: list[str],
-    subject: str = "dev-user",
-    expiry_minutes: int = 60,
+    subject: str = "dev-user-2",
+    expiry_minutes: int = 86400,
 ) -> str:
     now = datetime.datetime.now(datetime.timezone.utc)
     payload = {
