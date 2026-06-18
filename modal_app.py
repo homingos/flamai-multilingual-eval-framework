@@ -233,7 +233,7 @@ class JudgeWorkerModal(_JudgeWorker):
 
     @modal.method()
     def judge(self, run_id, slug, task, language, regional_model_id,
-              judge_model="gemini-2.0-flash", swap_runs=2, limit=None):
+              judge_model="gemini-3.5-flash", swap_runs=2, limit=None):
         return super().judge(
             run_id=run_id, slug=slug, task=task, language=language,
             regional_model_id=regional_model_id, judge_model=judge_model,
@@ -436,7 +436,7 @@ def _run_phase4(
     language: str,
     regional_model_id: str,
     task: str = "translation",
-    judge_model: str = "gemini-2.0-flash",
+    judge_model: str = "gemini-3.5-flash",
     swap_runs: int = 2,
     judge_limit: int = 0,
     skip_model_metrics: bool = False,
@@ -554,7 +554,7 @@ def phase4(
     language: str = "Tamil",
     regional_model_id: str = "tamil-mistral-7b",
     task: str = "translation",
-    judge_model: str = "gemini-2.0-flash",
+    judge_model: str = "gemini-3.5-flash",
     swap_runs: int = 2,
     judge_limit: int = 50,       # default to 50 for calibration pilot
     skip_model_metrics: bool = False,
@@ -565,7 +565,7 @@ def phase4(
     Requires Phase 3 inference outputs to already exist.
 
     Judge model is selected by prefix — set via --judge-model:
-      gemini-2.0-flash         (default — requires GEMINI_API_KEY)
+      gemini-3.5-flash         (default — requires GEMINI_API_KEY)
       gemini-1.5-pro           (higher quality, slower)
       claude-haiku-4-5         (requires ANTHROPIC_API_KEY)
 
