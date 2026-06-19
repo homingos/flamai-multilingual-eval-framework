@@ -1,22 +1,24 @@
 """
 Phase 2A — Modal application entrypoint.
 
-Worker registrations + entrypoints only. All pipeline logic lives in:
+Worker registrations + one entrypoint. All pipeline logic lives in:
   src/pipeline/state_machine.py  — the state machine (PENDING→...→DONE/FAILED)
-  src/pipeline/entrypoints.py    — compare_one / evaluate_one / evaluate_many
+  src/pipeline/entrypoints.py    — run_pipeline()
   src/pipeline/report_render.py  — markdown summary generator
 
-There is one pipeline, not three. "Phase 3/4/5" are just different
-(stop_at state, fan-out size) combinations of the same state machine:
-  compare  → 1 language,  stop at LIGHT_METRICS
-  phase4   → 1 language,  stop at REPORT
-  phase5   → N languages, stop at REPORT
+There is one command: run_pipeline. "Phase 3/4/5" don't exist as separate
+commands anymore — they were always the same state machine with a
+different stop point and a different number of languages:
+  --slug tamil --stop-at light_metrics   (old "compare")
+  --slug tamil --stop-at report          (old "phase4")
+  --slug all   --stop-at report          (old "phase5")
 
 Usage:
     modal deploy modal_app.py
-    modal run modal_app.py::compare   [--slug greek --language Greek ...]
-    modal run modal_app.py::phase4    --run-id <id> [--slug greek ...]
-    modal run modal_app.py::phase5    [--only arabic,hebrew --judge-limit 50]
+    modal run modal_app.py::run_pipeline --slug greek
+    modal run modal_app.py::run_pipeline --slug greek --stop-at light_metrics
+    modal run modal_app.py::run_pipeline --slug arabic,hebrew,amharic
+    modal run modal_app.py::run_pipeline --slug all
 """
 import modal
 from modal_common import (
@@ -221,92 +223,26 @@ BASE_MODELS = {  # no instruct variant — plain-text prompts only
 
 
 # ---------------------------------------------------------------------------
-# "compare" — 1 language, stop at LIGHT_METRICS  (formerly "Phase 3")
+# run_pipeline — the one command. Replaces compare / phase4 / phase5.
+#
+# What used to be three separate commands is now one command with two
+# knobs: which language(s), and how far to run them.
+#   --slug tamil                     → one language
+#   --slug greek,arabic,hebrew       → a few languages, run in parallel
+#   --slug all                       → all 17, run in parallel
+#   --stop-at light_metrics          → inference + light metrics only (old "compare")
+#   --stop-at report                 → full pipeline incl. judge (old "phase4"/"phase5")
 # ---------------------------------------------------------------------------
 
-@app.function(image=metrics_image, cpu=2, memory=4096, timeout=7200,
+@app.function(image=vllm_image, gpu="A100-80GB", timeout=3600,
               secrets=_inference_secrets, volumes=VOLUME_MOUNTS)
-def _run_compare(run_id="", slug="tamil", language="Tamil",
-                 regional_model_id="tamil-mistral-7b",
-                 regional_gpu_preset="l4", limit=200, task="translation") -> dict:
-    from src.pipeline.entrypoints import compare_one
-    spec = LanguageSpec(regional_model_id, language, slug, regional_gpu_preset)
-    return compare_one(run_id=run_id, spec=spec, task=task, limit=limit, handles=_handles())
+def _run_gemma4_baseline(run_id: str, task: str, limit: int, any_slug: str) -> None:
+    """Thin Modal wrapper so ensure_gemma4_baseline can run as a real container."""
+    from src.pipeline.state_machine import RunContext, ensure_gemma4_baseline
+    ctx = RunContext(run_id=run_id, task=task, limit=limit, judge_model="",
+                      judge_limit=0, swap_runs=0, skip_model_metrics=True, handles=_handles())
+    ensure_gemma4_baseline(ctx, VLLMWorkerA100, any_slug=any_slug)
 
-
-@app.local_entrypoint()
-def compare(slug="tamil", language="Tamil", regional_model_id="tamil-mistral-7b",
-            regional_gpu_preset="l4", limit=200, task="translation", run_id=""):
-    """
-    Run one regional model against Gemma-4 through inference + light metrics.
-
-    modal run modal_app.py::compare
-    modal run modal_app.py::compare --slug greek --language Greek --regional-model-id meltemi-7b
-    modal run modal_app.py::compare --run-id <id>   # resume
-    """
-    result = _run_compare.remote(
-        run_id=run_id, slug=slug, language=language,
-        regional_model_id=regional_model_id, regional_gpu_preset=regional_gpu_preset,
-        limit=limit, task=task,
-    )
-    print(f"Run complete: {result.get('run_id')}  state={result.get('state')}")
-
-
-# ---------------------------------------------------------------------------
-# "phase4" — 1 language, stop at REPORT  (assumes compare already ran)
-# ---------------------------------------------------------------------------
-
-@app.function(image=metrics_image, cpu=2, memory=4096, timeout=14400,
-              secrets=[_registry_secret, _judge_secret], volumes=VOLUME_MOUNTS)
-def _run_phase4(run_id: str, slug: str, language: str, regional_model_id: str,
-                regional_gpu_preset="l4", task="translation",
-                judge_model="gemini-3.5-flash", swap_runs=2, judge_limit=0,
-                skip_model_metrics=False) -> dict:
-    from src.pipeline.entrypoints import evaluate_one
-    spec = LanguageSpec(regional_model_id, language, slug, regional_gpu_preset)
-    return evaluate_one(
-        run_id=run_id, spec=spec, task=task,
-        judge_model=judge_model, judge_limit=judge_limit, swap_runs=swap_runs,
-        skip_model_metrics=skip_model_metrics, handles=_handles(),
-    )
-
-
-@app.local_entrypoint()
-def phase4(run_id="", slug="tamil", language="Tamil",
-           regional_model_id="tamil-mistral-7b", task="translation",
-           judge_model="gemini-3.5-flash", swap_runs=2, judge_limit=50,
-           skip_model_metrics=False):
-    """
-    Model metrics + LLM judge + final report. Requires compare() outputs.
-
-    modal run modal_app.py::phase4 --run-id <id>
-    modal run modal_app.py::phase4 --run-id <id> --slug greek --language Greek --regional-model-id meltemi-7b
-    modal run modal_app.py::phase4 --run-id <id> --skip-model-metrics
-    """
-    if not run_id:
-        print("ERROR: --run-id is required.")
-        return
-
-    result = _run_phase4.remote(
-        run_id=run_id, slug=slug, language=language,
-        regional_model_id=regional_model_id, task=task,
-        judge_model=judge_model, swap_runs=swap_runs, judge_limit=judge_limit,
-        skip_model_metrics=skip_model_metrics,
-    )
-    if result.get("state") == State.FAILED.value:
-        print(f"FAILED: {result.get('error')}")
-        return
-
-    report = result.get("report", {})
-    r = report.get("languages", {}).get(slug, {})
-    print(f"\nPhase 4 complete — {r.get('classification', '?')}: {r.get('classification_rationale', '')}")
-    print(f"  Run ID:  {run_id}")
-    print(f"  Report:  /data/outputs/runs/{run_id}/reports/final_report.json")
-
-
-# ---------------------------------------------------------------------------
-# "phase5" — N languages in parallel, stop at REPORT
-# ---------------------------------------------------------------------------
 
 @app.function(image=metrics_image, cpu=2, memory=4096, timeout=86400,
               secrets=[_registry_secret, _judge_secret], volumes=VOLUME_MOUNTS)
@@ -314,7 +250,7 @@ def _run_one_language(run_id: str, model_id: str, language: str, slug: str,
                       gpu_preset: str, stop_at_value: str, task: str, limit: int,
                       judge_model: str, judge_limit: int, swap_runs: int,
                       skip_model_metrics: bool) -> dict:
-    """The container spawned once per language by evaluate_many's fan-out."""
+    """The container spawned once per language when running more than one."""
     from src.pipeline.entrypoints import run_single_language_to_state
     spec = LanguageSpec(model_id, language, slug, gpu_preset)
     return run_single_language_to_state(
@@ -326,12 +262,12 @@ def _run_one_language(run_id: str, model_id: str, language: str, slug: str,
 
 @app.function(image=metrics_image, cpu=2, memory=4096, timeout=86400,
               secrets=[_registry_secret, _judge_secret], volumes=VOLUME_MOUNTS)
-def _run_phase5(run_id: str, task: str, limit: int, judge_model: str,
-                judge_limit: int, swap_runs: int, skip_model_metrics: bool,
-                only_slugs: list) -> dict:
-    from src.pipeline.entrypoints import evaluate_many
+def _run_pipeline(run_id: str, slugs: list, stop_at_value: str, task: str, limit: int,
+                  judge_model: str, judge_limit: int, swap_runs: int,
+                  skip_model_metrics: bool) -> dict:
+    from src.pipeline.entrypoints import run_pipeline
 
-    specs = [s for s in ALL_MODELS if not only_slugs or s.slug in only_slugs]
+    specs = [s for s in ALL_MODELS if s.slug in slugs] if slugs else ALL_MODELS
 
     def _spawn(spec, stop_at):
         return _run_one_language.spawn(
@@ -341,59 +277,87 @@ def _run_phase5(run_id: str, task: str, limit: int, judge_model: str,
             swap_runs=swap_runs, skip_model_metrics=skip_model_metrics,
         )
 
-    return evaluate_many(
-        run_id=run_id, specs=specs, task=task, limit=limit,
-        judge_model=judge_model, judge_limit=judge_limit, swap_runs=swap_runs,
-        skip_model_metrics=skip_model_metrics, handles=_handles(),
+    return run_pipeline(
+        run_id=run_id, specs=specs, stop_at=State(stop_at_value), task=task, limit=limit,
+        handles=_handles(), judge_model=judge_model, judge_limit=judge_limit,
+        swap_runs=swap_runs, skip_model_metrics=skip_model_metrics,
         VLLMWorkerA100=VLLMWorkerA100, advance_remote_fn=_spawn,
     )
 
 
 @app.local_entrypoint()
-def phase5(task="translation", limit=200, judge_model="gemini-3.5-flash",
-           judge_limit=50, swap_runs=2, skip_model_metrics=True,
-           only="", run_id=""):
+def run_pipeline(slug="tamil", stop_at="report", task="translation", limit=200,
+                 judge_model="gemini-3.5-flash", judge_limit=50, swap_runs=2,
+                 skip_model_metrics=True, run_id=""):
     """
-    Full parallel evaluation of all 17 regional models.
+    Run the evaluation pipeline for one language, a few, or all 17 — to
+    whatever stop point you need. Replaces compare / phase4 / phase5.
 
-    modal run modal_app.py::phase5                                  # full run ~$35
-    modal run modal_app.py::phase5 --only greek --run-id <id>       # dry run
-    modal run modal_app.py::phase5 --only arabic,hebrew,amharic     # subset
-    modal run modal_app.py::phase5 --run-id <id>                    # resume
+    --slug          one slug, comma-separated list, or "all"
+    --stop-at       "light_metrics" (inference + BLEU/chrF only)
+                    "report"        (full pipeline incl. judge — default)
+
+    Examples:
+        # One language, full pipeline (old "phase4", run fresh)
+        modal run modal_app.py::run_pipeline --slug greek
+
+        # One language, inference + light metrics only (old "compare")
+        modal run modal_app.py::run_pipeline --slug greek --stop-at light_metrics
+
+        # A few languages in parallel
+        modal run modal_app.py::run_pipeline --slug arabic,hebrew,amharic
+
+        # All 17 (old "phase5") — prints cost estimate, confirms before launch
+        modal run modal_app.py::run_pipeline --slug all
+
+        # Resume an existing run — already-completed languages are skipped
+        modal run modal_app.py::run_pipeline --slug all --run-id <id>
     """
     from src.pipeline.entrypoints import estimate_cost
     from src.pipeline.run import generate_run_id
 
-    only_slugs = [s.strip() for s in only.split(",") if s.strip()]
-    specs      = [s for s in ALL_MODELS if not only_slugs or s.slug in only_slugs]
-    run_id     = run_id or generate_run_id()
-    cost       = estimate_cost(specs, judge_limit, swap_runs)
+    slugs = [] if slug == "all" else [s.strip() for s in slug.split(",") if s.strip()]
+    specs = [s for s in ALL_MODELS if not slugs or s.slug in slugs]
+    if not specs:
+        print(f"ERROR: no matching slug(s) for '{slug}'. Valid slugs: "
+              f"{', '.join(s.slug for s in ALL_MODELS)}")
+        return
 
-    print(f"\n{'='*65}\n  PHASE 5 — PRE-FLIGHT\n{'='*65}")
+    run_id = run_id or generate_run_id()
+    stop_state = State(stop_at)
+
+    cost = estimate_cost(specs, judge_limit, swap_runs) if stop_state == State.REPORT else None
+
+    print(f"\n{'='*65}\n  RUN PIPELINE — PRE-FLIGHT\n{'='*65}")
     print(f"  Run ID:        {run_id}")
-    print(f"  Models:        {len(specs)}")
+    print(f"  Languages:     {len(specs)}")
+    print(f"  Stop at:       {stop_state.value}")
     print(f"  Task:          {task}  |  Prompts/model: {limit}")
-    print(f"  Judge:         {judge_model}  |  Limit: {judge_limit} prompts/model")
-    print(f"\n  ESTIMATED COST:")
-    print(f"    Regional inference: ${cost['regional_inference_usd']:.2f}")
-    print(f"    Gemma-4 inference:  ${cost['gemma4_inference_usd']:.2f}")
-    print(f"    Judge API:          ${cost['judge_usd']:.2f}  ({cost['total_judge_calls']:,} calls)")
-    print(f"    TOTAL:              ~${cost['total_usd']:.2f}")
-    print(f"{'='*65}\n  Models:")
+    if cost:
+        print(f"  Judge:         {judge_model}  |  Limit: {judge_limit} prompts/model")
+        print(f"\n  ESTIMATED COST:")
+        print(f"    Regional inference: ${cost['regional_inference_usd']:.2f}")
+        print(f"    Gemma-4 inference:  ${cost['gemma4_inference_usd']:.2f}")
+        print(f"    Judge API:          ${cost['judge_usd']:.2f}  ({cost['total_judge_calls']:,} calls)")
+        print(f"    TOTAL:              ~${cost['total_usd']:.2f}")
+    print(f"{'='*65}\n  Languages:")
     for s in specs:
         base = " ⚠ base" if s.model_id in BASE_MODELS else ""
         print(f"    {s.language:<26} {s.model_id:<22} gpu={s.gpu_preset}{base}")
 
-    print(f"\n  Press Enter to launch, Ctrl-C to abort...")
-    input()
+    if len(specs) > 1:
+        print(f"\n  Press Enter to launch, Ctrl-C to abort...")
+        input()
 
-    summary = _run_phase5.remote(
-        run_id=run_id, task=task, limit=limit, judge_model=judge_model,
-        judge_limit=judge_limit, swap_runs=swap_runs,
-        skip_model_metrics=skip_model_metrics, only_slugs=only_slugs,
+    summary = _run_pipeline.remote(
+        run_id=run_id, slugs=slugs, stop_at_value=stop_state.value, task=task, limit=limit,
+        judge_model=judge_model, judge_limit=judge_limit, swap_runs=swap_runs,
+        skip_model_metrics=skip_model_metrics,
     )
+
     c = summary.get("classification_counts", {})
-    print(f"\nPhase 5 complete — Run ID: {run_id}")
-    print(f"  A={c.get('A',0)} B={c.get('B',0)} C={c.get('C',0)} D={c.get('D',0)} E={c.get('E',0)}")
+    print(f"\nRun complete — Run ID: {run_id}")
+    if any(c.values()):
+        print(f"  A={c.get('A',0)} B={c.get('B',0)} C={c.get('C',0)} D={c.get('D',0)} E={c.get('E',0)}")
     if summary.get("failed"):
         print(f"  Failed: {summary['failed']}")
