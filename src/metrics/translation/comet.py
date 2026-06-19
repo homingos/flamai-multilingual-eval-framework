@@ -1,120 +1,107 @@
 """
-src/workers/model_metrics.py
-=============================
-ModelMetricWorker — GPU-tier metric worker.
+src/metrics/translation/comet.py
+===================================
+T3 — COMET translation quality metric.
 
-Runs MODEL-tier metrics (COMET, BERTScore) on inference outputs.
-One instance is shared across all languages; the slug + model_id
-identify which output file to load.
+compute_tier = MODEL — runs on GPU in ModelMetricWorker, same as
+BERTScore and back-translation.
 
-Modal registration: modal_app.py → ModelMetricWorkerModal
+Unlike T5 (back-translation), COMET needs no per-language model
+selection — Unbabel/wmt22-comet-da is a single multilingual checkpoint
+built on XLM-R that scores any (source, hypothesis, reference) triplet
+regardless of language, so there's no coverage gap to document here.
+
+Requires: unbabel-comet (installed in model_metrics_image, not the dev
+environment — imported lazily so this file still loads without it).
 """
 from __future__ import annotations
 
-import importlib
-import json
-import pkgutil
-from typing import Dict, List
+from typing import TYPE_CHECKING
 
-from src.metrics.base import BaseMetric, ComputeTier, MetricResult
-from src.pipeline.run import append_output, metric_path
+from src.metrics.base import BaseMetric, ComputeTier, MetricResult, MetricStage
 
+if TYPE_CHECKING:
+    pass  # comet is a GPU-only dep; imported lazily at runtime below
 
-def _discover_model_metrics() -> List[BaseMetric]:
-    """Auto-discovers MODEL-tier BaseMetric subclasses from src/metrics/."""
-    import src.metrics.translation
+_COMET_MODEL_ID = "Unbabel/wmt22-comet-da"
 
-    metrics: List[BaseMetric] = []
-    seen: set = set()
-
-    for package in (src.metrics.translation,):
-        for _, module_name, _ in pkgutil.iter_modules(package.__path__):
-            module = importlib.import_module(f"{package.__name__}.{module_name}")
-            for attr_name in dir(module):
-                obj = getattr(module, attr_name)
-                if (
-                    isinstance(obj, type)
-                    and issubclass(obj, BaseMetric)
-                    and obj is not BaseMetric
-                    and getattr(obj, "compute_tier", None) == ComputeTier.MODEL
-                    and getattr(obj, "name", "")
-                    and obj.name not in seen
-                ):
-                    metrics.append(obj())
-                    seen.add(obj.name)
-
-    return metrics
+# Module-level cache — the checkpoint is several hundred MB; load once per
+# worker process, not once per compute() call. Mirrors the pattern in
+# back_translation.py's _model_cache.
+_model_cache = None
 
 
-def _load_jsonl(path: str) -> List[dict]:
-    try:
-        with open(path, encoding="utf-8") as f:
-            return [json.loads(line) for line in f if line.strip()]
-    except FileNotFoundError:
-        return []
+def _get_comet_model():
+    global _model_cache
+    if _model_cache is None:
+        from comet import download_model, load_from_checkpoint  # type: ignore[import-untyped]
+        model_path = download_model(_COMET_MODEL_ID)
+        _model_cache = load_from_checkpoint(model_path)
+    return _model_cache
 
 
-def _write_result(run_id: str, metric_name: str, slug: str, result: MetricResult) -> None:
-    path = metric_path(run_id, metric_name, slug)
-    append_output(path, {
-        "metric":       metric_name,
-        "language":     result.language,
-        "scores":       result.scores,
-        "sample_count": result.sample_count,
-        "errors":       result.errors,
-        "notes":        result.notes,
-    })
+class COMETMetric(BaseMetric):
+    name         = "comet"
+    stage        = MetricStage.POST_INFERENCE
+    compute_tier = ComputeTier.MODEL
+    task_types   = ["translation"]
+    category     = None
 
+    def compute(self, outputs, language, task):
+        try:
+            model = _get_comet_model()
+        except ImportError:
+            return MetricResult(
+                metric_name="comet", language=language, task=task,
+                scores={}, sample_count=0,
+                errors=["unbabel-comet not installed"],
+            )
+        except Exception as exc:
+            return MetricResult(
+                metric_name="comet", language=language, task=task,
+                scores={}, sample_count=0,
+                errors=[f"Failed to load {_COMET_MODEL_ID}: {exc}"],
+            )
 
-class ModelMetricWorker:
-    """
-    Runs MODEL-tier metrics (COMET, BERTScore) for one (model_id, task) pair.
-    Requires GPU — registered with L4 GPU in modal_app.py.
-    """
+        en_to_tgt = [o for o in outputs if o.get("direction") == "en→target"]
+        tgt_to_en = [o for o in outputs if o.get("direction") == "target→en"]
 
-    def _get_metrics(self) -> List[BaseMetric]:
-        if not hasattr(self, "_metrics_cache"):
-            self._metrics_cache = _discover_model_metrics()
-        return self._metrics_cache
+        scores = {}
+        errors = []
 
-    def score(
-        self,
-        run_id: str,
-        slug: str,
-        task: str,
-        language: str,
-        model_id: str = "",
-    ) -> Dict[str, dict]:
-        """
-        Score outputs for one model + task pair using MODEL-tier metrics.
-        Returns {metric_name: scores_dict}.
-        """
-        from src.pipeline.run import gemma_output_path, regional_output_path
-
-        if model_id == "gemma-4-26b":
-            out_path = gemma_output_path(run_id, task)
-        else:
-            out_path = regional_output_path(run_id, slug, task)
-
-        outputs = _load_jsonl(out_path)
-        if not outputs:
-            print(f"[ModelMetricWorker] No outputs at {out_path}")
-            return {}
-
-        print(f"[ModelMetricWorker] Scoring {len(outputs)} outputs "
-              f"for {model_id or 'gemma-4-26b'} / {task} / {language}")
-
-        results: Dict[str, MetricResult] = {}
-        for metric in self._get_metrics():
-            if not metric.applies_to(task):
+        for direction_key, subset in [("en_to_target", en_to_tgt), ("target_to_en", tgt_to_en)]:
+            if not subset:
                 continue
-            print(f"[ModelMetricWorker] Running {metric.name}...")
-            try:
-                result = metric.compute(outputs, language=language, task=task)
-                results[metric.name] = result
-                _write_result(run_id, metric.name, slug, result)
-                print(f"[ModelMetricWorker] {metric.name} → {result.scores}")
-            except Exception as exc:
-                print(f"[ModelMetricWorker] {metric.name} failed: {exc}")
 
-        return {k: v.scores for k, v in results.items()}
+            # COMET needs all three of source, hypothesis, reference —
+            # skip any sample missing one rather than letting predict()
+            # choke on a None partway through a batch.
+            data = []
+            skipped = 0
+            for o in subset:
+                src = o.get("source")
+                mt  = o.get("output")
+                ref = o.get("reference")
+                if not src or not mt or not ref:
+                    skipped += 1
+                    continue
+                data.append({"src": src, "mt": mt, "ref": ref})
+
+            if not data:
+                errors.append(f"{direction_key}: no samples with source+output+reference")
+                continue
+
+            try:
+                result = model.predict(data, batch_size=8, gpus=1)
+                # result.scores is per-segment; result.system_score is the
+                # corpus-level mean — same shape sacrebleu's corpus_bleu gives us.
+                scores[f"comet_{direction_key}"] = round(float(result.system_score), 4)
+                if skipped:
+                    errors.append(f"{direction_key}: skipped {skipped} samples missing src/mt/ref")
+            except Exception as exc:
+                errors.append(f"{direction_key}: {exc}")
+
+        return MetricResult(
+            metric_name="comet", language=language, task=task,
+            scores=scores, sample_count=len(outputs), errors=errors,
+        )
