@@ -1,192 +1,461 @@
-# Falcon Tokenizer Evaluation Framework
+# flamai-multilingual-eval-framework
 
-> **Which regional LLM tokenizer works best for each language?**
-> A systematic benchmark comparing Gemma-4 (production baseline) against 55 regional language models across 63 languages and 245 tokenizer runs.
+Evaluation pipeline for the Falcon Language Support project. Compares 17 regional
+LLMs against Gemma-4 26B A4B IT across translation and instruction-following tasks
+in 17 languages, using automated metrics plus an LLM-as-judge pairwise comparison,
+and classifies each regional model A–E against the baseline.
 
----
-
-## Overview
-
-Flam AI's Talking Avatar uses **Gemma-4 26B A4B IT** as its production LLM. This framework evaluates whether specialist regional models tokenize each language more efficiently — fewer tokens means faster inference, lower cost, and better language fidelity for TTS pipelines.
-
-Evaluation uses the **FLORES-200** corpus (~1,012 sentences per language) and measures 7 tokenizer metrics per model per language.
+Runs entirely on [Modal](https://modal.com) — a FastAPI model registry, GPU
+inference workers, CPU/GPU metric workers, and a judge worker, all wired together
+by one state machine.
 
 ---
 
-## Key Findings
+## Table of contents
 
-| Stat | Value |
-|------|-------|
-| Languages evaluated | 63 |
-| Regional candidates tested | 55 |
-| Baselines | Gemma-4, BLOOM, mT5 |
-| Total tokenizer runs | 245 |
-| **Regional winners (beat Gemma-4)** | **17** |
-| Countries mapped on visualization | 163 |
-
-### Regional Winners (17 languages where specialist model beats Gemma-4)
-
-| Language | Winner Model | Fertility improvement |
-|----------|-------------|----------------------|
-| Tamil | Tamil-Mistral-7B | 2.37 → 1.73 (−27%) |
-| Marathi | MahaMarathi-7B | 1.99 → 1.64 (−18%) |
-| Kannada | Ambari-7B | 3.24 → 2.74 (−15%) |
-| Gujarati | Gujju-Llama-7B | 2.42 → 2.03 (−16%) |
-| Arabic | Jais-2-8B | 2.03 → 1.46 (−28%) |
-| Hebrew | DictaLM-2.0-7B | 2.71 → 2.64 (−3%) |
-| Korean | Polyglot-Ko-12B | 2.42 → 2.20 (−9%) |
-| Malay | MaLLaM-5B | 1.63 → 1.42 (−13%) |
-| Swahili | Swahili-Gemma-7B | 2.09 → 2.05 (−2%) |
-| Amharic | Walia-LLM-7B | 3.03 → 1.62 (−47%) |
-| French | Lucie-7B | 1.49 → 1.43 (−4%) |
-| Swedish | Viking-7B | 1.84 → 1.47 (−20%) |
-| Czech | CSMPT-7B | 2.16 → 1.41 (−35%) |
-| Greek | Meltemi-7B | 2.47 → 1.40 (−43%) |
-| Brazilian Portuguese | Tucano-2b4 | 1.45 → 1.25 (−14%) |
-| Māori | Goldfish-mri-39M | 1.83 → 1.22 (−33%) |
-| Tok Pisin | Goldfish-tpi-125M | 2.02 → 1.82 (−10%) |
+- [Architecture](#architecture)
+- [The pipeline state machine](#the-pipeline-state-machine)
+- [Metrics catalog](#metrics-catalog)
+- [Regional models](#regional-models)
+- [Classification scheme](#classification-scheme)
+- [Setup](#setup)
+- [Running the pipeline](#running-the-pipeline)
+- [Registry API](#registry-api)
+- [Repository layout](#repository-layout)
+- [Testing](#testing)
+- [Known issues](#known-issues)
 
 ---
 
-## Evaluation Metrics
+## Architecture
 
-Each tokenizer run measures 7 metrics:
-
-| Metric | What it measures | Better |
-|--------|-----------------|--------|
-| **Fertility** | Tokens produced per whitespace word | Lower |
-| **Compression ratio** | Chars per token | Higher |
-| **Vocab coverage %** | % of language characters in the model's vocabulary | Higher |
-| **Roundtrip fidelity %** | Encode → decode → exact match rate | Higher |
-| **Byte fallback rate %** | % tokens that are raw byte fallbacks (tokenizer failure) | Lower |
-| **UNK rate %** | % unknown tokens produced | Lower |
-| **Avg tokens / sentence** | Raw throughput measure | Lower |
-
-**Win condition:** a regional candidate beats Gemma-4 if: `fertility < Gemma-4 AND vocab_coverage ≥ 80% AND roundtrip_fidelity ≥ 95%`
-
----
-
-## Repository Structure
+Two subsystems share one Modal app and one set of volumes:
 
 ```
-falcon-language/
-├── data/
-│   ├── results.csv                      # 245 tokenizer runs (63 langs × 3 baselines + 56 regional)
-│   ├── summary.json                     # Per-model aggregates (unweighted + char-weighted)
-│   └── datasets/
-│       ├── instructions/                # 17,000 instruction-following samples (1000/language × 17)
-│       │   ├── meta.json
-│       │   └── <language>/
-│       │       ├── samples.jsonl        # 1000 samples: 200 per category
-│       │       └── meta.json
-│       └── translation/                 # ~34,000 translation samples (pending eng_Latn download)
-│           ├── meta.json
-│           └── <language>/
-│               ├── samples.jsonl        # ~2024 samples: 1012 en→target + 1012 target→en
-│               └── meta.json
-├── experiments/
-│   ├── tokenizer_test.py                # Main tokenizer evaluation runner
-│   ├── detailed_report.py               # Generates docs/llm-evaluation.md from results.csv
-│   ├── language_map.py                  # Interactive Plotly world map → docs/viz/language-map.html
-│   ├── generate_pdf.py                  # PDF report generator → docs/reports/
-│   ├── create_instruction_dataset.py    # Generates data/datasets/instructions/
-│   └── create_translation_dataset.py    # Generates data/datasets/translation/ (needs internet)
-├── docs/
-│   ├── viz/                 # language-map.html, world-map.png
-│   ├── reports/             # Generated PDF reports
-│   ├── llm-evaluation.md    # Full per-language report
-│   └── llm-research-raw.md  # Raw research notes
-└── scripts/                 # Fine-tuning scripts (future)
+┌─────────────────────────────────────────────────────────────┐
+│  Modal app  (modal_app.py)                                  │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐    │
+│  │  Registry service — hexagonal architecture, FastAPI │    │
+│  │                                                     │    │
+│  │  api/routes.py → RegistryService → RegistryStore    │    │
+│  │  (port: Protocol)                                   │    │
+│  │       ├─ VolumeRegistryStore   (production)         │    │
+│  │       └─ InMemoryRegistryStore (tests)              │    │
+│  └─────────────────────────────────────────────────────┘    │
+│                                                             │
+│  ─────────── shared Modal volumes ──────────                │
+│  registry · weights · benchmarks · outputs                  │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐    │
+│  │  Evaluation pipeline — one state machine            │    │
+│  │                                                     │    │
+│  │  run_pipeline()                                     │    │
+│  │    → state_machine.advance()                        │    │
+│  │      PENDING → INFERENCE → LIGHT_METRICS            │    │
+│  │              → MODEL_METRICS → JUDGE → REPORT → DONE│    │
+│  │                          ↘ FAILED (from any state   │    │
+│  │                                                     │    │
+│  │  Workers: VLLMWorker · LightMetricWorker ·          │    │
+│  │  ModelMetricWorker · JudgeWorker · ReportGenerator  │    │
+│  └─────────────────────────────────────────────────────┘    │
+└─────────────────────────────────────────────────────────────┘
 ```
+
+**Registry service.** `RegistryStore` is a `typing.Protocol`, not a base class —
+the service layer (`RegistryService`) depends only on the protocol, never on a
+concrete adapter. Swapping `VolumeRegistryStore` for `InMemoryRegistryStore` is
+one environment variable (`PERSISTENCE_BACKEND=memory|volume`). The test suite
+forces `memory` so every test runs against a fresh in-memory store with zero
+Modal dependency. Domain objects (`ModelConfig`, `HardwareConfig`, `MetricConfig`,
+`TaskConfig`) are plain dataclasses with no framework imports.
+
+**Evaluation pipeline.** There is one state machine, not three separate
+orchestrators. `run_pipeline()` is the single entrypoint — it takes a list of
+`LanguageSpec`s (1 or 17) and a `stop_at` state, and drives every spec through
+`advance()`. Running 1 language vs 17 only changes whether the work happens
+inline in the current process or fanned out to parallel Modal containers; the
+manifest writing, resume detection, and report rendering are identical code
+either way.
 
 ---
 
-## Quick Start
+## The pipeline state machine
+
+```
+PENDING → INFERENCE → LIGHT_METRICS → MODEL_METRICS → JUDGE → REPORT → DONE
+                                                                          ↘ FAILED
+```
+
+| State | What happens | Worker |
+|---|---|---|
+| `INFERENCE` | Runs the regional model and (once, shared) Gemma-4 on the benchmark samples | `VLLMWorker` |
+| `LIGHT_METRICS` | Runs all CPU-tier metrics (BLEU, chrF, instruction-following checks, number-verbalization checks) | `LightMetricWorker` |
+| `MODEL_METRICS` | Runs GPU-tier metrics (BERTScore, back-translation; COMET intended but not currently wired — see [Known issues](#known-issues)) | `ModelMetricWorker` |
+| `JUDGE` | Pairwise LLM-as-judge comparison, regional vs Gemma-4, with position-swapped repeats | `JudgeWorker` |
+| `REPORT` | Aggregates everything into `final_report.json` and assigns an A–E classification | `ReportGenerator` |
+
+Any state can transition to `FAILED`; the error is recorded on the
+`LanguageRun` and surfaced in the final summary rather than crashing the run.
+
+A precondition step, `ensure_gemma4_baseline`, runs once before any language
+reaches `INFERENCE` — this is what prevents N parallel containers from each
+spawning their own Gemma-4 inference run when evaluating multiple languages
+at once.
+
+### One entrypoint, not three
 
 ```bash
-# Install dependencies
-pip install transformers datasets sentencepiece plotly kaleido
+# Single language, full pipeline through judging + report
+modal run modal_app.py::run_pipeline --slug greek
 
-# Run tokenizer evaluation (append mode — skips completed pairs)
-python experiments/tokenizer_test.py --append
+# Single language, inference + light metrics only (skip judge/report)
+modal run modal_app.py::run_pipeline --slug greek --stop-at light_metrics
 
-# Skip baseline models (Gemma-4/BLOOM/mT5), test regional candidates only
-python experiments/tokenizer_test.py --skip-baselines
+# A few languages in parallel
+modal run modal_app.py::run_pipeline --slug arabic,hebrew,amharic
 
-# Evaluate a specific language only
-python experiments/tokenizer_test.py --language Tamil --append
+# All 17 regional models — prints a cost estimate, confirms before launching
+modal run modal_app.py::run_pipeline --slug all
 
-# Regenerate the markdown report
-python experiments/detailed_report.py
+# Resume an existing run — already-completed languages are skipped
+modal run modal_app.py::run_pipeline --slug all --run-id <existing-run-id>
+```
 
-# Regenerate the interactive world map
-python experiments/language_map.py
-# → open docs/language-map.html in a browser
+| Flag | Default | Meaning |
+|---|---|---|
+| `--slug` | `tamil` | one slug, comma-separated list, or `all` |
+| `--stop-at` | `report` | `light_metrics` or `report` |
+| `--task` | `translation` | `translation` or `instructions` |
+| `--limit` | `200` | prompts per language |
+| `--judge-model` | `gemini-3.5-flash` | `gemini-*` or `claude-*` |
+| `--judge-limit` | `50` | prompts judged per language (0 = all) |
+| `--swap-runs` | `2` | position-swap repeats per judged prompt |
+| `--skip-model-metrics` | `True` | skip BERTScore/back-translation (cost control) |
+| `--run-id` | _(generated)_ | resume an existing run |
+
+---
+
+## Metrics catalog
+
+Metrics are auto-discovered by scanning `src/metrics/{translation,instruction,number_verbalization}/`
+for `BaseMetric` subclasses — adding a metric is dropping a file in the right
+subpackage, no registration step. Each metric declares a `compute_tier`
+(`LIGHT` → `LightMetricWorker`, CPU; `MODEL` → `ModelMetricWorker`, GPU) and,
+for instruction metrics, a `category` that the worker uses to filter samples
+before scoring.
+
+### Translation (T1–T5)
+
+| | Metric | Tier | Notes |
+|---|---|---|---|
+| T1 | BLEU | LIGHT | `sacrebleu`, both `en→target` and `target→en` |
+| T2 | chrF | LIGHT | `sacrebleu` |
+| T3 | COMET | MODEL | **Spec'd, not currently implemented** — see [Known issues](#known-issues) |
+| T4 | BERTScore | MODEL | `microsoft/mdeberta-v3-base` |
+| T5 | Back-translation consistency | MODEL | MarianMT round-trip + BLEU; several languages explicitly skipped where no reliable checkpoint exists rather than guessing one |
+
+### Instruction-following (I1–I5)
+
+| | Metric | Tier | Category | Notes |
+|---|---|---|---|---|
+| I1 | Language adherence | LIGHT | (all) | `langdetect`; Māori/Tok Pisin use a vocabulary-marker fallback since `langdetect` doesn't support either |
+| I2 | Length constraint accuracy | LIGHT | `length_constraint` | rule-based, word/sentence counts |
+| I3 | Format compliance | LIGHT | `structured_output` | regex against expected format |
+| I4 | Topic boundary respect | LIGHT | `topic_boundary` | `sentence-transformers` cosine similarity, threshold 0.3 |
+| I5 | Tone/register detection | LIGHT | `tone_style` | rule-based honorific/register markers per language — deliberately not a classifier (see docstring in `tone_register.py`); treat as directional |
+
+### Number verbalization (N1–N8)
+
+All LIGHT tier, all scoped to the `number_verbalization` category: digit-by-digit
+compliance, word-form compliance, digit leakage, digit preservation, currency
+unit accuracy, number-type classification, language of number words,
+mixed-sentence consistency.
+
+### LLM-as-judge
+
+Independent of the metrics above. `JudgeWorker` makes pairwise calls (Gemini or
+Anthropic) comparing the regional model's output against Gemma-4's for the same
+prompt, across 3 dimensions (`fluency`/`adequacy`/`overall` for translation;
+analogous dimensions for instructions), each judged twice with the A/B order
+swapped to control for position bias. Verdicts feed `regional_win_rate`, which
+is the primary signal for classification.
+
+---
+
+## Regional models
+
+17 languages, each with a regional model evaluated against the shared Gemma-4
+baseline:
+
+| Language | Model | GPU | Notes |
+|---|---|---|---|
+| Tamil | `tamil-mistral-7b` | L4 | |
+| Marathi | `mahamarathi-7b` | L4 | base model — no instruct variant |
+| Kannada | `ambari-7b` | L4 | base model — no instruct variant |
+| Gujarati | `gujju-llama-7b` | L4 | base model — no instruct variant |
+| Arabic | `jais-2-8b` | L4 | |
+| Hebrew | `dictalm-2-7b` | L4 | |
+| Korean | `polyglot-ko-12b` | L40S | base model — no instruct variant |
+| Malay | `mallam-5b` | L4 | |
+| Swahili | `swahili-gemma-7b` | L4 | |
+| Amharic | `walia-llm-7b` | L4 | |
+| French | `lucie-7b` | L4 | |
+| Swedish | `viking-7b` | L4 | base model — no instruct variant |
+| Czech | `csmpt-7b` | L4 | base model — no instruct variant |
+| Greek | `meltemi-7b` | L4 | |
+| Brazilian Portuguese | `tucano-2b4` | L4 | |
+| Māori | `goldfish-mri-39m` | T4 | base model — no instruct variant |
+| Tok Pisin | `goldfish-tpi-125m` | T4 | base model — no instruct variant |
+
+Base models receive plain-text prompts (no chat template) since they have no
+instruct variant. Their instruction-following results should be read with that
+in mind — `format_compliance`, `tone_register`, etc. are measuring continuation
+behavior, not instruction-following, for these 8.
+
+---
+
+## Classification scheme
+
+Each language's `final_report.json` entry gets an A–E grade based on
+`regional_win_rate` from the judge (primary signal), refined by other metrics
+where available:
+
+| Grade | Meaning | Win rate |
+|---|---|---|
+| A | Regional superior | > 60% |
+| B | Regional preferred | 50–60% |
+| C | Comparable | 40–60% |
+| D | Gemma-4 preferred | 30–40% |
+| E | Gemma-4 superior | < 30% |
+
+---
+
+## Setup
+
+### Prerequisites
+
+- A [Modal](https://modal.com) account, `modal` CLI installed and authenticated
+- A Gemini API key (free tier works for small `--judge-limit` runs; paid tier
+  recommended for full runs — free tier is rate-limited to ~15 requests/minute)
+
+### Modal secrets
+
+```bash
+modal secret create phase2a-registry-url REGISTRY_URL=<your-registry-url> JWT_TOKEN=<token>
+modal secret create phase2a-auth-secrets JWT_SECRET=<32+ byte secret> HF_TOKEN=<huggingface-token>
+modal secret create phase2a-judge GEMINI_API_KEY=<your-key>
+```
+
+`phase2a-judge` can also carry `ANTHROPIC_API_KEY` if you want to use a
+`claude-*` judge model instead of `gemini-*` — both can coexist in the same
+secret.
+
+### Modal volumes
+
+Created automatically on first use:
+
+| Volume | Mount | Contents |
+|---|---|---|
+| `phase2a-registry` | `/data/registry` | model/hardware/metric/task configs |
+| `phase2a-weights` | `/data/weights` | HuggingFace model cache |
+| `phase2a-benchmarks` | `/data/benchmarks` | FLORES-200 + instruction-following datasets |
+| `phase2a-outputs` | `/data/outputs` | inference outputs, metrics, judge verdicts, reports |
+
+### Local install (registry tests only — the pipeline runs entirely on Modal)
+
+No `requirements.txt` exists yet in this repo. To run the test suite locally:
+
+```bash
+pip install fastapi uvicorn pytest pyjwt httpx pydantic sacrebleu langdetect
+PERSISTENCE_BACKEND=memory pytest tests/ -q
+```
+
+Worth adding a `requirements.txt` or `pyproject.toml` pinning these — none
+currently exists, so versions aren't locked anywhere.
+
+### Deploy
+
+```bash
+modal deploy modal_app.py
+```
+
+This deploys the registry service and exposes its URL — note it down, you'll
+need it for the seed/template scripts below.
+
+---
+
+## Running the pipeline
+
+`scripts/seed_registry.py` and `scripts/fetch_chat_templates.py` are plain
+Python scripts that talk to the deployed registry over HTTP — they are not
+run with `modal run`.
+
+```bash
+# 1. Generate a write-scoped JWT for the registry
+export JWT_TOKEN=$(python scripts/jwt_token_generator.py --secret $JWT_SECRET --scopes registry:write)
+export REGISTRY_URL=https://<your-deployed-registry-url>.modal.run
+
+# 2. Seed the registry with the 17 model configs + hardware + metrics + tasks
+python scripts/seed_registry.py
+
+# 3. Fetch chat templates for instruct-variant models
+#    (registry needs HF_TOKEN in phase2a-auth-secrets for gated repos)
+python scripts/fetch_chat_templates.py
+
+# 4. Try one language first
+modal run modal_app.py::run_pipeline --slug greek --judge-limit 5
+
+# 5. Once that looks right, run a small subset
+modal run modal_app.py::run_pipeline --slug arabic,hebrew,amharic
+
+# 6. Full run — prints a cost estimate and waits for confirmation
+modal run modal_app.py::run_pipeline --slug all
+```
+
+Outputs land in `/data/outputs/runs/{run_id}/`:
+
+```
+runs/{run_id}/
+  gemma4/{task}_outputs.jsonl
+  regional/{slug}_{task}_outputs.jsonl
+  metrics/{metric}_{slug}.jsonl
+  judge/{slug}_{task}_verdicts.jsonl
+  reports/
+    final_report.json        # all languages run so far, this run_id
+    {slug}_summary.md         # single-language run
+    phase5_summary.md         # multi-language run
+  run_manifest.json
 ```
 
 ---
 
-## Interactive World Map
+## Registry API
 
-Open `docs/viz/language-map.html` in any browser for the full interactive visualization:
+FastAPI service deployed via Modal, exposing:
 
-- **Choropleth map** — 163 countries colored by best LLM for their primary language
-- **India state layer** — 24 states colored by state language (Tamil Nadu, Karnataka, etc.)
-- **Click any country** → sidebar with 7-metric comparison table and delta %
-- **Region filters** — Indic, Middle East, East Asia, SEA, Africa, Europe, Americas, Oceania
-- **Stats popovers** — click "17 Candidates Beat Gemma-4" or "64 Languages Tested" to see full lists
+| Resource | Endpoints |
+|---|---|
+| Models | `GET/POST /models`, `GET/PATCH /models/{id}`, `PATCH /models/{id}/{enable,disable,deprecate}`, `POST /models/{id}/fetch-chat-template` |
+| Hardware | `GET/POST /hardware`, `GET/PATCH /hardware/{id}` |
+| Metrics | `GET/POST /metrics`, `GET/PATCH /metrics/{name}` |
+| Tasks | `GET /tasks`, `GET/PATCH /tasks/{name}` |
+| Runs | `GET/POST /runs`, `GET /runs/{id}` |
+| Health | `GET /health` |
 
----
-
-## Adding a New Language / Candidate
-
-1. Add an entry to `CANDIDATES` in `experiments/tokenizer_test.py`:
-   ```python
-   "YourLanguage": ("org/model-name-on-huggingface", False),
-   ```
-2. Add the language → country mapping in `experiments/language_map.py` (`LANG_COUNTRIES` dict)
-3. Run: `python experiments/tokenizer_test.py --language YourLanguage --append`
-4. Regenerate the report and map
+All mutating endpoints require a JWT bearer token with the appropriate scope
+(`registry:read` / `registry:write`). Model state transitions (`active` →
+`disabled`/`deprecated`) are validated by `src/core/services/state_machine.py`
+— a separate, smaller state machine from the evaluation pipeline's; `deprecated`
+is terminal.
 
 ---
 
-## Tech Stack
+## Repository layout
 
-| Component | Tool |
-|-----------|------|
-| Corpus | FLORES-200 (`facebook/flores`, devtest split) |
-| Baseline LLM | Gemma-4 26B A4B IT (`google/gemma-4-27b-it` tokenizer) |
-| Secondary baselines | BLOOM (`bigscience/bloom`), mT5 (`google/mt5-base`) |
-| ML framework | HuggingFace `transformers` + `datasets` |
-| Visualization | Plotly (choropleth + GeoJSON) |
-| Map image export | Kaleido |
+```
+modal_app.py              Modal app — worker registrations, run_pipeline entrypoint
+modal_common.py            Volumes, images, GPU presets
+
+src/
+  main.py                  FastAPI app
+  deps.py                  PERSISTENCE_BACKEND dependency wiring
+
+  core/
+    domain/                ModelConfig, HardwareConfig, MetricConfig, TaskConfig
+    ports/                 RegistryStore protocol
+    services/
+      registry_service.py  business logic, depends only on the port
+      state_machine.py      model lifecycle transitions (active/disabled/deprecated)
+
+  adapters/persistence/
+    volume_store.py         production: Modal volume-backed
+    memory_store.py         tests: in-memory
+
+  api/
+    routes.py                all registry endpoints
+    auth.py                  JWT verification
+    schemas.py               Pydantic request/response models
+
+  pipeline/
+    state_machine.py         the evaluation pipeline state machine
+    entrypoints.py           run_pipeline() — the one entrypoint
+    report_render.py         markdown report renderer
+    loader.py                 benchmark sample loading
+    run.py                    path helpers, manifest I/O
+
+  workers/
+    inference.py              VLLMWorker (no src/ imports — see note below)
+    light_metrics.py           LightMetricWorker, auto-discovery
+    model_metrics.py           ModelMetricWorker, auto-discovery
+    judge.py                   JudgeWorker — Gemini/Anthropic pairwise judge
+    reporter.py                ReportGenerator, classification logic
+
+  metrics/
+    translation/               T1–T5
+    instruction/                I1–I5
+    number_verbalization/       N1–N8
+    base.py                     BaseMetric, ComputeTier, MetricStage
+
+scripts/
+  seed_registry.py             populates the 17 model configs
+  fetch_chat_templates.py      pulls chat templates for instruct models
+  jwt_token_generator.py       generates JWTs for manual API testing
+
+tests/                         136 tests, run with PERSISTENCE_BACKEND=memory
+```
+
+`src/workers/inference.py` deliberately does not import anything from the rest
+of `src/` — the vLLM Modal image doesn't have the registry package installed,
+so it re-declares the small subset of `ModelConfig` fields it needs as a local
+`_ModelInfo` dataclass and talks to the registry over plain HTTP.
 
 ---
 
-## Project Context
+## Testing
 
-Part of the Falcon Language Support initiative for Flam AI's Talking Avatar product. The goal is to identify the best LLM per target language for the full pipeline: STT (Whisper) → LLM → TTS.
+```bash
+PERSISTENCE_BACKEND=memory pytest tests/ -q
+```
 
-### Research Roadmap
+136 tests across registry CRUD, auth/JWT scopes, model state transitions, path
+helpers, manifest I/O, the evaluation state machine, and metric correctness
+(including the `applies_to()` category-filtering contract — see below).
 
-| Phase | Status | Description |
-|-------|--------|-------------|
-| Tokenizer Evaluation | ✅ Complete | Benchmark 63 languages — 17 regional candidates beat Gemma-4 |
-| Qualitative Validation | 🔜 Next | Validate the 17 winners on translation + instruction following (1000 samples/language/task) |
-| Whisper Fine-tuning | Planned | Improve STT accuracy per language using confirmed winning LLMs |
-| Cross-language Validation | Planned | Prevent catastrophic forgetting across languages during fine-tuning |
+Light-tier metric tests run with the real `sacrebleu`/`langdetect` packages
+installed; GPU-tier metrics (BERTScore, back-translation) and `sentence-transformers`-based
+metrics (topic boundary) are not covered by the test suite — they require
+real model downloads and are exercised manually against live runs instead.
 
-### Qualitative Validation Methodology
+---
 
-For each of the 17 tokenizer winners, two tasks are evaluated head-to-head against Gemma-4 26B A4B IT:
+## Known issues
 
-**Translation** (English ↔ target language, ~1000 samples from FLORES-200)
-- Automated: BLEU, chrF, COMET, BERTScore, back-translation consistency
-- LLM-as-judge: head-to-head blind comparison
-
-**Instruction Following** (~1000 Talking Avatar domain prompts)
-- Categories: tone/style, length constraints, language compliance, topic boundaries, structured output
-- Automated: language adherence rate, format compliance, length accuracy, keyword constraints
-- LLM-as-judge: head-to-head blind comparison
-
-See `docs/plans/task1b-qualitative-llm-validation.md` for full dataset spec and metric definitions.
+- **COMET (T3) has no working implementation.** `src/metrics/translation/comet.py`
+  is a duplicate of `src/workers/model_metrics.py`'s content at the wrong path
+  — it defines `ModelMetricWorker` and discovery logic again, not a
+  `COMETMetric` class. `ModelMetricWorker`'s auto-discovery will find
+  `BERTScoreMetric` and `BackTranslationMetric` but never a COMET metric.
+  Needs a real `COMETMetric(BaseMetric)` written and placed in that file.
+- **`modal_common.py` packaging has been inconsistent across exports** — verify
+  before deploying that it actually contains volume mounts, image definitions,
+  and `build_registry_config`/`env_config`, not a duplicate of `modal_app.py`.
+- **`src/workers/judge.py` has had duplicate class definitions appear in past
+  versions** of this file (two full `JudgeWorker` classes in one file, the
+  second silently shadowing the first with stale defaults). Worth a one-time
+  check (`grep -c "class JudgeWorker" src/workers/judge.py` should print `1`)
+  before relying on judge behavior matching what's documented here.
+- **Back-translation (T5) has no checkpoint for Malay, Swahili, Brazilian
+  Portuguese, or Tok Pisin.** The metric explicitly skips these and records
+  why in `MetricResult.notes`, rather than guessing a multilingual fallback
+  model that could produce a misleadingly low score. Korean's mapped
+  checkpoint (`opus-mt-ko-en`) was not independently verified at
+  implementation time.
+- **Tone/register detection (I5) is a rule-based heuristic**, not a trained
+  classifier, and coverage is asymmetric across languages — some have
+  well-documented formal/informal lexical splits, others have weak or no
+  reliable markers. Treat I5 scores as directional.
+- **`test_discover_finds_all_13_light_metrics`** in `tests/test_metrics.py`
+  predates I4/I5 and only asserts a subset relationship (`missing = expected - names`),
+  so it would not catch a regression in `topic_boundary` or `tone_register`
+  discovery. Worth adding explicit assertions for both.
