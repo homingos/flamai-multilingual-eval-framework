@@ -160,7 +160,7 @@ class LightMetricWorkerModal(_LightMetricWorker):
 
 
 @app.cls(image=model_metrics_image, gpu="L4", cpu=2, memory=16384, timeout=3600,
-         secrets=[_registry_secret], volumes=VOLUME_MOUNTS)
+         secrets=[_registry_secret, _auth_secret], volumes=VOLUME_MOUNTS)
 class ModelMetricWorkerModal(_ModelMetricWorker):
     @modal.method()
     def score(self, run_id, slug, task, language, model_id=""):
