@@ -44,7 +44,11 @@ Two subsystems share one Modal app and one set of volumes:
 │  │       └─ InMemoryRegistryStore (tests)              │    │
 │  └─────────────────────────────────────────────────────┘    │
 │                                                             │
+<<<<<<< Updated upstream
 │  ─────────── shared Modal volumes ──────────                │
+=======
+│  ─────────── shared Modal volumes ───────────               │
+>>>>>>> Stashed changes
 │  registry · weights · benchmarks · outputs                  │
 │                                                             │
 │  ┌─────────────────────────────────────────────────────┐    │
@@ -54,7 +58,11 @@ Two subsystems share one Modal app and one set of volumes:
 │  │    → state_machine.advance()                        │    │
 │  │      PENDING → INFERENCE → LIGHT_METRICS            │    │
 │  │              → MODEL_METRICS → JUDGE → REPORT → DONE│    │
+<<<<<<< Updated upstream
 │  │                          ↘ FAILED (from any state   │    │
+=======
+│  │                          ↘ FAILED (from any state)  │    │
+>>>>>>> Stashed changes
 │  │                                                     │    │
 │  │  Workers: VLLMWorker · LightMetricWorker ·          │    │
 │  │  ModelMetricWorker · JudgeWorker · ReportGenerator  │    │
@@ -418,6 +426,7 @@ so it re-declares the small subset of `ModelConfig` fields it needs as a local
 PERSISTENCE_BACKEND=memory pytest tests/ -q
 ```
 
+<<<<<<< Updated upstream
 136 tests across registry CRUD, auth/JWT scopes, model state transitions, path
 helpers, manifest I/O, the evaluation state machine, and metric correctness
 (including the `applies_to()` category-filtering contract — see below).
@@ -426,11 +435,28 @@ Light-tier metric tests run with the real `sacrebleu`/`langdetect` packages
 installed; GPU-tier metrics (BERTScore, back-translation) and `sentence-transformers`-based
 metrics (topic boundary) are not covered by the test suite — they require
 real model downloads and are exercised manually against live runs instead.
+=======
+148 tests across registry CRUD, auth/JWT scopes, model state transitions, path
+helpers, manifest I/O, the evaluation state machine, metric correctness
+(including the `applies_to()` category-filtering contract and exact-set
+discovery checks for both LIGHT and MODEL tiers), and `JudgeWorker` structural
+integrity (`tests/test_judge.py` — see Known issues below for why this exists).
+
+Light-tier metric tests run with the real `sacrebleu`/`langdetect` packages
+installed and exercise `compute()` against real sample data. GPU-tier metrics
+(COMET, BERTScore, back-translation) and `sentence-transformers`-based metrics
+(topic boundary) are covered by discovery and tier-classification tests only
+— `test_discover_finds_all_3_model_metrics` confirms all three MODEL-tier
+classes are found, but their `compute()` methods require real model
+downloads and aren't exercised by the automated suite; numerical correctness
+against real checkpoints is verified manually against live runs instead.
+>>>>>>> Stashed changes
 
 ---
 
 ## Known issues
 
+<<<<<<< Updated upstream
 - **COMET (T3) has no working implementation.** `src/metrics/translation/comet.py`
   is a duplicate of `src/workers/model_metrics.py`'s content at the wrong path
   — it defines `ModelMetricWorker` and discovery logic again, not a
@@ -459,3 +485,31 @@ real model downloads and are exercised manually against live runs instead.
   predates I4/I5 and only asserts a subset relationship (`missing = expected - names`),
   so it would not catch a regression in `topic_boundary` or `tone_register`
   discovery. Worth adding explicit assertions for both.
+=======
+These have been fixed and now have regression tests guarding them — listed
+here so the history and the test coverage are visible, not because they're
+currently broken:
+
+Still open:
+
+- **`modal_common.py` packaging has been inconsistent across exports** — at
+  least one export of this repo had `modal_common.py` containing a near-copy
+  of `modal_app.py`'s content instead of the volume mounts, image
+  definitions, GPU presets, and `build_registry_config`/`env_config` it's
+  supposed to contain. There's no automated check for this — verify before
+  deploying that `vllm_image`, `model_metrics_image`, `judge_image`,
+  `VOLUME_MOUNTS`, `build_registry_config`, and `env_config` are all actually
+  *defined* in `modal_common.py`, not just imported successfully (an import
+  succeeding doesn't mean the names resolve to the right objects if the
+  file itself was swapped). Worth adding a `tests/test_modal_common.py`
+  that imports these names and asserts their types.
+- **Back-translation (T5) has no checkpoint for Malay, Swahili, Brazilian
+  Portuguese, or Tok Pisin.** The metric explicitly skips these and records
+  why in `MetricResult.notes`, rather than guessing a multilingual fallback
+  model that could produce a misleadingly low score.
+- **Tone/register detection (I5) is a rule-based heuristic**, not a trained
+  classifier, and coverage is asymmetric across languages — some have
+  well-documented formal/informal lexical splits, others have weak or no
+  reliable markers. Treat I5 scores as directional. This is a deliberate
+  design choice (see the docstring in `tone_register.py`), not a bug.
+>>>>>>> Stashed changes
