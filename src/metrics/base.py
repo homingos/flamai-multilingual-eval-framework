@@ -67,10 +67,24 @@ class BaseMetric(abc.ABC):
         """
 
     def applies_to(self, task: str, category: Optional[str] = None) -> bool:
-        """Returns True if this metric should run for the given task and category."""
+        """
+        Returns True if this metric should run for the given task.
+
+        category is optional and used two different ways depending on caller:
+          - Pass a specific category to check exact match against self.category
+            (e.g. "does this metric apply to THIS sample's category?").
+          - Omit it (default None) to check task-level applicability only —
+            this is what LightMetricWorker does, since it performs its own
+            category filtering on the output list afterward rather than
+            asking applies_to to do it. Without this distinction, every
+            category-scoped metric (format_compliance, currency_unit,
+            topic_boundary, tone_register, ...) would be silently skipped
+            by any caller that doesn't pass category — which is exactly
+            what happened before this fix.
+        """
         task_ok = "all" in self.task_types or task in self.task_types
         if not task_ok:
             return False
-        if self.category is not None and category != self.category:
+        if category is not None and self.category is not None and category != self.category:
             return False
         return True

@@ -4,7 +4,7 @@ Phase 2A — Modal application entrypoint.
 Worker registrations + entrypoints only. All pipeline logic lives in:
   src/pipeline/state_machine.py  — the state machine (PENDING→...→DONE/FAILED)
   src/pipeline/entrypoints.py    — compare_one / evaluate_one / evaluate_many
-  src/pipeline/phase5_report.py  — markdown summary generator
+  src/pipeline/report_render.py  — markdown summary generator
 
 There is one pipeline, not three. "Phase 3/4/5" are just different
 (stop_at state, fan-out size) combinations of the same state machine:
