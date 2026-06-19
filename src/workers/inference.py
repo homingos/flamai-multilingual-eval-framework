@@ -270,6 +270,7 @@ class VLLMWorker:
                         sample["id"], total_completed,
                     )
 
+        modal.Volume.from_name("phase2a-outputs").commit()
         return results
 
     def _safe_chat(self, conversations: list, sampling_params) -> list:
