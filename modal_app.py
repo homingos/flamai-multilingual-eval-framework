@@ -56,7 +56,7 @@ _inference_secrets = [_registry_secret, _auth_secret]
 metrics_image = (
     modal.Image.debian_slim(python_version="3.11")
     .apt_install("curl")
-    .pip_install("sacrebleu", "langdetect")
+    .pip_install("sacrebleu", "langdetect", "sentence-transformers", "numpy")
     .add_local_dir("src",              remote_path="/root/src")
     .add_local_file("modal_app.py",    remote_path="/root/modal_app.py")
     .add_local_file("modal_common.py", remote_path="/root/modal_common.py")
@@ -315,6 +315,11 @@ def run_pipeline(slug="tamil", stop_at="report", task="translation", limit=200,
     """
     from src.pipeline.entrypoints import estimate_cost
     from src.pipeline.run import generate_run_id
+
+    limit              = int(limit)
+    judge_limit        = int(judge_limit)
+    swap_runs          = int(swap_runs)
+    skip_model_metrics = str(skip_model_metrics).lower() not in ("false", "0", "no")
 
     slugs = [] if slug == "all" else [s.strip() for s in slug.split(",") if s.strip()]
     specs = [s for s in ALL_MODELS if not slugs or s.slug in slugs]
