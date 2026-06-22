@@ -197,10 +197,12 @@ def build_instruction_prompt(sample: dict) -> tuple[str, str]:
     """
     Returns (system_prompt, user_prompt) for an instruction sample.
 
-    System prompt is sample["system_instruction"].
-    User prompt is sample["user_prompt"].
+    System prompt is sample["system_instruction"] (English, set by developer).
+    User prompt is sample["user_prompt_localized"] if present (target language),
+    otherwise falls back to sample["user_prompt"] (English).
     """
-    return sample["system_instruction"], sample["user_prompt"]
+    user_prompt = sample.get("user_prompt_localized") or sample["user_prompt"]
+    return sample["system_instruction"], user_prompt
 
 
 def build_prompt(task: str, sample: dict) -> tuple[str, str]:
