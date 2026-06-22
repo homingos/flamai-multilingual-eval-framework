@@ -81,13 +81,13 @@ model_metrics_image = (
     )
     .apt_install("curl")
     .pip_install(
-        "torch",
+        "torch>=2.6.0",
         "transformers",
-        "unbabel-comet",
         "bert-score",
         "huggingface_hub",
-        "sacrebleu",      # T5 back_translation — scores the round-trip
-        "sentencepiece",  # T5 back_translation — required by MarianTokenizer
+        "sacrebleu",           # T5 back_translation — scores the round-trip
+        "sentencepiece",       # T5 back_translation — required by MarianTokenizer
+        "unbabel-comet>=2.2.0", # COMET — requires >=2.2.0 so jsonargparse>=4 is used (no conflict)
     )
     .add_local_dir("src", remote_path="/root/src")
     .add_local_file("modal_app.py",    remote_path="/root/modal_app.py")

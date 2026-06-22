@@ -42,17 +42,21 @@ class BERTScoreMetric(BaseMetric):
             if not subset:
                 continue
             try:
+                from bert_score import BERTScorer
                 hyps = [o["output"] or "" for o in subset]
                 refs = [o["reference"] for o in subset]
-                # Use multilingual model; rescale_with_baseline=True normalises scores
-                P, R, F1 = bert_score(
-                    hyps, refs,
+
+                scorer = BERTScorer(
                     model_type="microsoft/mdeberta-v3-base",
-                    lang=None,
-                    rescale_with_baseline=False,
                     device="cuda",
-                    verbose=False,
+                    rescale_with_baseline=False,
                 )
+                # mdeberta-v3-base tokenizer has model_max_length = 10^30 by default
+                # which overflows the Rust tokenizer's C size_t. Cap it at the model's
+                # actual max sequence length.
+                scorer._tokenizer.model_max_length = 512
+
+                P, R, F1 = scorer.score(hyps, refs, batch_size=32, verbose=False)
                 scores[f"bertscore_f1_{direction_key}"] = round(float(F1.mean()), 4)
                 scores[f"bertscore_p_{direction_key}"]  = round(float(P.mean()),  4)
                 scores[f"bertscore_r_{direction_key}"]  = round(float(R.mean()),  4)

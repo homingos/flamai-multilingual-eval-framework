@@ -170,7 +170,7 @@ def _do_light_metrics(ctx: RunContext, lr: LanguageRun) -> bool:
     rh = mw.score.spawn(run_id=ctx.run_id, slug=spec.slug,   task=ctx.task,
                         language=spec.language, model_id=spec.model_id)
     gh = mw.score.spawn(run_id=ctx.run_id, slug="baseline",  task=ctx.task,
-                        language="Baseline",   model_id="gemma-4-26b")
+                        language=spec.language, model_id="gemma-4-26b")
 
     reg_scores = rh.get()
     gh.get()
@@ -192,7 +192,7 @@ def _do_model_metrics(ctx: RunContext, lr: LanguageRun) -> bool:
     rh = mm.score.spawn(run_id=ctx.run_id, slug=spec.slug,   task=ctx.task,
                         language=spec.language, model_id=spec.model_id)
     gh = mm.score.spawn(run_id=ctx.run_id, slug="baseline",  task=ctx.task,
-                        language="Baseline",   model_id="gemma-4-26b")
+                        language=spec.language, model_id="gemma-4-26b")
 
     print(f"[{spec.slug}] MODEL_METRICS — regional: {rh.get()}  gemma4: {gh.get()}")
     _modal.Volume.from_name("phase2a-outputs").reload()

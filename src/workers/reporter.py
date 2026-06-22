@@ -81,23 +81,29 @@ class ReportGenerator:
         )
 
         # ── Load light metrics ───────────────────────────────────────────────
-        light_metrics = {}
-        model_metrics = {}
+        regional_light: dict = {}
+        regional_model: dict = {}
+        baseline_light: dict = {}
+        baseline_model: dict = {}
 
         metrics_dir = os.path.join(run_dir(run_id), "metrics")
         if os.path.isdir(metrics_dir):
-            for fname in os.listdir(metrics_dir):
+            for fname in sorted(os.listdir(metrics_dir)):
                 if not fname.endswith(".jsonl"):
                     continue
+                is_baseline = fname.endswith("_baseline.jsonl")
                 fpath = os.path.join(metrics_dir, fname)
                 records = _load_jsonl(fpath)
                 for rec in records:
-                    mname = rec.get("metric", fname.replace(".jsonl", ""))
-                    # Determine tier by metric name prefix
+                    mname  = rec.get("metric", "")
+                    scores = rec.get("scores") or {}
+                    if not mname or not scores:
+                        continue
                     if mname in ("comet", "bertscore"):
-                        model_metrics[mname] = rec.get("scores", {})
+                        target = baseline_model if is_baseline else regional_model
                     else:
-                        light_metrics[mname] = rec.get("scores", {})
+                        target = baseline_light if is_baseline else regional_light
+                    target[mname] = scores
 
         # ── Load judge verdicts ──────────────────────────────────────────────
         vpath    = judge_path(run_id, slug, task)
@@ -106,8 +112,9 @@ class ReportGenerator:
 
         # ── Classify ─────────────────────────────────────────────────────────
         classification, rationale = _classify(
-            light_metrics=light_metrics,
-            model_metrics=model_metrics,
+            light_metrics=regional_light,
+            model_metrics_regional=regional_model,
+            model_metrics_baseline=baseline_model,
             judge_summary=judge_summary,
         )
 
@@ -121,14 +128,24 @@ class ReportGenerator:
                     "regional_model": regional_model_id,
                     "tasks": {
                         task: {
-                            "light_metrics": light_metrics,
-                            "model_metrics": model_metrics,
+                            "light_metrics": regional_light,
+                            "model_metrics": regional_model,
                             "judge":         judge_summary,
                         }
                     },
                     "classification":           classification,
                     "classification_rationale": rationale,
-                }
+                },
+                "baseline": {
+                    "language":       "Baseline",
+                    "regional_model": "gemma-4-26b",
+                    "tasks": {
+                        task: {
+                            "light_metrics": baseline_light,
+                            "model_metrics": baseline_model,
+                        }
+                    },
+                },
             },
         }
 
@@ -181,30 +198,39 @@ def load_report(run_id: str) -> dict:
 def get_language_summary(report: dict, slug: str, task: str = "translation") -> dict:
     """
     Extracts the fields a presentation layer needs for one language:
-    BLEU (regional + gemma4), judge win rate, classification, rationale.
-    Centralizes the field-extraction logic that used to be duplicated
-    in the old per-renderer field-extraction code.
+    regional and Gemma-4 values for all metrics, plus judge win rates and grade.
     """
     lang_data = report.get("languages", {}).get(slug, {})
     tasks     = lang_data.get("tasks", {})
     task_data = tasks.get(task) or (next(iter(tasks.values()), {}) if tasks else {})
 
     light = task_data.get("light_metrics", {})
+    model = task_data.get("model_metrics", {})
     judge = task_data.get("judge", {})
 
     baseline_data = report.get("languages", {}).get("baseline", {})
     bl_tasks      = baseline_data.get("tasks", {})
     bl_task       = bl_tasks.get(task) or (next(iter(bl_tasks.values()), {}) if bl_tasks else {})
-    bleu_gemma4   = (bl_task.get("light_metrics", {}).get("bleu") or {}).get("bleu_en_to_target")
+    bl_light      = bl_task.get("light_metrics", {})
+    bl_model      = bl_task.get("model_metrics", {})
 
     return {
-        "language":               lang_data.get("language", slug),
-        "regional_model":         lang_data.get("regional_model", ""),
-        "bleu_regional":          (light.get("bleu") or {}).get("bleu_en_to_target"),
-        "bleu_gemma4":            bleu_gemma4,
-        "judge_win_rate":         judge.get("regional_win_rate"),
-        "classification":         lang_data.get("classification", "?"),
-        "classification_rationale": lang_data.get("classification_rationale", ""),
+        "language":                  lang_data.get("language", slug),
+        "regional_model":            lang_data.get("regional_model", ""),
+        "bleu_regional":             (light.get("bleu") or {}).get("bleu_en_to_target"),
+        "bleu_gemma4":               (bl_light.get("bleu") or {}).get("bleu_en_to_target"),
+        "chrf_regional":             (light.get("chrf") or {}).get("chrf_en_to_target"),
+        "chrf_gemma4":               (bl_light.get("chrf") or {}).get("chrf_en_to_target"),
+        "bertscore_f1_regional":     (model.get("bertscore") or {}).get("bertscore_f1_en_to_target"),
+        "bertscore_f1_gemma4":       (bl_model.get("bertscore") or {}).get("bertscore_f1_en_to_target"),
+        "comet_regional":            (model.get("comet") or {}).get("comet_en_to_target"),
+        "comet_gemma4":              (bl_model.get("comet") or {}).get("comet_en_to_target"),
+        "back_translation_regional": (model.get("back_translation") or {}).get("back_translation_bleu"),
+        "back_translation_gemma4":   (bl_model.get("back_translation") or {}).get("back_translation_bleu"),
+        "judge_win_rate":            judge.get("regional_win_rate"),
+        "gemma4_win_rate":           judge.get("gemma4_win_rate"),
+        "classification":            lang_data.get("classification", "?"),
+        "classification_rationale":  lang_data.get("classification_rationale", ""),
     }
 
 
@@ -279,7 +305,8 @@ def _summarize_verdicts(verdicts: List[dict]) -> dict:
 
 def _classify(
     light_metrics: dict,
-    model_metrics: dict,
+    model_metrics_regional: dict,
+    model_metrics_baseline: dict,
     judge_summary: dict,
 ) -> tuple[str, str]:
     """
@@ -290,8 +317,8 @@ def _classify(
     Fallback to BLEU/chrF if neither judge nor COMET available.
     """
     win_rate = judge_summary.get("regional_win_rate")
-    comet_r  = _get_comet(model_metrics, "regional")
-    comet_g  = _get_comet(model_metrics, "gemma4")
+    comet_r  = _get_comet(model_metrics_regional)
+    comet_g  = _get_comet(model_metrics_baseline)
     comet_delta = (comet_r - comet_g) if (comet_r is not None and comet_g is not None) else None
 
     # ── Judge-based classification ─────────────────────────────────────────
@@ -352,12 +379,8 @@ def _classify(
     return "C", "Insufficient signal to classify — no judge verdicts, COMET, or BLEU available"
 
 
-def _get_comet(model_metrics: dict, model_role: str) -> Optional[float]:
-    """
-    Extracts an average COMET score from the model_metrics dict.
-    model_role: 'regional' or 'gemma4' — not actually used since we load
-    separate metric files per model; just returns the mean COMET score.
-    """
+def _get_comet(model_metrics: dict) -> Optional[float]:
+    """Extracts the mean COMET score from a model's metric dict."""
     comet_scores = model_metrics.get("comet", {})
     if not comet_scores:
         return None

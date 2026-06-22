@@ -114,6 +114,8 @@ class ModelMetricWorker:
                 results[metric.name] = result
                 _write_result(run_id, metric.name, slug, result)
                 print(f"[ModelMetricWorker] {metric.name} → {result.scores}")
+                if result.errors:
+                    print(f"[ModelMetricWorker] {metric.name} errors: {result.errors}")
             except Exception as exc:
                 print(f"[ModelMetricWorker] {metric.name} failed: {exc}")
 

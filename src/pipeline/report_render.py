@@ -74,8 +74,8 @@ def render_markdown(
     lines += [
         "## Results",
         "",
-        "| Language | Model | BLEU (regional) | BLEU (Gemma-4) | Judge win rate | Grade | Notes |",
-        "|----------|-------|:-:|:-:|:-:|:-:|-------|",
+        "| Language | Model | BLEU R/G | chrF R/G | BERTScore F1 R/G | COMET R/G | Win Rate | Grade | Notes |",
+        "|----------|-------|:-:|:-:|:-:|:-:|:-:|:-:|-------|",
     ]
     for slug, r in sorted(results.items(), key=lambda kv: kv[1].get("language", "")):
         lines.append(_render_result_row(r))
@@ -103,9 +103,18 @@ def _render_result_row(r: dict) -> str:
     model = r.get("regional_model", "")
     grade = r.get("classification", "?")
 
-    bleu_reg = f"{r['bleu_regional']:.2f}"  if r.get("bleu_regional")  is not None else "—"
-    bleu_gem = f"{r['bleu_gemma4']:.2f}"    if r.get("bleu_gemma4")    is not None else "—"
-    win_rate = f"{r['judge_win_rate']:.0%}" if r.get("judge_win_rate") is not None else "—"
+    def _pair(reg_key, gem_key, fmt="{:.2f}"):
+        reg = r.get(reg_key)
+        gem = r.get(gem_key)
+        reg_s = fmt.format(reg) if reg is not None else "—"
+        gem_s = fmt.format(gem) if gem is not None else "—"
+        return f"{reg_s} / {gem_s}"
+
+    bleu_col  = _pair("bleu_regional",         "bleu_gemma4")
+    chrf_col  = _pair("chrf_regional",          "chrf_gemma4")
+    bert_col  = _pair("bertscore_f1_regional",  "bertscore_f1_gemma4", fmt="{:.4f}")
+    comet_col = _pair("comet_regional",         "comet_gemma4",         fmt="{:.4f}")
+    win_rate  = f"{r['judge_win_rate']:.0%}" if r.get("judge_win_rate") is not None else "—"
 
     notes = []
     if model in BASE_MODELS:
@@ -113,7 +122,8 @@ def _render_result_row(r: dict) -> str:
     if grade == "?":
         notes.append("failed")
 
-    return f"| {lang} | `{model}` | {bleu_reg} | {bleu_gem} | {win_rate} | **{grade}** | {', '.join(notes)} |"
+    return (f"| {lang} | `{model}` | {bleu_col} | {chrf_col} | {bert_col} | "
+            f"{comet_col} | {win_rate} | **{grade}** | {', '.join(notes)} |")
 
 
 def _render_key_findings(results: dict) -> list[str]:
