@@ -66,6 +66,7 @@ def _translate(text: str, target_language: str, api_key: str, max_retries: int =
     """
     Calls Gemini to translate text → target_language.
     Returns the translation, or the original text on repeated failure.
+    Checks finishReason to detect MAX_TOKENS truncation and retries.
     """
     url = (
         "https://generativelanguage.googleapis.com/v1beta/models/"
@@ -77,7 +78,7 @@ def _translate(text: str, target_language: str, api_key: str, max_retries: int =
     )
     payload = json.dumps({
         "contents": [{"role": "user", "parts": [{"text": prompt}]}],
-        "generationConfig": {"temperature": 0.1, "maxOutputTokens": 256},
+        "generationConfig": {"temperature": 0.1, "maxOutputTokens": 1024},
     }).encode()
 
     for attempt in range(max_retries):
@@ -89,15 +90,38 @@ def _translate(text: str, target_language: str, api_key: str, max_retries: int =
             )
             with urllib.request.urlopen(req, timeout=30) as resp:
                 body = json.loads(resp.read())
-            return body["candidates"][0]["content"]["parts"][0]["text"].strip()
+
+            candidate = body["candidates"][0]
+            finish_reason = candidate.get("finishReason", "STOP")
+            result = candidate["content"]["parts"][0]["text"].strip()
+
+            if finish_reason == "MAX_TOKENS":
+                # Still truncated — short pause then retry (no exponential backoff)
+                time.sleep(1)
+                continue
+
+            return result
         except Exception as exc:
             if attempt < max_retries - 1:
-                time.sleep(2 ** attempt)
+                time.sleep(1)
             else:
                 print(f"  [translate] failed after {max_retries} attempts: {exc}")
                 return text  # fallback: keep English
 
-    return text
+    # All retries hit MAX_TOKENS — return whatever we got last
+    return result if "result" in dir() else text
+
+
+def _is_truncated(localized: str, original: str) -> bool:
+    """
+    Heuristic: a translation is likely truncated if it ends without
+    terminal punctuation and is much shorter than the original.
+    """
+    if not localized:
+        return True
+    ends_ok = localized[-1] in ".?!؟।。？！"
+    too_short = len(localized) < len(original) * 0.6
+    return not ends_ok and too_short
 
 
 # ── Modal function ─────────────────────────────────────────────────────────────
@@ -106,7 +130,7 @@ def _translate(text: str, target_language: str, api_key: str, max_retries: int =
     image=translate_image,
     secrets=[judge_secret],
     volumes={"/data/benchmarks": benchmarks_volume},
-    timeout=3600,
+    timeout=7200,
 )
 def translate_slug(slug: str) -> int:
     """
@@ -135,24 +159,33 @@ def translate_slug(slug: str) -> int:
 
     print(f"[{slug}] {len(samples)} samples, language={language}")
 
-    # ── Translate missing samples ─────────────────────────────────────────────
+    # ── Translate missing or truncated samples ────────────────────────────────
     new_count = 0
     for i, sample in enumerate(samples):
-        if sample.get("user_prompt_localized"):
-            continue  # already translated — skip
+        existing = sample.get("user_prompt_localized", "")
+        if existing and not _is_truncated(existing, sample["user_prompt"]):
+            continue  # already translated and looks complete — skip
+
+        if existing:
+            print(f"  [{slug}] re-translating truncated sample {i+1}: {repr(existing[:40])}")
 
         translated = _translate(sample["user_prompt"], language, api_key)
         sample["user_prompt_localized"] = translated
         new_count += 1
 
-        if (i + 1) % 100 == 0:
-            print(f"  [{slug}] {i + 1}/{len(samples)} — {new_count} new")
+        time.sleep(0.3)  # gentle rate limiting
 
-        time.sleep(0.15)  # gentle rate limiting
+        # Checkpoint every 200 samples so progress is not lost on timeout
+        if (i + 1) % 200 == 0:
+            with open(path, "w", encoding="utf-8") as f:
+                for s in samples:
+                    f.write(json.dumps(s, ensure_ascii=False) + "\n")
+            benchmarks_volume.commit()
+            print(f"  [{slug}] {i + 1}/{len(samples)} — {new_count} new/fixed (checkpoint saved)")
 
-    print(f"[{slug}] {new_count} new translations (skipped {len(samples) - new_count} existing)")
+    print(f"[{slug}] {new_count} new/fixed translations (skipped {len(samples) - new_count} existing)")
 
-    # ── Write back ────────────────────────────────────────────────────────────
+    # ── Final write ───────────────────────────────────────────────────────────
     with open(path, "w", encoding="utf-8") as f:
         for sample in samples:
             f.write(json.dumps(sample, ensure_ascii=False) + "\n")
@@ -168,19 +201,43 @@ def translate_slug(slug: str) -> int:
 def main(slug: str = "greek"):
     """
     Args:
-      --slug greek   translate one language
-      --slug all     translate all 17 languages (sequential)
+      --slug greek           translate one language
+      --slug greek,tamil     translate a comma-separated subset in parallel
+      --slug all             translate all 17 languages in parallel
     """
     if slug == "all":
         slugs = sorted(SLUG_TO_LANGUAGE.keys())
     else:
-        slugs = [slug]
+        slugs = [s.strip() for s in slug.split(",")]
 
-    total = 0
+    if len(slugs) == 1:
+        # Single language — run directly
+        count = translate_slug.remote(slugs[0])
+        print(f"Done — {count} translations for {slugs[0]}")
+        return
+
+    # Multiple languages — spawn all in parallel, poll for completion
+    print(f"Spawning {len(slugs)} languages in parallel...")
+    handles = {}
     for s in slugs:
-        print(f"\n── {s} ──────────────────────────────────")
-        count = translate_slug.remote(s)
-        total += count
-        print(f"  {s}: {count} samples translated")
+        if s not in SLUG_TO_LANGUAGE:
+            print(f"  [SKIP] Unknown slug: {s}")
+            continue
+        handles[s] = translate_slug.spawn(s)
+        print(f"  ↗  {s} ({SLUG_TO_LANGUAGE[s]})")
 
-    print(f"\nDone — {total} total translations across {len(slugs)} language(s)")
+    print(f"\nWaiting for {len(handles)} containers...\n")
+    total = 0
+    failed = []
+    for s, handle in handles.items():
+        try:
+            count = handle.get()
+            total += count
+            print(f"  ✓  {s:<28} {count} translations")
+        except Exception as exc:
+            failed.append(s)
+            print(f"  ✗  {s:<28} FAILED: {exc}")
+
+    print(f"\nDone — {total} total translations across {len(handles)} language(s)")
+    if failed:
+        print(f"Failed: {', '.join(failed)}")
