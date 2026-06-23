@@ -106,7 +106,11 @@ A valid result has a Grade (A–E) with an actual win rate percentage. If it sho
 After every completed run, pull the report JSON from the Modal volume and update the Notion tables:
 
 ```bash
+# Download to /tmp for reading metrics
 modal volume get phase2a-outputs runs/<run_id>/reports/<slug>_summary.json /tmp/<slug>_report.json
+
+# Also save to repo (filename includes run ID for traceability)
+modal volume get phase2a-outputs runs/<run_id>/reports/<slug>_summary.json data/reports/<slug>_<task>_<run_id>.json
 ```
 
 Then read the JSON and update the relevant Notion table row:
@@ -145,9 +149,9 @@ Do NOT run languages assigned to the other person — each person runs their own
 ### Current progress
 | Language | Model | Instructions | Translation |
 |---|---|---|---|
-| Greek | Meltemi-7B | ✅ Grade E (win rate 2%) | ✅ Grade B (win rate 53%) |
-| Tamil | Tamil-Mistral-7B | ✅ Grade E (win rate 3%) | ✅ Grade E |
-| Marathi | MahaMarathi-7B | ✅ Grade E (win rate 0%) | ✅ Grade E (win rate 0%) |
+| Greek | Meltemi-7B | ✅ Grade E (win rate 2%) · `2026-06-19_115923_1b890f` | ✅ Grade B (win rate 53%) · `2026-06-19_091321_3c0719` |
+| Tamil | Tamil-Mistral-7B | ✅ Grade E (win rate 3%) · `2026-06-23_072240_70be14` | ✅ Grade E (win rate 0%) · `2026-06-23_085618_29e74c` |
+| Marathi | MahaMarathi-7B | ✅ Grade E (win rate 0%) · `2026-06-23_084607_6b35b3` | ✅ Grade E (win rate 0%) · `2026-06-23_085823_bf781f` |
 | Kannada | Ambari-7B | Pending | Pending |
 | Gujarati | Gujju-Llama-7B | Pending | Pending |
 | Arabic | Jais-2-8B | Pending | Pending |

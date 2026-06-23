@@ -1,0 +1,44 @@
+{
+  "run_id": "2026-06-19_091321_3c0719",
+  "task": "translation",
+  "stop_at": "report",
+  "generated_at": "2026-06-19T16:05:05.433159+00:00",
+  "models_run": 1,
+  "failed": [],
+  "results": {
+    "greek": {
+      "language": "Greek",
+      "regional_model": "meltemi-7b",
+      "bleu_regional": 27.38,
+      "bleu_gemma4": 26.04,
+      "chrf_regional": 51.27,
+      "chrf_gemma4": 50.55,
+      "bertscore_f1_regional": 0.8545,
+      "bertscore_f1_gemma4": 0.8474,
+      "comet_regional": 0.8915,
+      "comet_gemma4": 0.8878,
+      "back_translation_regional": null,
+      "back_translation_gemma4": null,
+      "judge_win_rate": 0.53,
+      "gemma4_win_rate": 0.47,
+      "classification": "B",
+      "classification_rationale": "Regional wins 53% of judge comparisons (modest preference); COMET \u0394=+0.0037"
+    }
+  },
+  "classification_counts": {
+    "A": 0,
+    "B": 1,
+    "C": 0,
+    "D": 0,
+    "E": 0,
+    "?": 0
+  },
+  "cost_estimate": {
+    "regional_inference_usd": 0.26,
+    "gemma4_inference_usd": 1.05,
+    "judge_usd": 0.27,
+    "total_usd": 1.58,
+    "total_judge_calls": 300
+  },
+  "elapsed_minutes": null
+}
