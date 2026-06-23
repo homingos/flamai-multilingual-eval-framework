@@ -24,13 +24,15 @@ Pipeline runs on Modal (`modal_app.py`). All infrastructure bugs have been resol
 - **Greek** (Meltemi-7B): ✅ Grade B — win rate 53%, BLEU 27.38, BERTScore F1 0.8545 vs 0.8474
 - **Tamil** (Tamil-Mistral-7B): ✅ Grade E — Gemma-4 strongly preferred (win rate ~0%)
 - **Marathi** (MahaMarathi-7B): ✅ Grade E — Gemma-4 strongly preferred (win rate 0%)
-- All other 14 languages: Pending
+- **Kannada** (Ambari-7B): ✅ Grade E — Gemma-4 strongly preferred (win rate 0%, BLEU 2.07 vs 15.41) — run ID `2026-06-23_105532_c67e18`
+- All other 13 languages: Pending
 
 #### Instruction Following task
 - **Greek** (Meltemi-7B): ✅ Grade E — Gemma-4 strongly preferred (win rate 2%)
 - **Tamil** (Tamil-Mistral-7B): ✅ Grade E — Gemma-4 strongly preferred (win rate 3%) — run ID `2026-06-23_072240_70be14`
 - **Marathi** (MahaMarathi-7B): ✅ Grade E — Gemma-4 strongly preferred (win rate 0%) — run ID `2026-06-23_084607_6b35b3`
-- All other 14 languages: Pending (see teammate assignment below)
+- **Kannada** (Ambari-7B): ⚠️ Skipped — GPU inference crash (208/1200 samples, pipeline failed at LIGHT_METRICS on partial data). Translation Grade E confirms nothing to distill. Failed run ID `2026-06-23_121912_8dc209`.
+- All other 13 languages: Pending (see teammate assignment below)
 
 ---
 
@@ -152,7 +154,7 @@ Do NOT run languages assigned to the other person — each person runs their own
 | Greek | Meltemi-7B | ✅ Grade E (win rate 2%) · `2026-06-19_115923_1b890f` | ✅ Grade B (win rate 53%) · `2026-06-19_091321_3c0719` |
 | Tamil | Tamil-Mistral-7B | ✅ Grade E (win rate 3%) · `2026-06-23_072240_70be14` | ✅ Grade E (win rate 0%) · `2026-06-23_085618_29e74c` |
 | Marathi | MahaMarathi-7B | ✅ Grade E (win rate 0%) · `2026-06-23_084607_6b35b3` | ✅ Grade E (win rate 0%) · `2026-06-23_085823_bf781f` |
-| Kannada | Ambari-7B | Pending | Pending |
+| Kannada | Ambari-7B | ⚠️ skipped — inference crash · `2026-06-23_121912_8dc209` | ✅ Grade E (win rate 0%) · `2026-06-23_105532_c67e18` |
 | Gujarati | Gujju-Llama-7B | Pending | Pending |
 | Arabic | Jais-2-8B | Pending | Pending |
 | Korean | Polyglot-Ko-12B | Pending | Pending |
@@ -160,9 +162,10 @@ Do NOT run languages assigned to the other person — each person runs their own
 
 ### Next up
 ```bash
-# Kannada — instructions
-echo "" | modal run --detach modal_app.py::run_pipeline --slug kannada --task instructions --limit 1000
-# then Kannada translation, then Gujarati, Arabic, Korean, Hebrew
+# Gujarati — run both in parallel
+echo "" | modal run --detach modal_app.py::run_pipeline --slug gujarati --task instructions --limit 1000
+echo "" | modal run --detach modal_app.py::run_pipeline --slug gujarati --task translation --limit 1000
+# then Arabic, Korean, Hebrew
 ```
 
 ---

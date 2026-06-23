@@ -1,0 +1,44 @@
+{
+  "run_id": "2026-06-23_105532_c67e18",
+  "task": "translation",
+  "stop_at": "report",
+  "generated_at": "2026-06-23T12:09:37.909184+00:00",
+  "models_run": 1,
+  "failed": [],
+  "results": {
+    "kannada": {
+      "language": "Kannada",
+      "regional_model": "ambari-7b",
+      "bleu_regional": 2.07,
+      "bleu_gemma4": 15.41,
+      "chrf_regional": 15.17,
+      "chrf_gemma4": 50.2,
+      "bertscore_f1_regional": null,
+      "bertscore_f1_gemma4": null,
+      "comet_regional": null,
+      "comet_gemma4": null,
+      "back_translation_regional": null,
+      "back_translation_gemma4": null,
+      "judge_win_rate": 0.0,
+      "gemma4_win_rate": 1.0,
+      "classification": "E",
+      "classification_rationale": "Gemma-4 strongly preferred \u2014 regional wins only 0%"
+    }
+  },
+  "classification_counts": {
+    "A": 0,
+    "B": 0,
+    "C": 0,
+    "D": 0,
+    "E": 1,
+    "?": 0
+  },
+  "cost_estimate": {
+    "regional_inference_usd": 0.26,
+    "gemma4_inference_usd": 1.05,
+    "judge_usd": 0.27,
+    "total_usd": 1.58,
+    "total_judge_calls": 300
+  },
+  "elapsed_minutes": null
+}
