@@ -62,9 +62,16 @@ modal run modal_app.py::clear_csmpt_cache
 
 ## How to Run a Language
 
-**Run the full pipeline for one language:**
+Each language needs **both tasks** completed before a final verdict can be made. Run instructions and translation sequentially for each language — do not move to the next language until both tasks are done.
+
+**Run instructions task:**
 ```bash
 echo "" | modal run --detach modal_app.py::run_pipeline --slug <slug> --task instructions --limit 1000
+```
+
+**Run translation task:**
+```bash
+echo "" | modal run --detach modal_app.py::run_pipeline --slug <slug> --task translation --limit 1000
 ```
 
 The `--detach` flag keeps the run alive after your terminal disconnects. The run ID is printed at startup — save it.
@@ -74,87 +81,126 @@ The `--detach` flag keeps the run alive after your terminal disconnects. The run
 modal run modal_app.py::check_run --run-id <run_id>
 ```
 
-**Check status by slug:**
-```bash
-modal run modal_app.py::check_run --slug <slug>
-```
-
 **Available slugs:**
 `tamil`, `marathi`, `kannada`, `gujarati`, `arabic`, `hebrew`, `korean`, `malay`, `swahili`, `amharic`, `french`, `swedish`, `czech`, `brazilian_portuguese`, `maori`, `tok_pisin`
 
-**Estimated cost per language:** ~$1.58 (1000 samples, 300 judge calls)
-**Estimated time per language:** ~45 minutes end-to-end
+**Estimated cost per language:** ~$3.16 (both tasks: 2 × $1.58)
+**Estimated time per language:** ~90 minutes (two sequential 45-min runs)
 
----
-
-## Teammate Assignment
-
-> **For the teammate's Claude Code session:** Pick up the languages listed under your assignment below. Run them one at a time — wait for each to finish and confirm the report looks valid (a Grade A–E with actual win rate numbers) before starting the next. Do not run multiple languages in parallel yet.
-
-### Ram's queue (continuing sequentially)
-1. ~~Greek~~ ✅ done
-2. Tamil 🔄 running now (`2026-06-23_072240_70be14`)
-3. Marathi
-4. Kannada
-5. Gujarati
-6. Arabic
-7. Korean
-8. Hebrew — **unknown failure** in parallel run, run it and check error logs if it fails again
-
-### Teammate's queue
-Run these in order. Each one is a single command + wait ~45 min + check report.
-
-1. **Swedish** — straight run, no pre-steps needed
-   ```bash
-   echo "" | modal run --detach modal_app.py::run_pipeline --slug swedish --task instructions --limit 1000
-   ```
-
-2. **Malay** — straight run, no pre-steps needed
-   ```bash
-   echo "" | modal run --detach modal_app.py::run_pipeline --slug malay --task instructions --limit 1000
-   ```
-
-3. **Amharic** — straight run, no pre-steps needed
-   ```bash
-   echo "" | modal run --detach modal_app.py::run_pipeline --slug amharic --task instructions --limit 1000
-   ```
-
-4. **French** — registry already updated to v1.1, straight run
-   ```bash
-   echo "" | modal run --detach modal_app.py::run_pipeline --slug french --task instructions --limit 1000
-   ```
-
-5. **Czech** — clear stale cache FIRST, then run
-   ```bash
-   modal run modal_app.py::clear_csmpt_cache
-   echo "" | modal run --detach modal_app.py::run_pipeline --slug czech --task instructions --limit 1000
-   ```
-
-6. **Māori** — registry max_model_len already fixed, straight run
-   ```bash
-   echo "" | modal run --detach modal_app.py::run_pipeline --slug maori --task instructions --limit 1000
-   ```
-
-7. **Tok Pisin** — registry max_model_len already fixed, straight run
-   ```bash
-   echo "" | modal run --detach modal_app.py::run_pipeline --slug tok_pisin --task instructions --limit 1000
-   ```
-
-8. **Swahili** — unknown failure in parallel run, run and check error logs if it fails
-   ```bash
-   echo "" | modal run --detach modal_app.py::run_pipeline --slug swahili --task instructions --limit 1000
-   ```
-
-9. **Brazilian Portuguese** — unknown failure in parallel run, run and check error logs if it fails
-   ```bash
-   echo "" | modal run --detach modal_app.py::run_pipeline --slug brazilian_portuguese --task instructions --limit 1000
-   ```
-
-**After each run completes**, check the report:
+**After each task completes**, check the report:
 ```bash
 modal run modal_app.py::check_run --run-id <run_id>
 ```
 A valid result has a Grade (A–E) with an actual win rate percentage. If it shows "Insufficient signal" or 0 judge verdicts, something went wrong — check the logs.
+
+---
+
+## Language Assignments
+
+**Ram's languages:** Tamil, Marathi, Kannada, Gujarati, Arabic, Korean, Hebrew
+**Teammate's languages:** Swedish, Malay, Amharic, French, Czech, Māori, Tok Pisin, Swahili, Brazilian Portuguese
+
+Do NOT run languages assigned to the other person — each person runs their own set end-to-end (both tasks).
+
+---
+
+## Ram's Queue
+
+### Current progress
+| Language | Model | Instructions | Translation |
+|---|---|---|---|
+| Greek | Meltemi-7B | ✅ Grade E (win rate 2%) | ✅ Grade B (win rate 53%) |
+| Tamil | Tamil-Mistral-7B | ✅ Grade E (win rate 3%) | 🔄 running |
+| Marathi | MahaMarathi-7B | 🔄 running | 🔄 running |
+| Kannada | Ambari-7B | Pending | Pending |
+| Gujarati | Gujju-Llama-7B | Pending | Pending |
+| Arabic | Jais-2-8B | Pending | Pending |
+| Korean | Polyglot-Ko-12B | Pending | Pending |
+| Hebrew | DictaLM-2.0-7B | Pending | Pending |
+
+### Next up (after Marathi finishes)
+```bash
+# Kannada — instructions
+echo "" | modal run --detach modal_app.py::run_pipeline --slug kannada --task instructions --limit 1000
+# then Kannada translation, then Gujarati, etc.
+```
+
+---
+
+## Teammate's Queue
+
+> **For the teammate's Claude Code session:** Run the languages below one at a time — both tasks (instructions + translation) per language before moving to the next. Check that each report shows a real Grade with a win rate percentage before starting the next run.
+
+### Current progress
+| Language | Model | Instructions | Translation |
+|---|---|---|---|
+| Swedish | Viking-7B | Pending | Pending |
+| Malay | MaLLaM-5B | Pending | Pending |
+| Amharic | Walia-LLM-7B | Pending | Pending |
+| French | Lucie-7B-Instruct-v1.1 | Pending | Pending |
+| Czech | CSMPT-7B | Pending | Pending |
+| Māori | Goldfish-mri-39M | Pending | Pending |
+| Tok Pisin | Goldfish-tpi-125M | Pending | Pending |
+| Swahili | Swahili-Gemma-7B | Pending | Pending |
+| Brazilian Portuguese | Tucano-2b4 | Pending | Pending |
+
+### Run order and commands
+
+**1. Swedish** — no pre-steps needed
+```bash
+echo "" | modal run --detach modal_app.py::run_pipeline --slug swedish --task instructions --limit 1000
+# wait ~45 min, check report, then:
+echo "" | modal run --detach modal_app.py::run_pipeline --slug swedish --task translation --limit 1000
+```
+
+**2. Malay** — no pre-steps needed
+```bash
+echo "" | modal run --detach modal_app.py::run_pipeline --slug malay --task instructions --limit 1000
+echo "" | modal run --detach modal_app.py::run_pipeline --slug malay --task translation --limit 1000
+```
+
+**3. Amharic** — no pre-steps needed
+```bash
+echo "" | modal run --detach modal_app.py::run_pipeline --slug amharic --task instructions --limit 1000
+echo "" | modal run --detach modal_app.py::run_pipeline --slug amharic --task translation --limit 1000
+```
+
+**4. French** — registry already updated to `Lucie-7B-Instruct-v1.1`, no other pre-steps
+```bash
+echo "" | modal run --detach modal_app.py::run_pipeline --slug french --task instructions --limit 1000
+echo "" | modal run --detach modal_app.py::run_pipeline --slug french --task translation --limit 1000
+```
+
+**5. Czech** — clear stale weights cache FIRST, then run both tasks
+```bash
+modal run modal_app.py::clear_csmpt_cache
+echo "" | modal run --detach modal_app.py::run_pipeline --slug czech --task instructions --limit 1000
+echo "" | modal run --detach modal_app.py::run_pipeline --slug czech --task translation --limit 1000
+```
+
+**6. Māori** — max_model_len already fixed in registry (512), no other pre-steps
+```bash
+echo "" | modal run --detach modal_app.py::run_pipeline --slug maori --task instructions --limit 1000
+echo "" | modal run --detach modal_app.py::run_pipeline --slug maori --task translation --limit 1000
+```
+
+**7. Tok Pisin** — max_model_len already fixed in registry (512), no other pre-steps
+```bash
+echo "" | modal run --detach modal_app.py::run_pipeline --slug tok_pisin --task instructions --limit 1000
+echo "" | modal run --detach modal_app.py::run_pipeline --slug tok_pisin --task translation --limit 1000
+```
+
+**8. Swahili** — had unknown failure in a previous parallel run; run and check error logs if it fails again
+```bash
+echo "" | modal run --detach modal_app.py::run_pipeline --slug swahili --task instructions --limit 1000
+echo "" | modal run --detach modal_app.py::run_pipeline --slug swahili --task translation --limit 1000
+```
+
+**9. Brazilian Portuguese** — had unknown failure in a previous parallel run; run and check error logs if it fails again
+```bash
+echo "" | modal run --detach modal_app.py::run_pipeline --slug brazilian_portuguese --task instructions --limit 1000
+echo "" | modal run --detach modal_app.py::run_pipeline --slug brazilian_portuguese --task translation --limit 1000
+```
 
 ---
 
