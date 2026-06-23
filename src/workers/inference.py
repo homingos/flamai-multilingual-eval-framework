@@ -220,7 +220,7 @@ class VLLMWorker:
                 base.update({
                     "category":             sample["category"],
                     "system_instruction":   sample["system_instruction"],
-                    "user_prompt":          sample["user_prompt"],
+                    "user_prompt":          sample.get("user_prompt_localized") or sample["user_prompt"],
                     "expected_constraints": sample["expected_constraints"],
                 })
             return base

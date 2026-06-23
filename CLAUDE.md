@@ -22,12 +22,15 @@ Pipeline runs on Modal (`modal_app.py`). All infrastructure bugs have been resol
 
 #### Translation task
 - **Greek** (Meltemi-7B): ✅ Grade B — win rate 53%, BLEU 27.38, BERTScore F1 0.8545 vs 0.8474
-- All other 16 languages: Pending
+- **Tamil** (Tamil-Mistral-7B): ✅ Grade E — Gemma-4 strongly preferred (win rate ~0%)
+- **Marathi** (MahaMarathi-7B): ✅ Grade E — Gemma-4 strongly preferred (win rate 0%)
+- All other 14 languages: Pending
 
 #### Instruction Following task
 - **Greek** (Meltemi-7B): ✅ Grade E — Gemma-4 strongly preferred (win rate 2%)
-- **Tamil** (Tamil-Mistral-7B): 🔄 Running now — run ID `2026-06-23_072240_70be14`
-- All other 15 languages: Pending (see teammate assignment below)
+- **Tamil** (Tamil-Mistral-7B): ✅ Grade E — Gemma-4 strongly preferred (win rate 3%) — run ID `2026-06-23_072240_70be14`
+- **Marathi** (MahaMarathi-7B): ✅ Grade E — Gemma-4 strongly preferred (win rate 0%) — run ID `2026-06-23_084607_6b35b3`
+- All other 14 languages: Pending (see teammate assignment below)
 
 ---
 
@@ -110,19 +113,19 @@ Do NOT run languages assigned to the other person — each person runs their own
 | Language | Model | Instructions | Translation |
 |---|---|---|---|
 | Greek | Meltemi-7B | ✅ Grade E (win rate 2%) | ✅ Grade B (win rate 53%) |
-| Tamil | Tamil-Mistral-7B | ✅ Grade E (win rate 3%) | 🔄 running |
-| Marathi | MahaMarathi-7B | 🔄 running | 🔄 running |
+| Tamil | Tamil-Mistral-7B | ✅ Grade E (win rate 3%) | ✅ Grade E |
+| Marathi | MahaMarathi-7B | ✅ Grade E (win rate 0%) | ✅ Grade E (win rate 0%) |
 | Kannada | Ambari-7B | Pending | Pending |
 | Gujarati | Gujju-Llama-7B | Pending | Pending |
 | Arabic | Jais-2-8B | Pending | Pending |
 | Korean | Polyglot-Ko-12B | Pending | Pending |
 | Hebrew | DictaLM-2.0-7B | Pending | Pending |
 
-### Next up (after Marathi finishes)
+### Next up
 ```bash
 # Kannada — instructions
 echo "" | modal run --detach modal_app.py::run_pipeline --slug kannada --task instructions --limit 1000
-# then Kannada translation, then Gujarati, etc.
+# then Kannada translation, then Gujarati, Arabic, Korean, Hebrew
 ```
 
 ---

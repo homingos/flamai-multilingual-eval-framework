@@ -198,11 +198,17 @@ def build_instruction_prompt(sample: dict) -> tuple[str, str]:
     Returns (system_prompt, user_prompt) for an instruction sample.
 
     System prompt is sample["system_instruction"] (English, set by developer).
-    User prompt is sample["user_prompt_localized"] if present (target language),
-    otherwise falls back to sample["user_prompt"] (English).
+    User prompt is sample["user_prompt_localized"] (target language) — required.
+    Raises ValueError if missing: all instruction samples must be pre-translated
+    before evaluation so regional models are never tested on English input.
     """
-    user_prompt = sample.get("user_prompt_localized") or sample["user_prompt"]
-    return sample["system_instruction"], user_prompt
+    localized = sample.get("user_prompt_localized")
+    if not localized:
+        raise ValueError(
+            f"Sample '{sample.get('id')}' missing 'user_prompt_localized'. "
+            "Run the pre-translation job before evaluation."
+        )
+    return sample["system_instruction"], localized
 
 
 def build_prompt(task: str, sample: dict) -> tuple[str, str]:
