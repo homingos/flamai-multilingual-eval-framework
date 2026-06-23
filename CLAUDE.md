@@ -98,6 +98,39 @@ A valid result has a Grade (A–E) with an actual win rate percentage. If it sho
 
 ---
 
+## After Each Run: Update Notion
+
+**Notion page ID:** `38078ca0-ce52-80dc-b7d1-e12e0c397e45`
+**URL:** https://app.notion.com/p/38078ca0ce5280dcb7d1e12e0c397e45
+
+After every completed run, pull the report JSON from the Modal volume and update the Notion tables:
+
+```bash
+modal volume get phase2a-outputs runs/<run_id>/reports/<slug>_summary.json /tmp/<slug>_report.json
+```
+
+Then read the JSON and update the relevant Notion table row:
+
+**Translation task table** (10 columns):
+- `bleu_regional` → BLEU (Regional)
+- `bleu_gemma4` → BLEU (Gemma-4)
+- `chrf_regional` → chrF (Regional)
+- `chrf_gemma4` → chrF (Gemma-4)
+- `bertscore_f1_regional` → BERTScore F1 (Regional) — use `—` if null (model metrics skipped)
+- `bertscore_f1_gemma4` → BERTScore F1 (Gemma-4) — use `—` if null
+- `judge_win_rate` → Judge Win Rate (as %, e.g. 0.53 → 53%)
+- `classification` → Grade (prefix ✅ for A/B, ❌ for D/E, ⚠️ for C)
+
+**Instruction following task table** (6 columns):
+- `judge_win_rate` → Judge Win Rate (Regional) — as %
+- `gemma4_win_rate` → Judge Win Rate (Gemma-4) — as %
+- `classification` → Grade (prefix ✅ for A/B, ❌ for D/E, ⚠️ for C)
+- Add a short Notes entry describing the primary failure mode (e.g. repetition loops, language mixing, etc.)
+
+Also update the CLAUDE.md progress table (Ram's Queue section) after each run.
+
+---
+
 ## Language Assignments
 
 **Ram's languages:** Tamil, Marathi, Kannada, Gujarati, Arabic, Korean, Hebrew
