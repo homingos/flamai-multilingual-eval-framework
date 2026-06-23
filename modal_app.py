@@ -91,8 +91,7 @@ class RegistryService:
 
 def _vllm_cls(gpu: str):
     return dict(image=vllm_image, gpu=gpu, timeout=3600,
-                secrets=_inference_secrets, volumes=VOLUME_MOUNTS,
-                enable_memory_snapshot=True)
+                secrets=_inference_secrets, volumes=VOLUME_MOUNTS)
 
 
 @app.cls(**_vllm_cls("T4"))
@@ -236,12 +235,12 @@ BASE_MODELS = {  # no instruct variant — plain-text prompts only
 
 @app.function(image=vllm_image, gpu="A100-80GB", timeout=3600,
               secrets=_inference_secrets, volumes=VOLUME_MOUNTS)
-def _run_gemma4_baseline(run_id: str, task: str, limit: int, any_slug: str) -> None:
+def _run_gemma4_baseline(run_id: str, task: str, limit: int, all_slugs: list) -> None:
     """Thin Modal wrapper so ensure_gemma4_baseline can run as a real container."""
     from src.pipeline.state_machine import RunContext, ensure_gemma4_baseline
     ctx = RunContext(run_id=run_id, task=task, limit=limit, judge_model="",
                       judge_limit=0, swap_runs=0, skip_model_metrics=True, handles=_handles())
-    ensure_gemma4_baseline(ctx, VLLMWorkerA100, any_slug=any_slug)
+    ensure_gemma4_baseline(ctx, VLLMWorkerA100, all_slugs=all_slugs)
 
 
 @app.function(image=metrics_image, cpu=2, memory=4096, timeout=86400,
@@ -354,15 +353,93 @@ def run_pipeline(slug="tamil", stop_at="report", task="translation", limit=200,
         print(f"\n  Press Enter to launch, Ctrl-C to abort...")
         input()
 
-    summary = _run_pipeline.remote(
+    print(f"\n  Run ID: {run_id}")
+    print(f"  (Local client will disconnect after ~30min — containers keep running with --detach)\n")
+
+    _run_pipeline.remote(
         run_id=run_id, slugs=slugs, stop_at_value=stop_state.value, task=task, limit=limit,
         judge_model=judge_model, judge_limit=judge_limit, swap_runs=swap_runs,
         skip_model_metrics=skip_model_metrics,
     )
 
-    c = summary.get("classification_counts", {})
-    print(f"\nRun complete — Run ID: {run_id}")
-    if any(c.values()):
-        print(f"  A={c.get('A',0)} B={c.get('B',0)} C={c.get('C',0)} D={c.get('D',0)} E={c.get('E',0)}")
-    if summary.get("failed"):
-        print(f"  Failed: {summary['failed']}")
+    print(f"\n  Run complete — Run ID: {run_id}")
+    print(f"  Check results: modal run modal_app.py::check_run --run-id {run_id}")
+
+
+@app.function(image=metrics_image, cpu=1, memory=512, timeout=60,
+              secrets=[_registry_secret], volumes=VOLUME_MOUNTS)
+def _check_run_impl(run_id: str, target_slugs: list) -> str:
+    """Reads run status from the Modal volume and returns a formatted string."""
+    import json, os
+    from src.pipeline.run import manifest_path
+    from src.workers.reporter import load_report
+
+    mpath = manifest_path(run_id)
+    if not os.path.exists(mpath):
+        return f"Run not found: {run_id}"
+
+    with open(mpath) as f:
+        manifest = json.load(f)
+
+    report = load_report(run_id)
+    langs  = report.get("languages", {})
+
+    lines = [
+        f"\nRun ID : {run_id}",
+        f"Task   : {manifest.get('task', '?')}",
+        f"Status : {manifest.get('status', '?')}",
+        f"Stop at: {manifest.get('stop_at', '?')}",
+        f"\nLanguages ({len(langs)}/{len(ALL_MODELS)} completed):",
+    ]
+
+    for spec in ALL_MODELS:
+        if target_slugs and spec.slug not in target_slugs:
+            continue
+        entry = langs.get(spec.language, {})
+        if entry:
+            grade = entry.get("classification", "?")
+            win   = entry.get("judge_win_rate")
+            win_s = f"  win={win:.0%}" if win is not None else ""
+            lines.append(f"  ✓  {spec.language:<26} Grade {grade}{win_s}")
+        else:
+            lines.append(f"  …  {spec.language:<26} (running)")
+
+    counts = {g: sum(1 for e in langs.values() if e.get("classification") == g)
+              for g in ["A", "B", "C", "D", "E"]}
+    if any(counts.values()):
+        lines.append(f"\nGrades: A={counts['A']} B={counts['B']} C={counts['C']} "
+                     f"D={counts['D']} E={counts['E']}")
+    return "\n".join(lines)
+
+
+@app.function(image=vllm_image, volumes=VOLUME_MOUNTS, timeout=120)
+def _clear_weights_cache(path: str) -> str:
+    import shutil, os
+    full = f"/data/weights/{path}"
+    if os.path.exists(full):
+        shutil.rmtree(full)
+        return f"Deleted {full}"
+    return f"Not found: {full}"
+
+
+@app.local_entrypoint()
+def clear_csmpt_cache():
+    """Delete the stale flash_attn_triton.py cache for BUT-FIT/csmpt7b."""
+    result = _clear_weights_cache.remote("modules/transformers_modules/BUT_hyphen_FIT/csmpt7b")
+    print(result)
+
+
+@app.local_entrypoint()
+def check_run(run_id: str = "", slug: str = "all"):
+    """
+    Poll the status of a pipeline run from the Modal volume.
+
+    Examples:
+        modal run modal_app.py::check_run --run-id 2026-06-23_120000_abc123
+        modal run modal_app.py::check_run --slug greek
+    """
+    target_slugs = (
+        [s.strip() for s in slug.split(",") if s.strip()]
+        if slug != "all" else []
+    )
+    print(_check_run_impl.remote(run_id, target_slugs))

@@ -283,27 +283,30 @@ def advance(ctx: RunContext, lr: LanguageRun, stop_at: State) -> LanguageRun:
 # Gemma-4 precondition — not a per-language state, a shared run-level gate
 # ---------------------------------------------------------------------------
 
-def ensure_gemma4_baseline(ctx: RunContext, VLLMWorkerA100: Any, any_slug: str) -> None:
+def ensure_gemma4_baseline(ctx: RunContext, VLLMWorkerA100: Any, all_slugs: list) -> None:
     """
-    Generates Gemma-4 outputs once for the whole run, if not already present.
+    Generates Gemma-4 baseline outputs for every slug in the run.
     Must be called before any LanguageRun reaches INFERENCE.
-    Idempotent — safe to call even if outputs already exist.
+    Idempotent — generate() skips already-completed IDs via checkpoint.
+
+    Each task/slug combination has language-specific sample IDs
+    (inst_arabic_001, trans_greek_0001, etc.), so the judge can only find
+    matching pairs if the baseline was generated for every slug's IDs.
+    Looping over all_slugs ensures full coverage regardless of task.
     """
     import modal as _modal
     from src.pipeline.loader import load_samples
-    from src.pipeline.run import gemma_output_path
 
-    out_path = gemma_output_path(ctx.run_id, ctx.task)
-    if os.path.exists(out_path) and os.path.getsize(out_path) > 0:
-        print("[gemma4] Baseline outputs already exist — skipping")
-        return
+    worker = VLLMWorkerA100(model_id="gemma-4-26b", run_id=ctx.run_id, task=ctx.task)
+    total = 0
+    for slug in all_slugs:
+        samples = load_samples(ctx.task, slug, limit=ctx.limit)
+        print(f"[gemma4] Baseline {slug} — {len(samples)} samples")
+        outputs = worker.generate.remote(samples)
+        total += len(outputs)
+        print(f"[gemma4] Baseline {slug} done — {len(outputs)} new outputs")
 
-    samples = load_samples(ctx.task, any_slug, limit=ctx.limit)
-    print(f"[gemma4] Generating baseline — {len(samples)} samples")
-    worker  = VLLMWorkerA100(model_id="gemma-4-26b", run_id=ctx.run_id, task=ctx.task)
-    outputs = worker.generate.remote(samples)
-    print(f"[gemma4] Baseline ready — {len(outputs)} outputs")
-
+    print(f"[gemma4] Baseline complete — {total} total new outputs across {len(all_slugs)} slugs")
     _modal.Volume.from_name("phase2a-outputs").reload()
 
 

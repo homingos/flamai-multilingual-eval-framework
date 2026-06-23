@@ -66,7 +66,7 @@ class VLLMWorker:
     TOP_P            = 1.0
     MAX_NEW_TOKENS   = 512
 
-    @modal.enter(snap=True)
+    @modal.enter()
     def load_model(self) -> None:
         """
         Runs once when the container starts (snapshotted — see modal_app.py).

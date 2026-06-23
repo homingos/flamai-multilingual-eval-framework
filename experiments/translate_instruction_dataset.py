@@ -197,6 +197,41 @@ def translate_slug(slug: str) -> int:
 
 # ── Local entrypoint ──────────────────────────────────────────────────────────
 
+@app.function(
+    image=translate_image,
+    secrets=[judge_secret],
+    timeout=10800,  # 3 hours — enough to wait for all 16 language containers
+)
+def translate_all_parallel(slugs: list) -> dict:
+    """
+    Modal-side orchestrator: spawns translate_slug for each slug in parallel
+    and collects results. Runs entirely in Modal so no local client timeout.
+    """
+    handles = {}
+    for s in slugs:
+        if s not in SLUG_TO_LANGUAGE:
+            print(f"[orchestrator] Unknown slug: {s} — skipping")
+            continue
+        handles[s] = translate_slug.spawn(s)
+        print(f"[orchestrator] ↗  {s} ({SLUG_TO_LANGUAGE[s]})")
+
+    print(f"[orchestrator] {len(handles)} containers spawned — waiting...")
+
+    results = {}
+    failed = []
+    for s, handle in handles.items():
+        try:
+            count = handle.get(timeout=7200)
+            results[s] = count
+            print(f"[orchestrator] ✓  {s}: {count} translations")
+        except Exception as exc:
+            failed.append(s)
+            results[s] = 0
+            print(f"[orchestrator] ✗  {s}: FAILED — {exc}")
+
+    return {"results": results, "failed": failed}
+
+
 @app.local_entrypoint()
 def main(slug: str = "greek"):
     """
@@ -211,33 +246,20 @@ def main(slug: str = "greek"):
         slugs = [s.strip() for s in slug.split(",")]
 
     if len(slugs) == 1:
-        # Single language — run directly
-        count = translate_slug.remote(slugs[0])
-        print(f"Done — {count} translations for {slugs[0]}")
+        handle = translate_slug.spawn(slugs[0])
+        print(f"Spawned {slugs[0]} — running in Modal (fire-and-forget).")
+        print(f"Check https://modal.com/apps/ai-team-core for progress.")
         return
 
-    # Multiple languages — spawn all in parallel, poll for completion
-    print(f"Spawning {len(slugs)} languages in parallel...")
-    handles = {}
-    for s in slugs:
-        if s not in SLUG_TO_LANGUAGE:
-            print(f"  [SKIP] Unknown slug: {s}")
-            continue
-        handles[s] = translate_slug.spawn(s)
-        print(f"  ↗  {s} ({SLUG_TO_LANGUAGE[s]})")
+    # Multi-language: orchestrate inside Modal to avoid local client timeout
+    print(f"Starting parallel translation for {len(slugs)} languages (orchestrated in Modal)...")
+    result = translate_all_parallel.remote(slugs)
 
-    print(f"\nWaiting for {len(handles)} containers...\n")
-    total = 0
-    failed = []
-    for s, handle in handles.items():
-        try:
-            count = handle.get()
-            total += count
-            print(f"  ✓  {s:<28} {count} translations")
-        except Exception as exc:
-            failed.append(s)
-            print(f"  ✗  {s:<28} FAILED: {exc}")
+    total = sum(result["results"].values())
+    for s, count in sorted(result["results"].items()):
+        status = "✓" if s not in result["failed"] else "✗"
+        print(f"  {status}  {s:<28} {count}")
 
-    print(f"\nDone — {total} total translations across {len(handles)} language(s)")
-    if failed:
-        print(f"Failed: {', '.join(failed)}")
+    print(f"\nDone — {total} total translations across {len(slugs)} language(s)")
+    if result["failed"]:
+        print(f"Failed: {', '.join(result['failed'])}")

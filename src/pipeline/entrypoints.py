@@ -141,7 +141,7 @@ def run_pipeline(
     needs_baseline = any(s.slug not in completed for s in specs) and stop_at != State.PENDING
     if needs_baseline:
         a100 = VLLMWorkerA100 or handles.gpu_worker_map.get("a100_80gb")
-        ensure_gemma4_baseline(ctx, a100, any_slug=specs[0].slug)
+        ensure_gemma4_baseline(ctx, a100, all_slugs=[s.slug for s in specs])
 
     # ── Run every spec to stop_at — inline if 1, fanned out if N ────────────
     runs: dict[str, LanguageRun] = {}

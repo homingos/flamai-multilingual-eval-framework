@@ -63,7 +63,7 @@ vllm_image = (
     )
     .apt_install("curl")
     .pip_install(
-        "vllm>=0.4.0",
+        "vllm>=0.9.0",
         "torch",
         "transformers",
         "huggingface_hub",
