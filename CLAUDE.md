@@ -151,6 +151,19 @@ Task 1 tokenizer evaluation used smaller models (e.g. Jais-2-8B) as representati
 
 Apply this principle going forward: before finalising a Grade E/D verdict for any language, check if a significantly larger model exists in the same family. If yes, run it.
 
+### Upgrade candidates identified (2026-06-24)
+
+| Language | Model Used | Upgrade | Notes |
+|---|---|---|---|
+| Arabic | Jais-2-8B | **Jais-2-70B-Chat** (`inceptionai/Jais-2-70B-Chat`) | Planned — run after Korean + Hebrew |
+| Hebrew | DictaLM-2.0-7B | **DictaLM-3.0-24B** (`dicta-il/DictaLM-3.0-24B-Thinking`) | Update registry BEFORE running Hebrew |
+| Korean | Polyglot-Ko-12B | **EXAONE-3.5-32B-Instruct** (`LGAI-EXAONE/EXAONE-3.5-32B-Instruct`) | Polyglot-Ko is a base model (no instruct tuning, 2022) — re-run with EXAONE after current run |
+| Greek | Meltemi-7B | **Krikri-8B-Instruct** (`ilsp/Llama-Krikri-8B-Instruct`) | Same ILSP lab, Llama 3.1 base, May 2025 — re-run both tasks |
+| Tamil | Tamil-Mistral-7B | Mistral-Nemo-Tamil (12B, community fine-tune) | Low credibility — skip |
+| Kannada | Ambari-7B | Ambari-7B-v0.2 | Same size, minor update only |
+| Marathi | MahaMarathi-7B | None | No larger model exists |
+| Gujarati | Gujju-Llama-7B | None | No larger model exists |
+
 ---
 
 ## Language Assignments
