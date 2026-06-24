@@ -164,7 +164,12 @@ Apply this principle going forward: before finalising a Grade E/D verdict for an
 | Marathi | MahaMarathi-7B | **Sarvam-M (24B)** (`sarvamai/sarvam-m`) | Same model — Marathi explicitly supported |
 | Gujarati | Gujju-Llama-7B | **Sarvam-M (24B)** (`sarvamai/sarvam-m`) | Same model — Gujarati explicitly supported |
 
-**Note on Sarvam-M re-runs:** Update the registry for slugs `tamil`, `kannada`, `marathi`, `gujarati` to point to `sarvamai/sarvam-m` (gpu_preset: `l40s`, 24B). Run all 4 after the current batch completes. Sarvam-M has a `thinking` mode — disable it at inference time by passing `enable_thinking=False` in the chat template to get clean non-reasoning outputs for the judge.
+**Indic re-run escalation path (all 4 languages: Tamil, Kannada, Marathi, Gujarati):**
+1. **Sarvam-M 24B** (`sarvamai/sarvam-m`) — single L40S, drop-in. Run first.
+2. **Sarvam-30B** (`sarvamai/sarvam-30b`) — single A100 80GB (or L40S in FP8). Run if M is inconclusive (Grade C).
+3. **Sarvam-105B** (`sarvamai/sarvam-105b`) — requires multi-GPU Modal worker (tensor_parallel_size=8 per model card). Only build this if 30B is still inconclusive. High cost.
+
+**Registry changes needed before Indic re-runs:** Update slugs `tamil`, `kannada`, `marathi`, `gujarati` to point to `sarvamai/sarvam-m` (gpu_preset: `l40s`, 24B, chat_template: null). Disable thinking mode at inference by passing `enable_thinking=False` in the chat template call.
 
 ---
 
