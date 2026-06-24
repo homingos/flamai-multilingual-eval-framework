@@ -35,7 +35,8 @@ Pipeline runs on Modal (`modal_app.py`). All infrastructure bugs have been resol
 - **Marathi** (MahaMarathi-7B): ✅ Grade E — Gemma-4 strongly preferred (win rate 0%) — run ID `2026-06-23_084607_6b35b3`
 - **Kannada** (Ambari-7B): ⚠️ Skipped — GPU inference crash (208/1200 samples, pipeline failed at LIGHT_METRICS on partial data). Translation Grade E confirms nothing to distill. Failed run ID `2026-06-23_121912_8dc209`.
 - **Gujarati** (Gujju-Llama-7B): ✅ Grade E — Gemma-4 strongly preferred (win rate 0%) — run ID `2026-06-23_131533_46c68c`
-- All other 12 languages: Pending (see teammate assignment below)
+- **Arabic** (Jais-2-8B): ✅ Grade D — Gemma-4 preferred (win rate 24%) — run ID `2026-06-24_073405_e6e60d`
+- All other 11 languages: Pending (see teammate assignment below)
 
 ---
 
@@ -159,16 +160,16 @@ Do NOT run languages assigned to the other person — each person runs their own
 | Marathi | MahaMarathi-7B | ✅ Grade E (win rate 0%) · `2026-06-23_084607_6b35b3` | ✅ Grade E (win rate 0%) · `2026-06-23_085823_bf781f` |
 | Kannada | Ambari-7B | ⚠️ skipped — inference crash · `2026-06-23_121912_8dc209` | ✅ Grade E (win rate 0%) · `2026-06-23_105532_c67e18` |
 | Gujarati | Gujju-Llama-7B | ✅ Grade E (win rate 0%) · `2026-06-23_131533_46c68c` | ✅ Grade E (win rate 0%) · `2026-06-23_131533_bad6cb` |
-| Arabic | Jais-2-8B | Pending | ✅ Grade E (win rate 13%) · `2026-06-24_073508_1b374d` |
+| Arabic | Jais-2-8B | ✅ Grade D (win rate 24%) · `2026-06-24_073405_e6e60d` | ✅ Grade E (win rate 13%) · `2026-06-24_073508_1b374d` |
 | Korean | Polyglot-Ko-12B | Pending | Pending |
 | Hebrew | DictaLM-2.0-7B | Pending | Pending |
 
 ### Next up
 ```bash
-# Arabic — run both in parallel
-echo "" | modal run --detach modal_app.py::run_pipeline --slug arabic --task instructions --limit 1000
-echo "" | modal run --detach modal_app.py::run_pipeline --slug arabic --task translation --limit 1000
-# then Korean, Hebrew
+# Korean — run both in parallel
+echo "" | modal run --detach modal_app.py::run_pipeline --slug korean --task instructions --limit 1000
+echo "" | modal run --detach modal_app.py::run_pipeline --slug korean --task translation --limit 1000
+# then Hebrew
 ```
 
 ---
