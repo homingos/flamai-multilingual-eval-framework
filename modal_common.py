@@ -134,9 +134,15 @@ MODEL_GPU_MAP: dict[str, str] = {
     "Meltemi-7B":        "l4",
     "Swahili-Gemma-7B":  "l4",
     "Walia-LLM-7B":      "l4",
-    "Jais-2-8B":         "l4",
-    "Polyglot-Ko-12B":   "l40s",
-    "Gemma-4":           "a100_80gb",
+    "Jais-2-8B":                         "l4",
+    "Polyglot-Ko-12B":                   "l40s",
+    "Gemma-4":                           "a100_80gb",
+    # Re-run upgraded models
+    "Sarvam-M-24B":                      "l40s",
+    "EXAONE-3.5-32B-Instruct":           "a100_80gb",
+    "Llama-Krikri-8B-Instruct":          "l4",
+    "DictaLM-3.0-Nemotron-12B-Instruct": "l40s",
+    # Jais-2-70B-Chat: needs tensor_parallel_size=2 (2x A100-80GB) — requires new VLLMWorkerA100x2 (TODO)
 }
 
 # ---------------------------------------------------------------------------
