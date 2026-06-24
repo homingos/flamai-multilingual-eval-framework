@@ -159,10 +159,12 @@ Apply this principle going forward: before finalising a Grade E/D verdict for an
 | Hebrew | DictaLM-2.0-7B | **DictaLM-3.0-24B** (`dicta-il/DictaLM-3.0-24B-Thinking`) | Update registry BEFORE running Hebrew |
 | Korean | Polyglot-Ko-12B | **EXAONE-3.5-32B-Instruct** (`LGAI-EXAONE/EXAONE-3.5-32B-Instruct`) | Polyglot-Ko is a base model (no instruct tuning, 2022) — re-run with EXAONE after current run |
 | Greek | Meltemi-7B | **Krikri-8B-Instruct** (`ilsp/Llama-Krikri-8B-Instruct`) | Same ILSP lab, Llama 3.1 base, May 2025 — re-run both tasks |
-| Tamil | Tamil-Mistral-7B | Mistral-Nemo-Tamil (12B, community fine-tune) | Low credibility — skip |
-| Kannada | Ambari-7B | Ambari-7B-v0.2 | Same size, minor update only |
-| Marathi | MahaMarathi-7B | None | No larger model exists |
-| Gujarati | Gujju-Llama-7B | None | No larger model exists |
+| Tamil | Tamil-Mistral-7B | **Sarvam-M (24B)** (`sarvamai/sarvam-m`) | Single model covers all 4 Indic langs; +23% MMLU-IN vs Mistral Small; comparable to Llama-3.3 70B |
+| Kannada | Ambari-7B | **Sarvam-M (24B)** (`sarvamai/sarvam-m`) | Same model — Kannada is in Sarvam-M's 11-language list |
+| Marathi | MahaMarathi-7B | **Sarvam-M (24B)** (`sarvamai/sarvam-m`) | Same model — Marathi explicitly supported |
+| Gujarati | Gujju-Llama-7B | **Sarvam-M (24B)** (`sarvamai/sarvam-m`) | Same model — Gujarati explicitly supported |
+
+**Note on Sarvam-M re-runs:** Update the registry for slugs `tamil`, `kannada`, `marathi`, `gujarati` to point to `sarvamai/sarvam-m` (gpu_preset: `l40s`, 24B). Run all 4 after the current batch completes. Sarvam-M has a `thinking` mode — disable it at inference time by passing `enable_thinking=False` in the chat template to get clean non-reasoning outputs for the judge.
 
 ---
 
