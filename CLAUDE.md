@@ -10,7 +10,7 @@ AI/ML research and implementation project for adding robust multilingual support
 
 ---
 
-## Current Status (as of 2026-06-23)
+## Current Status (as of 2026-06-24)
 
 ### Task 1 — Tokenizer Evaluation: ✅ Complete
 17 regional models selected across 17 languages. Results in `data/results.csv`, report in `docs/llm-evaluation.md`.
@@ -25,14 +25,16 @@ Pipeline runs on Modal (`modal_app.py`). All infrastructure bugs have been resol
 - **Tamil** (Tamil-Mistral-7B): ✅ Grade E — Gemma-4 strongly preferred (win rate ~0%)
 - **Marathi** (MahaMarathi-7B): ✅ Grade E — Gemma-4 strongly preferred (win rate 0%)
 - **Kannada** (Ambari-7B): ✅ Grade E — Gemma-4 strongly preferred (win rate 0%, BLEU 2.07 vs 15.41) — run ID `2026-06-23_105532_c67e18`
-- All other 13 languages: Pending
+- **Gujarati** (Gujju-Llama-7B): ✅ Grade E — Gemma-4 strongly preferred (win rate 0%, BLEU 0.0 vs 20.02, chrF 1.27 vs 50.56) — run ID `2026-06-23_131533_bad6cb`
+- All other 12 languages: Pending
 
 #### Instruction Following task
 - **Greek** (Meltemi-7B): ✅ Grade E — Gemma-4 strongly preferred (win rate 2%)
 - **Tamil** (Tamil-Mistral-7B): ✅ Grade E — Gemma-4 strongly preferred (win rate 3%) — run ID `2026-06-23_072240_70be14`
 - **Marathi** (MahaMarathi-7B): ✅ Grade E — Gemma-4 strongly preferred (win rate 0%) — run ID `2026-06-23_084607_6b35b3`
 - **Kannada** (Ambari-7B): ⚠️ Skipped — GPU inference crash (208/1200 samples, pipeline failed at LIGHT_METRICS on partial data). Translation Grade E confirms nothing to distill. Failed run ID `2026-06-23_121912_8dc209`.
-- All other 13 languages: Pending (see teammate assignment below)
+- **Gujarati** (Gujju-Llama-7B): ✅ Grade E — Gemma-4 strongly preferred (win rate 0%) — run ID `2026-06-23_131533_46c68c`
+- All other 12 languages: Pending (see teammate assignment below)
 
 ---
 
@@ -155,17 +157,17 @@ Do NOT run languages assigned to the other person — each person runs their own
 | Tamil | Tamil-Mistral-7B | ✅ Grade E (win rate 3%) · `2026-06-23_072240_70be14` | ✅ Grade E (win rate 0%) · `2026-06-23_085618_29e74c` |
 | Marathi | MahaMarathi-7B | ✅ Grade E (win rate 0%) · `2026-06-23_084607_6b35b3` | ✅ Grade E (win rate 0%) · `2026-06-23_085823_bf781f` |
 | Kannada | Ambari-7B | ⚠️ skipped — inference crash · `2026-06-23_121912_8dc209` | ✅ Grade E (win rate 0%) · `2026-06-23_105532_c67e18` |
-| Gujarati | Gujju-Llama-7B | Pending | Pending |
+| Gujarati | Gujju-Llama-7B | ✅ Grade E (win rate 0%) · `2026-06-23_131533_46c68c` | ✅ Grade E (win rate 0%) · `2026-06-23_131533_bad6cb` |
 | Arabic | Jais-2-8B | Pending | Pending |
 | Korean | Polyglot-Ko-12B | Pending | Pending |
 | Hebrew | DictaLM-2.0-7B | Pending | Pending |
 
 ### Next up
 ```bash
-# Gujarati — run both in parallel
-echo "" | modal run --detach modal_app.py::run_pipeline --slug gujarati --task instructions --limit 1000
-echo "" | modal run --detach modal_app.py::run_pipeline --slug gujarati --task translation --limit 1000
-# then Arabic, Korean, Hebrew
+# Arabic — run both in parallel
+echo "" | modal run --detach modal_app.py::run_pipeline --slug arabic --task instructions --limit 1000
+echo "" | modal run --detach modal_app.py::run_pipeline --slug arabic --task translation --limit 1000
+# then Korean, Hebrew
 ```
 
 ---
