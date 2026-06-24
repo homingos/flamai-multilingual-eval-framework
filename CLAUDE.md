@@ -141,6 +141,18 @@ Also update the CLAUDE.md progress table (Ram's Queue section) after each run.
 
 ---
 
+## Model Selection Principle
+
+**Always use the largest/most up-to-date version of a regional model family when available.**
+
+Task 1 tokenizer evaluation used smaller models (e.g. Jais-2-8B) as representatives — the tokenizer is shared across model sizes in the same family, so the tokenizer score is identical regardless of size. But for Task 1B qualitative validation, a larger model may meaningfully outperform Gemma-4 even when the smaller version doesn't.
+
+**Decision (2026-06-24):** After Korean + Hebrew are complete, re-run Arabic using **Jais-2-70B-Chat** (`inceptionai/Jais-2-70B-Chat`) instead of Jais-2-8B. If Jais-2-70B beats Gemma-4 26B, the plan is to distill that knowledge into Gemma rather than serving the 70B directly (cost/latency constraint for production).
+
+Apply this principle going forward: before finalising a Grade E/D verdict for any language, check if a significantly larger model exists in the same family. If yes, run it.
+
+---
+
 ## Language Assignments
 
 **Ram's languages:** Tamil, Marathi, Kannada, Gujarati, Arabic, Korean, Hebrew
