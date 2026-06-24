@@ -1,0 +1,44 @@
+{
+  "run_id": "2026-06-24_073508_1b374d",
+  "task": "translation",
+  "stop_at": "report",
+  "generated_at": "2026-06-24T08:25:26.509317+00:00",
+  "models_run": 1,
+  "failed": [],
+  "results": {
+    "arabic": {
+      "language": "Arabic",
+      "regional_model": "jais-2-8b",
+      "bleu_regional": 27.0,
+      "bleu_gemma4": 25.87,
+      "chrf_regional": 54.93,
+      "chrf_gemma4": 55.62,
+      "bertscore_f1_regional": null,
+      "bertscore_f1_gemma4": null,
+      "comet_regional": null,
+      "comet_gemma4": null,
+      "back_translation_regional": null,
+      "back_translation_gemma4": null,
+      "judge_win_rate": 0.1338,
+      "gemma4_win_rate": 0.8662,
+      "classification": "E",
+      "classification_rationale": "Gemma-4 strongly preferred \u2014 regional wins only 13%"
+    }
+  },
+  "classification_counts": {
+    "A": 0,
+    "B": 0,
+    "C": 0,
+    "D": 0,
+    "E": 1,
+    "?": 0
+  },
+  "cost_estimate": {
+    "regional_inference_usd": 0.26,
+    "gemma4_inference_usd": 1.05,
+    "judge_usd": 0.27,
+    "total_usd": 1.58,
+    "total_judge_calls": 300
+  },
+  "elapsed_minutes": null
+}

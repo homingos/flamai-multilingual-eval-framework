@@ -26,7 +26,8 @@ Pipeline runs on Modal (`modal_app.py`). All infrastructure bugs have been resol
 - **Marathi** (MahaMarathi-7B): ✅ Grade E — Gemma-4 strongly preferred (win rate 0%) — run ID `2026-06-23_085823_bf781f`
 - **Kannada** (Ambari-7B): ✅ Grade E — Gemma-4 strongly preferred (win rate 0%, BLEU 2.07 vs 15.41) — run ID `2026-06-23_105532_c67e18`
 - **Gujarati** (Gujju-Llama-7B): ✅ Grade E — Gemma-4 strongly preferred (win rate 0%, BLEU 0.0 vs 20.02, chrF 1.27 vs 50.56) — run ID `2026-06-23_131533_bad6cb`
-- All other 12 languages: Pending
+- **Arabic** (Jais-2-8B): ✅ Grade E — Gemma-4 strongly preferred (win rate 13%, BLEU 27.0 vs 25.87, chrF 54.93 vs 55.62) — run ID `2026-06-24_073508_1b374d`
+- All other 11 languages: Pending
 
 #### Instruction Following task
 - **Greek** (Meltemi-7B): ✅ Grade E — Gemma-4 strongly preferred (win rate 2%) — run ID `2026-06-19_115923_1b890f`
@@ -158,7 +159,7 @@ Do NOT run languages assigned to the other person — each person runs their own
 | Marathi | MahaMarathi-7B | ✅ Grade E (win rate 0%) · `2026-06-23_084607_6b35b3` | ✅ Grade E (win rate 0%) · `2026-06-23_085823_bf781f` |
 | Kannada | Ambari-7B | ⚠️ skipped — inference crash · `2026-06-23_121912_8dc209` | ✅ Grade E (win rate 0%) · `2026-06-23_105532_c67e18` |
 | Gujarati | Gujju-Llama-7B | ✅ Grade E (win rate 0%) · `2026-06-23_131533_46c68c` | ✅ Grade E (win rate 0%) · `2026-06-23_131533_bad6cb` |
-| Arabic | Jais-2-8B | Pending | Pending |
+| Arabic | Jais-2-8B | Pending | ✅ Grade E (win rate 13%) · `2026-06-24_073508_1b374d` |
 | Korean | Polyglot-Ko-12B | Pending | Pending |
 | Hebrew | DictaLM-2.0-7B | Pending | Pending |
 
