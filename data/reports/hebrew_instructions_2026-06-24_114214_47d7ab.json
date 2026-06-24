@@ -1,0 +1,44 @@
+{
+  "run_id": "2026-06-24_114214_47d7ab",
+  "task": "instructions",
+  "stop_at": "report",
+  "generated_at": "2026-06-24T12:54:43.090062+00:00",
+  "models_run": 1,
+  "failed": [],
+  "results": {
+    "hebrew": {
+      "language": "Hebrew",
+      "regional_model": "dictalm-3-nemotron-12b",
+      "bleu_regional": null,
+      "bleu_gemma4": null,
+      "chrf_regional": null,
+      "chrf_gemma4": null,
+      "bertscore_f1_regional": null,
+      "bertscore_f1_gemma4": null,
+      "comet_regional": null,
+      "comet_gemma4": null,
+      "back_translation_regional": null,
+      "back_translation_gemma4": null,
+      "judge_win_rate": 0.0,
+      "gemma4_win_rate": 1.0,
+      "classification": "E",
+      "classification_rationale": "Gemma-4 strongly preferred \u2014 regional wins only 0%"
+    }
+  },
+  "classification_counts": {
+    "A": 0,
+    "B": 0,
+    "C": 0,
+    "D": 0,
+    "E": 1,
+    "?": 0
+  },
+  "cost_estimate": {
+    "regional_inference_usd": 0.78,
+    "gemma4_inference_usd": 1.05,
+    "judge_usd": 0.27,
+    "total_usd": 2.1,
+    "total_judge_calls": 300
+  },
+  "elapsed_minutes": null
+}

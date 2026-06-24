@@ -28,7 +28,8 @@ Pipeline runs on Modal (`modal_app.py`). All infrastructure bugs have been resol
 - **Gujarati** (Gujju-Llama-7B): ✅ Grade E — Gemma-4 strongly preferred (win rate 0%, BLEU 0.0 vs 20.02, chrF 1.27 vs 50.56) — run ID `2026-06-23_131533_bad6cb`
 - **Arabic** (Jais-2-8B): ✅ Grade E — Gemma-4 strongly preferred (win rate 13%, BLEU 27.0 vs 25.87, chrF 54.93 vs 55.62) — run ID `2026-06-24_073508_1b374d`
 - **Korean** (Polyglot-Ko-12B): ✅ Grade E — Gemma-4 strongly preferred (win rate 0%, BLEU 0.02 vs 15.53, chrF 0.64 vs 37.42) — run ID `2026-06-24_101013_5ad649`
-- All other 10 languages: Pending
+- **Hebrew** (DictaLM-3.0-Nemotron-12B): ✅ Grade E — Gemma-4 strongly preferred (win rate 0%, BLEU 0.04 vs 31.39, chrF 0.91 vs 58.64) — run ID `2026-06-24_114351_159a77`
+- All other 9 languages: Pending
 
 #### Instruction Following task
 - **Greek** (Meltemi-7B): ✅ Grade E — Gemma-4 strongly preferred (win rate 2%) — run ID `2026-06-19_115923_1b890f`
@@ -38,7 +39,8 @@ Pipeline runs on Modal (`modal_app.py`). All infrastructure bugs have been resol
 - **Gujarati** (Gujju-Llama-7B): ✅ Grade E — Gemma-4 strongly preferred (win rate 0%) — run ID `2026-06-23_131533_46c68c`
 - **Arabic** (Jais-2-8B): ✅ Grade D — Gemma-4 preferred (win rate 24%) — run ID `2026-06-24_073405_e6e60d`
 - **Korean** (Polyglot-Ko-12B): ✅ Grade E — Gemma-4 strongly preferred (win rate 0%) — run ID `2026-06-24_101013_9ce150`
-- All other 10 languages: Pending (see teammate assignment below)
+- **Hebrew** (DictaLM-3.0-Nemotron-12B): ✅ Grade E — Gemma-4 strongly preferred (win rate 0%) — run ID `2026-06-24_114214_47d7ab`
+- All other 9 languages: Pending (see teammate assignment below)
 
 ---
 
@@ -198,13 +200,15 @@ Do NOT run languages assigned to the other person — each person runs their own
 | Gujarati | Gujju-Llama-7B | ✅ Grade E (win rate 0%) · `2026-06-23_131533_46c68c` | ✅ Grade E (win rate 0%) · `2026-06-23_131533_bad6cb` |
 | Arabic | Jais-2-8B | ✅ Grade D (win rate 24%) · `2026-06-24_073405_e6e60d` | ✅ Grade E (win rate 13%) · `2026-06-24_073508_1b374d` |
 | Korean | Polyglot-Ko-12B | ✅ Grade E (win rate 0%) · `2026-06-24_101013_9ce150` | ✅ Grade E (win rate 0%) · `2026-06-24_101013_5ad649` |
-| Hebrew | DictaLM-3.0-Nemotron-12B | Pending | Pending |
+| Hebrew | DictaLM-3.0-Nemotron-12B | ✅ Grade E (win rate 0%) · `2026-06-24_114214_47d7ab` | ✅ Grade E (win rate 0%) · `2026-06-24_114351_159a77` |
 
 ### Next up
 ```bash
-# Hebrew (DictaLM-3.0-Nemotron-12B — registry already updated)
-echo "" | modal run --detach modal_app.py::run_pipeline --slug hebrew --task instructions --limit 1000
-echo "" | modal run --detach modal_app.py::run_pipeline --slug hebrew --task translation --limit 1000
+# Indic re-runs — Sarvam-M 24B covers all 4 languages (registry + ALL_MODELS already updated)
+echo "" | modal run --detach modal_app.py::run_pipeline --slug tamil --task instructions --limit 1000
+echo "" | modal run --detach modal_app.py::run_pipeline --slug tamil --task translation --limit 1000
+# then kannada, marathi, gujarati (same pattern)
+# then Korean re-run with EXAONE-3.5-32B, Greek re-run with Krikri-8B
 ```
 
 ---
