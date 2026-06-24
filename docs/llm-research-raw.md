@@ -30,6 +30,7 @@ Cross-reference: `docs/pdfs/Regional LLMs by Continent.pdf` (ChatGPT pre-researc
 | Bengali | LilTii-v0.2 | `Polygl0t/LilTii-v0.2` | 0.6B | 🔶 Unconfirmed permissive | ✅ | Bengali-only model trained from scratch (Mar 2026) |
 | Tamil | Tamil-Mistral-7B | `Hemanth-thunder/Tamil-Mistral-7B-Instruct-v0.1` | 7B | ✅ Apache 2.0 | ✅ | Best-licensed Tamil model; Mistral-7B fine-tune |
 | Tamil | Tamil-LLaMA-7B | `abhinand/tamil-llama-7b-instruct-v0.2` | 7B | 🔶 Llama 2 Community | ✅ | 16k added Tamil tokens; Llama 2 base |
+| Tamil | **Sarvam-M-24B** ⭐ | `sarvamai/sarvam-m` | 24B | ✅ Apache 2.0 | ✅ | **Task 1B upgrade.** Single model covers Tamil, Kannada, Marathi, Gujarati + 7 more Indic langs; +23% MMLU-IN vs Mistral Small; comparable to Llama-3.3 70B. Tokenizer fertility=3.614 (higher than Gemma-4 2.374, but inference quality far superior) |
 | Telugu | Telugu-Llama2-7B | `Telugu-LLM-Labs/Telugu-Llama2-7B-v0-Base` | 7B | ✅ MIT | ✅ | MIT-licensed Telugu-specific base model |
 | Telugu | Telugu LLaMA Instruct | `abhinand/telugu-llama-7b-instruct-v0.1` | 7B | 🔶 GPL-3.0 | ✅ | 16k added Telugu tokens; GPL may restrict commercial use |
 | Kannada | Ambari-7B-Base | `Cognitive-Lab/Ambari-7B-base-v0.1` | 7B | ✅ MIT | ✅ | First Kannada-English bilingual LLM; ~500M Kannada tokens |
@@ -68,6 +69,7 @@ Cross-reference: `docs/pdfs/Regional LLMs by Continent.pdf` (ChatGPT pre-researc
 | Turkish | Turkcell-LLM-7b | `TURKCELL/Turkcell-LLM-7b-v1` | 7B | ✅ Apache 2.0 | ✅ | Mistral fine-tuned on 5B Turkish tokens by Turkcell |
 | Hebrew | DictaLM 2.0 Instruct | `dicta-il/dictalm2.0-instruct` | 7B | ✅ Apache 2.0 | ✅ | Extended Hebrew tokenizer; ~190B tokens; halves token count vs base Mistral |
 | Hebrew | Hebrew-Gemma-11B | `yam-peleg/Hebrew-Gemma-11B` | 11B | 🔶 Gemma Terms | ✅ | Larger option; restricted by Google Gemma custom licence |
+| Hebrew | **DictaLM-3.0-Nemotron-12B** ⭐ | `dicta-il/DictaLM-3.0-Nemotron-12B-Instruct` | 12B | ✅ Apache 2.0 | ✅ | **Task 1B upgrade.** Same Dicta lab; Nemotron-12B base; cleaner instruct format (avoids `<think>` blocks of 3.0-24B-Thinking). Note: Nemotron tokenizer has poor Hebrew support (fertility=0.181, roundtrip=0%) — evaluated on inference quality only |
 | Kurdish | Mistral-Nemo-Kurdish | `nazimali/Mistral-Nemo-Kurdish-Instruct` | 12B | ✅ Apache 2.0 | ✅ | Only Kurdish-specific open-weight LLM; Kurmanji dialect |
 | Azerbaijani | AzQ-1.7B | `karabakh-nlp/AzQ-1.7B` | 1.7B | ✅ Apache 2.0 | ✅ | Qwen3-1.7B fine-tuned on Azerbaijani; expert-curated dataset |
 | Azerbaijani | mGPT-1.3B-azerbaijan | `ai-forever/mGPT-1.3B-azerbaijan` | 1.3B | ✅ MIT | ✅ | mGPT-XL continued on Azerbaijani Wikipedia + C4 |
@@ -88,6 +90,7 @@ Cross-reference: `docs/pdfs/Regional LLMs by Continent.pdf` (ChatGPT pre-researc
 | Japanese | CyberAgentLM3 22B | `cyberagent/calm3-22b-chat` | 22B | ✅ Apache 2.0 | ✅ | 2T tokens from scratch; larger capacity option |
 | Korean | Polyglot-Ko 12.8B | `EleutherAI/polyglot-ko-12.8b` | 12.8B | ✅ Apache 2.0 | ✅ | Trained purely on 863 GB of Korean text; EleutherAI |
 | Korean | EXAONE 3.5 7.8B | `LGAI-EXAONE/EXAONE-3.5-7.8B-Instruct` | 7.8B | ⚠️ EXAONE NC Licence | ✅ | LG AI Research; strong Korean benchmarks; non-commercial only |
+| Korean | **EXAONE-3.5-32B-Instruct** ⭐ | `LGAI-EXAONE/EXAONE-3.5-32B-Instruct` | 32B | ⚠️ EXAONE NC Licence | ✅ | **Task 1B upgrade.** Polyglot-Ko is a 2022 base-only model (no instruct tuning). EXAONE-3.5-32B is LG AI's flagship instruct model; fertility=2.199 (same as Polyglot), vcov=94.57% (slightly better). Requires trust_remote_code=True |
 | Vietnamese | Arcee-VyLinh | `arcee-ai/Arcee-VyLinh` | 3B | ✅ Apache 2.0 | ✅ | Qwen2.5-3B fine-tuned for Vietnamese; 32k context |
 | Vietnamese | PhoGPT-7B5-Instruct | `vinai/PhoGPT-7B5-Instruct` | 7.5B | ✅ BSD-3-Clause | ✅ | Pre-trained from scratch on 41GB Vietnamese by VinAI |
 | Thai | Typhoon2-Qwen2.5-7B | `scb10x/typhoon2-qwen2.5-7b-instruct` | 7B | ✅ Apache 2.0 | ✅ | SCB 10X; Thai-primary; 128k context; Dec 2024 |
@@ -159,6 +162,7 @@ Cross-reference: `docs/pdfs/Regional LLMs by Continent.pdf` (ChatGPT pre-researc
 | Czech | CSTinyLlama-1.2B | `BUT-FIT/CSTinyLlama-1.2B` | 1.2B | ✅ Apache 2.0 | ✅ | Czech-specific 64k-vocab tokenizer; lighter option |
 | Greek | Meltemi-7B-Instruct-v1.5 | `ilsp/Meltemi-7B-Instruct-v1.5` | 7B | ✅ Apache 2.0 | ✅ | Only Greek-specific LLM; extended Greek tokenizer (1.52 vs 6.80 t/w); ORPO fine-tuned |
 | Greek | Meltemi-7B-v1 | `ilsp/Meltemi-7B-v1` | 7B | ✅ Apache 2.0 | ✅ | Base version; 40B Greek tokens |
+| Greek | **Krikri-8B-Instruct** ⭐ | `ilsp/Llama-Krikri-8B-Instruct` | 8B | ✅ Apache 2.0 | ✅ | **Task 1B upgrade.** Same ILSP lab; Llama 3.1 base (May 2025); fertility=1.487, vcov=100% (perfect vocab coverage vs Meltemi's 95.42%); DPO-tuned instruct model |
 
 ---
 

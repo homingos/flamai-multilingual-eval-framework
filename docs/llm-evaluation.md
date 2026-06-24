@@ -18,12 +18,12 @@ Gemma-4 is the current default. Re-run after fixing those to get a full comparis
 | --- | --- | --- | --- | --- | --- |
 | 1 | Hindi | Indic | Gemma-4 | Airavata-7B | fertility 1.385→1.823, vcov 60.81% |
 | 2 | Bengali | Indic | Gemma-4 | BanglaLLama-3.1-8B | fertility 1.683→8.021, vcov 58.02% |
-| 3 | Tamil | Indic | Tamil-Mistral-7B | Tamil-Mistral-7B | fertility 2.374→1.734, vcov 86.61% |
+| 3 | Tamil | Indic | Tamil-Mistral-7B | Tamil-Mistral-7B | fertility 2.374→1.734, vcov 86.61% · **upgraded to Sarvam-M-24B for Task 1B** (§7) |
 | 4 | Telugu | Indic | Gemma-4 | Telugu-Llama2-7B | fertility 2.843→19.59, vcov 50.0% |
-| 5 | Kannada | Indic | Ambari-7B | Ambari-7B | fertility 3.241→2.736, vcov 81.69% |
+| 5 | Kannada | Indic | Ambari-7B | Ambari-7B | fertility 3.241→2.736, vcov 81.69% · **upgraded to Sarvam-M-24B for Task 1B** (§7) |
 | 6 | Malayalam | Indic | Gemma-4 | MalayaLLM-Gemma-9B | fertility 3.357→5.875, vcov 100.0% |
-| 7 | Marathi | Indic | MahaMarathi-7B | MahaMarathi-7B | fertility 1.987→1.638, vcov 84.87% |
-| 8 | Gujarati | Indic | Gujju-Llama-7B | Gujju-Llama-7B | fertility 2.415→2.033, vcov 82.98% |
+| 7 | Marathi | Indic | MahaMarathi-7B | MahaMarathi-7B | fertility 1.987→1.638, vcov 84.87% · **upgraded to Sarvam-M-24B for Task 1B** (§7) |
+| 8 | Gujarati | Indic | Gujju-Llama-7B | Gujju-Llama-7B | fertility 2.415→2.033, vcov 82.98% · **upgraded to Sarvam-M-24B for Task 1B** (§7) |
 | 9 | Punjabi | Indic | Gemma-4 | Dhee-Qwen3-Punjabi-2B | fertility 2.82→7.758, vcov 67.33% |
 | 10 | Odia | Indic | Gemma-4 | Qwen-Odia-7B | fertility 4.852→13.654, vcov 56.44% |
 | 11 | Assamese | Indic | Gemma-4 | Goldfish-ASM-125M | fertility 2.819→1.42, vcov 93.17% |
@@ -34,14 +34,14 @@ Gemma-4 is the current default. Re-run after fixing those to get a full comparis
 | 16 | Arabic | Middle East | Jais-2-8B | Jais-2-8B | fertility 2.031→1.462, vcov 86.82% |
 | 17 | Persian | Middle East | Gemma-4 | Maral-7B | fertility 1.679→5.138, vcov 53.49% |
 | 18 | Turkish | Middle East | Gemma-4 | Trendyol-8B | fertility 2.109→2.547, vcov 100.0% |
-| 19 | Hebrew | Middle East | DictaLM-2.0-7B | DictaLM-2.0-7B | fertility 2.706→2.642, vcov 83.33% |
+| 19 | Hebrew | Middle East | DictaLM-2.0-7B | DictaLM-2.0-7B | fertility 2.706→2.642, vcov 83.33% · **upgraded to DictaLM-3.0-Nemotron-12B for Task 1B** (§7) |
 | 20 | Kurdish | Middle East | Gemma-4 | Mistral-Nemo-Kurdish | fertility 2.358→2.486, vcov 96.19% |
 | 21 | Azerbaijani | Middle East | Gemma-4 | mGPT-Azerbaijani-1.3B | fertility 2.873→3.553, vcov 97.09% |
 | 22 | Uzbek | Middle East | Gemma-4 | Mistral-7B-Uz | fertility 2.839→3.515, vcov 100.0% |
 | 23 | Kazakh | Middle East | Gemma-4 | KazLLM-8B | fertility 3.184→4.831, vcov 91.3% |
 | 24 | Chinese | East Asia | Gemma-4 | ChatGLM3-6B | fertility 14.132→13.184, vcov 10.85% |
 | 25 | Japanese | East Asia | Gemma-4 | LLM-jp-3-13B | fertility 30.432→25.627, vcov 71.3% |
-| 26 | Korean | East Asia | Polyglot-Ko-12B | Polyglot-Ko-12B | fertility 2.415→2.199, vcov 93.26% |
+| 26 | Korean | East Asia | Polyglot-Ko-12B | Polyglot-Ko-12B | fertility 2.415→2.199, vcov 93.26% · **upgraded to EXAONE-3.5-32B for Task 1B** (§7) |
 | 27 | Vietnamese | SEA | Gemma-4 | Arcee-VyLinh-3B | fertility 1.21→1.29, vcov 100.0% |
 | 28 | Thai | SEA | Gemma-4 | Typhoon2-7B | fertility 10.084→16.315, vcov 98.77% |
 | 29 | Indonesian | SEA | Gemma-4 | Nusantara-7B | fertility 1.575→2.146, vcov 100.0% |
@@ -71,7 +71,7 @@ Gemma-4 is the current default. Re-run after fixing those to get a full comparis
 | 53 | Romanian | Europe | Gemma-4 | LLMic-3B | fertility 1.8→2.192, vcov 77.68% |
 | 54 | Swedish | Europe | Viking-7B | Viking-7B | fertility 1.841→1.474, vcov 100.0% |
 | 55 | Czech | Europe | CSMPT-7B | CSMPT-7B | fertility 2.157→1.407, vcov 96.52% |
-| 56 | Greek | Europe | Meltemi-7B | Meltemi-7B | fertility 2.472→1.397, vcov 95.42% |
+| 56 | Greek | Europe | Meltemi-7B | Meltemi-7B | fertility 2.472→1.397, vcov 95.42% · **upgraded to Krikri-8B for Task 1B** (§7) |
 | 57 | Lat.Am. Spanish | Americas | Gemma-4 | LatamGPT-70B | fertility 1.347→1.604, vcov 100.0% |
 | 58 | Brazilian Portuguese | Americas | Tucano-2b4 | Tucano-2b4 | fertility 1.453→1.252, vcov 86.84% |
 | 59 | Quechua | Americas | Gemma-4 | No regional candidate tested | — |
@@ -1210,7 +1210,25 @@ Every tokenizer × language combination from `data/results.csv`.
 
 ---
 
-## 7. Raw files
+## 7. Task 1B model upgrades — tokenizer re-evaluation (2026-06-24)
+
+After qualitative evaluation (Task 1B) showed Grade E results for the original Indic, Korean, Hebrew, and Greek models, we upgraded to stronger regional models and re-ran tokenizer tests. Old rows in the summary table above are preserved; the results below represent the new candidates.
+
+> **Note on DictaLM-3.0-Nemotron-12B:** fertility=0.181 and roundtrip=0% indicate the Nemotron-based tokenizer cannot properly encode Hebrew text — the older DictaLM-2.0-7B was actually better for tokenization. The 3.0 model is still preferred for Task 1B because it has stronger Hebrew reasoning despite the tokenizer limitations.
+
+| Language | Old model | New model (upgraded) | New fertility | Old fertility | New vcov | Old vcov | Notes |
+|---|---|---|---|---|---|---|---|
+| Tamil | Tamil-Mistral-7B | **Sarvam-M-24B** (`sarvamai/sarvam-m`) | 3.614 | 1.734 | 90.55% | 86.61% | Sarvam covers all 4 Indic langs; much stronger inference quality despite higher fertility |
+| Kannada | Ambari-7B | **Sarvam-M-24B** (`sarvamai/sarvam-m`) | 3.815 | 2.736 | 88.03% | 81.69% | Same Sarvam model; Kannada explicitly in its 11-language list |
+| Marathi | MahaMarathi-7B | **Sarvam-M-24B** (`sarvamai/sarvam-m`) | 3.131 | 1.638 | 95.39% | 84.87% | Same Sarvam model; Marathi explicitly supported |
+| Gujarati | Gujju-Llama-7B | **Sarvam-M-24B** (`sarvamai/sarvam-m`) | 3.629 | 2.033 | 81.56% | 82.98% | Same Sarvam model; Gujarati explicitly supported |
+| Hebrew | DictaLM-2.0-7B | **DictaLM-3.0-Nemotron-12B** (`dicta-il/DictaLM-3.0-Nemotron-12B-Instruct`) | 0.181 ⚠️ | 2.642 | 71.3% | 83.33% | Anomalous: Nemotron tokenizer incompatible with Hebrew (roundtrip=0%); old model wins on tokenization but new model preferred for reasoning quality |
+| Korean | Polyglot-Ko-12B | **EXAONE-3.5-32B** (`LGAI-EXAONE/EXAONE-3.5-32B-Instruct`) | 2.199 | 2.199 | 94.57% | 93.26% | Same fertility; slightly better vocab coverage; instruct-tuned (Polyglot was base-only) |
+| Greek | Meltemi-7B | **Krikri-8B** (`ilsp/Llama-Krikri-8B-Instruct`) | 1.487 | 1.397 | 100.0% | 95.42% | Slightly higher fertility but perfect vocab coverage vs 95%; same ILSP lab, newer Llama 3.1 base |
+
+---
+
+## 8. Raw files
 
 - `data/results.csv` — machine-readable detail (one row per tokenizer × language)
 - `data/summary.json` — per-tokenizer aggregates (unweighted + character-weighted)

@@ -55,12 +55,12 @@ LANGUAGES = [
     # ── Indic ────────────────────────────────────────────────────────────────
     {"name": "Hindi",             "region": "Indic",       "flores_code": "hin_Deva", "candidate": ("Airavata-7B",          "ai4bharat/Airavata")},
     {"name": "Bengali",           "region": "Indic",       "flores_code": "ben_Beng", "candidate": ("BanglaLLama-3.1-8B",   "BanglaLLM/BanglaLLama-3.1-8b-bangla-alpaca-orca-instruct-v0.0.1")},
-    {"name": "Tamil",             "region": "Indic",       "flores_code": "tam_Taml", "candidate": ("Tamil-Mistral-7B",     "Hemanth-thunder/Tamil-Mistral-7B-Instruct-v0.1")},
+    {"name": "Tamil",             "region": "Indic",       "flores_code": "tam_Taml", "candidate": ("Sarvam-M-24B",         "sarvamai/sarvam-m")},
     {"name": "Telugu",            "region": "Indic",       "flores_code": "tel_Telu", "candidate": ("Telugu-Llama2-7B",     "Telugu-LLM-Labs/Telugu-Llama2-7B-v0-Base")},
-    {"name": "Kannada",           "region": "Indic",       "flores_code": "kan_Knda", "candidate": ("Ambari-7B",            "Cognitive-Lab/Ambari-7B-base-v0.1")},
+    {"name": "Kannada",           "region": "Indic",       "flores_code": "kan_Knda", "candidate": ("Sarvam-M-24B",         "sarvamai/sarvam-m")},
     {"name": "Malayalam",         "region": "Indic",       "flores_code": "mal_Mlym", "candidate": ("MalayaLLM-Gemma-9B",   "VishnuPJ/MalayaLLM_Gemma_2_9B_Instruct_V1.0")},
-    {"name": "Marathi",           "region": "Indic",       "flores_code": "mar_Deva", "candidate": ("MahaMarathi-7B",       "marathi-llm/MahaMarathi-7B-v24.01-Base")},
-    {"name": "Gujarati",          "region": "Indic",       "flores_code": "guj_Gujr", "candidate": ("Gujju-Llama-7B",       "sampoorna42/gujju-llama-base-v1.0")},
+    {"name": "Marathi",           "region": "Indic",       "flores_code": "mar_Deva", "candidate": ("Sarvam-M-24B",         "sarvamai/sarvam-m")},
+    {"name": "Gujarati",          "region": "Indic",       "flores_code": "guj_Gujr", "candidate": ("Sarvam-M-24B",         "sarvamai/sarvam-m")},
     {"name": "Punjabi",           "region": "Indic",       "flores_code": "pan_Guru", "candidate": ("Dhee-Qwen3-Punjabi-2B","dheeyantra/dhee-nxtgen-qwen3-punjabi-v2")},
     {"name": "Odia",              "region": "Indic",       "flores_code": "ory_Orya", "candidate": ("Qwen-Odia-7B",         "OdiaGenAI-LLM/qwen_1.5_odia_7b")},
     {"name": "Assamese",          "region": "Indic",       "flores_code": "asm_Beng", "candidate": ("Goldfish-ASM-125M",    "goldfish-models/asm_beng_full"), "slow_tokenizer": True},
@@ -72,7 +72,7 @@ LANGUAGES = [
     {"name": "Arabic",            "region": "Middle East", "flores_code": "arb_Arab", "candidate": ("Jais-2-8B",            "inceptionai/Jais-2-8B-Chat")},
     {"name": "Persian",           "region": "Middle East", "flores_code": "pes_Arab", "candidate": ("Maral-7B",             "MaralGPT/Maral-7B-alpha-1")},
     {"name": "Turkish",           "region": "Middle East", "flores_code": "tur_Latn", "candidate": ("Trendyol-8B",          "Trendyol/Trendyol-LLM-8B-T1")},
-    {"name": "Hebrew",            "region": "Middle East", "flores_code": "heb_Hebr", "candidate": ("DictaLM-2.0-7B",       "dicta-il/dictalm2.0-instruct")},
+    {"name": "Hebrew",            "region": "Middle East", "flores_code": "heb_Hebr", "candidate": ("DictaLM-3.0-Nemotron-12B", "dicta-il/DictaLM-3.0-Nemotron-12B-Instruct")},
     {"name": "Kurdish",           "region": "Middle East", "flores_code": "kmr_Latn", "candidate": ("Mistral-Nemo-Kurdish", "nazimali/Mistral-Nemo-Kurdish-Instruct")},
     {"name": "Azerbaijani",       "region": "Middle East", "flores_code": "azj_Latn", "candidate": ("mGPT-Azerbaijani-1.3B", "ai-forever/mGPT-1.3B-azerbaijan")},
     {"name": "Uzbek",             "region": "Middle East", "flores_code": "uzn_Latn", "candidate": ("Mistral-7B-Uz",        "behbudiy/Mistral-7B-Instruct-Uz")},
@@ -80,7 +80,7 @@ LANGUAGES = [
     # ── East & Southeast Asia ─────────────────────────────────────────────────
     {"name": "Chinese",           "region": "East Asia",   "flores_code": "zho_Hans", "candidate": ("ChatGLM3-6B",          "THUDM/chatglm3-6b")},
     {"name": "Japanese",          "region": "East Asia",   "flores_code": "jpn_Jpan", "candidate": ("LLM-jp-3-13B",         "llm-jp/llm-jp-3-13b-instruct")},
-    {"name": "Korean",            "region": "East Asia",   "flores_code": "kor_Hang", "candidate": ("Polyglot-Ko-12B",      "EleutherAI/polyglot-ko-12.8b")},
+    {"name": "Korean",            "region": "East Asia",   "flores_code": "kor_Hang", "candidate": ("EXAONE-3.5-32B",       "LGAI-EXAONE/EXAONE-3.5-32B-Instruct")},
     {"name": "Vietnamese",        "region": "SEA",         "flores_code": "vie_Latn", "candidate": ("Arcee-VyLinh-3B",      "arcee-ai/Arcee-VyLinh")},
     {"name": "Thai",              "region": "SEA",         "flores_code": "tha_Thai", "candidate": ("Typhoon2-7B",          "scb10x/typhoon2-qwen2.5-7b-instruct")},
     {"name": "Indonesian",        "region": "SEA",         "flores_code": "ind_Latn", "candidate": ("Nusantara-7B",         "kalisai/Nusantara-7b-Indo-Chat")},
@@ -112,7 +112,7 @@ LANGUAGES = [
     {"name": "Romanian",          "region": "Europe",      "flores_code": "ron_Latn", "candidate": ("LLMic-3B",             "faur-ai/LLMic")},
     {"name": "Swedish",           "region": "Europe",      "flores_code": "swe_Latn", "candidate": ("Viking-7B",            "LumiOpen/Viking-7B")},
     {"name": "Czech",             "region": "Europe",      "flores_code": "ces_Latn", "candidate": ("CSMPT-7B",             "BUT-FIT/csmpt7b")},
-    {"name": "Greek",             "region": "Europe",      "flores_code": "ell_Grek", "candidate": ("Meltemi-7B",           "ilsp/Meltemi-7B-Instruct-v1.5")},
+    {"name": "Greek",             "region": "Europe",      "flores_code": "ell_Grek", "candidate": ("Krikri-8B",            "ilsp/Llama-Krikri-8B-Instruct")},
     # ── Americas ─────────────────────────────────────────────────────────────
     {"name": "Lat.Am. Spanish",   "region": "Americas",    "flores_code": "spa_Latn", "candidate": ("LatamGPT-70B",         "latam-gpt/Llama-3.1-70B-LatamGPT-SFT-1.0")},
     {"name": "Brazilian Portuguese","region": "Americas",  "flores_code": "por_Latn", "candidate": ("Tucano-2b4",           "TucanoBR/Tucano-2b4-Instruct")},
@@ -250,7 +250,7 @@ def load_flores(flores_code):
 def load_tokenizer(hf_id, use_fast=True):
     from transformers import AutoTokenizer
     kwargs = {"use_fast": use_fast}
-    if any(x in hf_id.lower() for x in ("chatglm", "moss", "goldfish")):
+    if any(x in hf_id.lower() for x in ("chatglm", "moss", "goldfish", "exaone")):
         kwargs["trust_remote_code"] = True
     return AutoTokenizer.from_pretrained(hf_id, **kwargs)
 
