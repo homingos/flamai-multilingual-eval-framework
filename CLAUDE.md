@@ -164,6 +164,8 @@ Apply this principle going forward: before finalising a Grade E/D verdict for an
 | Marathi | MahaMarathi-7B | **Sarvam-M (24B)** (`sarvamai/sarvam-m`) | Same model — Marathi explicitly supported |
 | Gujarati | Gujju-Llama-7B | **Sarvam-M (24B)** (`sarvamai/sarvam-m`) | Same model — Gujarati explicitly supported |
 
+**IMPORTANT — do not overwrite old results:** When re-running a language with a better model, always ADD a new row in both the Notion tables and the CLAUDE.md Ram's Queue table. Keep the original row (e.g. Tamil-Mistral-7B Grade E) intact for comparison. Each row = one model evaluation, not one language.
+
 **Indic re-run escalation path (all 4 languages: Tamil, Kannada, Marathi, Gujarati):**
 1. **Sarvam-M 24B** (`sarvamai/sarvam-m`) — single L40S, drop-in. Run first.
 2. **Sarvam-30B** (`sarvamai/sarvam-30b`) — single A100 80GB (or L40S in FP8). Run if M is inconclusive (Grade C).
