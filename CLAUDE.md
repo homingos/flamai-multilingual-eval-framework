@@ -27,7 +27,8 @@ Pipeline runs on Modal (`modal_app.py`). All infrastructure bugs have been resol
 - **Kannada** (Ambari-7B): ✅ Grade E — Gemma-4 strongly preferred (win rate 0%, BLEU 2.07 vs 15.41) — run ID `2026-06-23_105532_c67e18`
 - **Gujarati** (Gujju-Llama-7B): ✅ Grade E — Gemma-4 strongly preferred (win rate 0%, BLEU 0.0 vs 20.02, chrF 1.27 vs 50.56) — run ID `2026-06-23_131533_bad6cb`
 - **Arabic** (Jais-2-8B): ✅ Grade E — Gemma-4 strongly preferred (win rate 13%, BLEU 27.0 vs 25.87, chrF 54.93 vs 55.62) — run ID `2026-06-24_073508_1b374d`
-- All other 11 languages: Pending
+- **Korean** (Polyglot-Ko-12B): ✅ Grade E — Gemma-4 strongly preferred (win rate 0%, BLEU 0.02 vs 15.53, chrF 0.64 vs 37.42) — run ID `2026-06-24_101013_5ad649`
+- All other 10 languages: Pending
 
 #### Instruction Following task
 - **Greek** (Meltemi-7B): ✅ Grade E — Gemma-4 strongly preferred (win rate 2%) — run ID `2026-06-19_115923_1b890f`
@@ -36,7 +37,8 @@ Pipeline runs on Modal (`modal_app.py`). All infrastructure bugs have been resol
 - **Kannada** (Ambari-7B): ⚠️ Skipped — GPU inference crash (208/1200 samples, pipeline failed at LIGHT_METRICS on partial data). Translation Grade E confirms nothing to distill. Failed run ID `2026-06-23_121912_8dc209`.
 - **Gujarati** (Gujju-Llama-7B): ✅ Grade E — Gemma-4 strongly preferred (win rate 0%) — run ID `2026-06-23_131533_46c68c`
 - **Arabic** (Jais-2-8B): ✅ Grade D — Gemma-4 preferred (win rate 24%) — run ID `2026-06-24_073405_e6e60d`
-- All other 11 languages: Pending (see teammate assignment below)
+- **Korean** (Polyglot-Ko-12B): ✅ Grade E — Gemma-4 strongly preferred (win rate 0%) — run ID `2026-06-24_101013_9ce150`
+- All other 10 languages: Pending (see teammate assignment below)
 
 ---
 
@@ -156,7 +158,7 @@ Apply this principle going forward: before finalising a Grade E/D verdict for an
 | Language | Model Used | Upgrade | Notes |
 |---|---|---|---|
 | Arabic | Jais-2-8B | **Jais-2-70B-Chat** (`inceptionai/Jais-2-70B-Chat`) | Planned — run after Korean + Hebrew |
-| Hebrew | DictaLM-2.0-7B | **DictaLM-3.0-24B** (`dicta-il/DictaLM-3.0-24B-Thinking`) | Update registry BEFORE running Hebrew |
+| Hebrew | DictaLM-2.0-7B | **DictaLM-3.0-Nemotron-12B** (`dicta-il/DictaLM-3.0-Nemotron-12B-Instruct`) | Registry updated — clean instruct variant (24B-Thinking outputs `<think>` blocks that corrupt judge) |
 | Korean | Polyglot-Ko-12B | **EXAONE-3.5-32B-Instruct** (`LGAI-EXAONE/EXAONE-3.5-32B-Instruct`) | Polyglot-Ko is a base model (no instruct tuning, 2022) — re-run with EXAONE after current run |
 | Greek | Meltemi-7B | **Krikri-8B-Instruct** (`ilsp/Llama-Krikri-8B-Instruct`) | Same ILSP lab, Llama 3.1 base, May 2025 — re-run both tasks |
 | Tamil | Tamil-Mistral-7B | **Sarvam-M (24B)** (`sarvamai/sarvam-m`) | Single model covers all 4 Indic langs; +23% MMLU-IN vs Mistral Small; comparable to Llama-3.3 70B |
@@ -195,15 +197,14 @@ Do NOT run languages assigned to the other person — each person runs their own
 | Kannada | Ambari-7B | ⚠️ skipped — inference crash · `2026-06-23_121912_8dc209` | ✅ Grade E (win rate 0%) · `2026-06-23_105532_c67e18` |
 | Gujarati | Gujju-Llama-7B | ✅ Grade E (win rate 0%) · `2026-06-23_131533_46c68c` | ✅ Grade E (win rate 0%) · `2026-06-23_131533_bad6cb` |
 | Arabic | Jais-2-8B | ✅ Grade D (win rate 24%) · `2026-06-24_073405_e6e60d` | ✅ Grade E (win rate 13%) · `2026-06-24_073508_1b374d` |
-| Korean | Polyglot-Ko-12B | Pending | Pending |
-| Hebrew | DictaLM-2.0-7B | Pending | Pending |
+| Korean | Polyglot-Ko-12B | ✅ Grade E (win rate 0%) · `2026-06-24_101013_9ce150` | ✅ Grade E (win rate 0%) · `2026-06-24_101013_5ad649` |
+| Hebrew | DictaLM-3.0-Nemotron-12B | Pending | Pending |
 
 ### Next up
 ```bash
-# Korean — run both in parallel
-echo "" | modal run --detach modal_app.py::run_pipeline --slug korean --task instructions --limit 1000
-echo "" | modal run --detach modal_app.py::run_pipeline --slug korean --task translation --limit 1000
-# then Hebrew
+# Hebrew (DictaLM-3.0-Nemotron-12B — registry already updated)
+echo "" | modal run --detach modal_app.py::run_pipeline --slug hebrew --task instructions --limit 1000
+echo "" | modal run --detach modal_app.py::run_pipeline --slug hebrew --task translation --limit 1000
 ```
 
 ---
