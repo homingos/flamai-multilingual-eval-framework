@@ -195,28 +195,30 @@ def _handles() -> WorkerHandles:
 # ---------------------------------------------------------------------------
 
 ALL_MODELS = [
-    LanguageSpec("tamil-mistral-7b",  "Tamil",                "tamil",                "l4"),
-    LanguageSpec("mahamarathi-7b",    "Marathi",              "marathi",              "l4"),
-    LanguageSpec("ambari-7b",         "Kannada",              "kannada",              "l4"),
-    LanguageSpec("gujju-llama-7b",    "Gujarati",             "gujarati",             "l4"),
-    LanguageSpec("jais-2-8b",         "Arabic",               "arabic",               "l4"),
-    LanguageSpec("dictalm-2-7b",      "Hebrew",               "hebrew",               "l4"),
-    LanguageSpec("polyglot-ko-12b",   "Korean",               "korean",               "l40s"),
-    LanguageSpec("mallam-5b",         "Malay",                "malay",                "l4"),
-    LanguageSpec("swahili-gemma-7b",  "Swahili",              "swahili",              "l4"),
-    LanguageSpec("walia-llm-7b",      "Amharic",              "amharic",              "l4"),
-    LanguageSpec("lucie-7b",          "French",               "french",               "l4"),
-    LanguageSpec("viking-7b",         "Swedish",              "swedish",              "l4"),
-    LanguageSpec("csmpt-7b",          "Czech",                "czech",                "l4"),
-    LanguageSpec("meltemi-7b",        "Greek",                "greek",                "l4"),
-    LanguageSpec("tucano-2b4",        "Brazilian Portuguese", "brazilian_portuguese", "l4"),
-    LanguageSpec("goldfish-mri-39m",  "Māori",                "maori",                "t4"),
-    LanguageSpec("goldfish-tpi-125m", "Tok Pisin",            "tok_pisin",            "t4"),
+    # Re-run upgraded models — Sarvam-M 24B covers all 4 Indic languages
+    LanguageSpec("sarvam-m-tamil",           "Tamil",                "tamil",                "l40s"),
+    LanguageSpec("sarvam-m-marathi",         "Marathi",              "marathi",              "l40s"),
+    LanguageSpec("sarvam-m-kannada",         "Kannada",              "kannada",              "l40s"),
+    LanguageSpec("sarvam-m-gujarati",        "Gujarati",             "gujarati",             "l40s"),
+    LanguageSpec("jais-2-8b",                "Arabic",               "arabic",               "l4"),
+    LanguageSpec("dictalm-3-nemotron-12b",   "Hebrew",               "hebrew",               "l40s"),
+    # Re-run upgraded — EXAONE-3.5-32B (Polyglot-Ko-12B was a base model, Grade E)
+    LanguageSpec("exaone-3-5-32b",           "Korean",               "korean",               "a100_80gb"),
+    LanguageSpec("mallam-5b",                "Malay",                "malay",                "l4"),
+    LanguageSpec("swahili-gemma-7b",         "Swahili",              "swahili",              "l4"),
+    LanguageSpec("walia-llm-7b",             "Amharic",              "amharic",              "l4"),
+    LanguageSpec("lucie-7b",                 "French",               "french",               "l4"),
+    LanguageSpec("viking-7b",                "Swedish",              "swedish",              "l4"),
+    LanguageSpec("csmpt-7b",                 "Czech",                "czech",                "l4"),
+    # Re-run upgraded — Krikri-8B (same ILSP lab, Llama 3.1, May 2025)
+    LanguageSpec("krikri-8b",                "Greek",                "greek",                "l4"),
+    LanguageSpec("tucano-2b4",               "Brazilian Portuguese", "brazilian_portuguese", "l4"),
+    LanguageSpec("goldfish-mri-39m",         "Māori",                "maori",                "t4"),
+    LanguageSpec("goldfish-tpi-125m",        "Tok Pisin",            "tok_pisin",            "t4"),
 ]
 
 BASE_MODELS = {  # no instruct variant — plain-text prompts only
-    "mahamarathi-7b", "ambari-7b", "gujju-llama-7b",
-    "viking-7b", "csmpt-7b", "polyglot-ko-12b",
+    "viking-7b", "csmpt-7b",
     "goldfish-mri-39m", "goldfish-tpi-125m",
 }
 
