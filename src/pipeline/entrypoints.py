@@ -197,7 +197,6 @@ def run_pipeline(
             "language": lr.spec.language, "regional_model": lr.spec.model_id,
             "judge_win_rate": None, "gemma4_win_rate": None,
             "classification": "?",
-            "classification_rationale": lr.error or "unknown failure",
         }
         if task == "translation":
             fail_result.update({
@@ -210,7 +209,8 @@ def run_pipeline(
                 "length_accuracy_regional": None, "length_accuracy_gemma4": None,
             })
         agg["results"][slug] = fail_result
-    agg["classification_counts"] = {
+
+    classification_counts = {
         g: sum(1 for r in agg["results"].values() if r["classification"] == g)
         for g in ["A", "B", "C", "D", "E", "?"]
     }
@@ -223,9 +223,6 @@ def run_pipeline(
         "generated_at": generated_at,
         "models_run": len(specs), "failed": failed,
         "results": agg["results"],
-        "classification_counts": agg["classification_counts"],
-        "cost_estimate": cost,
-        "elapsed_minutes": round(elapsed_s / 60, 1) if elapsed_s else None,
     }
 
     # One spec gets a per-language filename; many get the run-level name.
@@ -242,13 +239,13 @@ def run_pipeline(
 
     md = render_markdown(
         run_id=run_id, task=task, generated_at=generated_at,
-        results=agg["results"], classification_counts=agg["classification_counts"],
+        results=agg["results"], classification_counts=classification_counts,
         title=title, cost=cost, failed=failed,
     )
     write_markdown_report(run_id, md, filename=md_filename)
 
     # ── Console summary ──────────────────────────────────────────────────────
-    counts = summary["classification_counts"]
+    counts = classification_counts
     print(f"\n{'='*65}\n  PIPELINE COMPLETE — {len(specs) - len(failed)}/{len(specs)} succeeded")
     print(f"{'='*65}")
     for g in ["A", "B", "C", "D", "E"]:

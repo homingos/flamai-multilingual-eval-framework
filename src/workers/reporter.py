@@ -215,12 +215,11 @@ def get_language_summary(report: dict, slug: str, task: str = "translation") -> 
     bl_model      = bl_task.get("model_metrics", {})
 
     base = {
-        "language":                 lang_data.get("language", slug),
-        "regional_model":           lang_data.get("regional_model", ""),
-        "judge_win_rate":           judge.get("regional_win_rate"),
-        "gemma4_win_rate":          judge.get("gemma4_win_rate"),
-        "classification":           lang_data.get("classification", "?"),
-        "classification_rationale": lang_data.get("classification_rationale", ""),
+        "language":        lang_data.get("language", slug),
+        "regional_model":  lang_data.get("regional_model", ""),
+        "judge_win_rate":  judge.get("regional_win_rate"),
+        "gemma4_win_rate": judge.get("gemma4_win_rate"),
+        "classification":  lang_data.get("classification", "?"),
     }
 
     if task == "instructions":
