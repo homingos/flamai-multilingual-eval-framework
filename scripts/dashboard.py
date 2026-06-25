@@ -473,6 +473,48 @@ QUAL_PILL_CSS = """
 
 
 # ---------------------------------------------------------------------------
+# Grade legend (always-visible, top of Qualitative Analysis page)
+# ---------------------------------------------------------------------------
+
+def _grade_chip(grade: str, label: str, sublabel: str) -> str:
+    color = GRADE_COLORS[grade]
+    bg    = color + "18"
+    return (
+        f'<div style="display:flex;align-items:center;gap:8px;padding:8px 14px;'
+        f'border-right:1px solid var(--bd);flex-shrink:0;">'
+        f'<span style="font-size:13px;font-weight:800;padding:3px 10px;border-radius:10px;'
+        f'background:{bg};color:{color};border:1px solid {color}44;">{grade}</span>'
+        f'<div style="line-height:1.3;">'
+        f'<div style="font-size:12px;font-weight:600;color:var(--tx);">{label}</div>'
+        f'<div style="font-size:10px;color:var(--mu);">{sublabel}</div>'
+        f'</div></div>'
+    )
+
+_GRADE_CHIPS = "".join([
+    _grade_chip("A", "Regional superior",   ">60% judge win rate"),
+    _grade_chip("B", "Regional preferred",  "50–60% win rate"),
+    _grade_chip("C", "Comparable",          "40–50% win rate"),
+    _grade_chip("D", "Gemma-4 preferred",   "20–40% win rate"),
+    _grade_chip("E", "Gemma-4 dominant",    "<20% win rate"),
+])
+
+GRADE_LEGEND_HTML = (
+    '<div style="display:flex;align-items:stretch;background:var(--sf);border:1px solid var(--bd);'
+    'border-radius:10px;overflow:hidden;margin-bottom:18px;flex-wrap:wrap;">'
+    '<div style="padding:8px 14px;display:flex;align-items:center;border-right:1px solid var(--bd);flex-shrink:0;">'
+    '<span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;'
+    'color:var(--mu);white-space:nowrap;">Grade scale</span></div>'
+    + _GRADE_CHIPS +
+    '<div style="padding:8px 14px;display:flex;align-items:center;flex:1;min-width:180px;">'
+    '<span style="font-size:11px;color:var(--mu);line-height:1.5;">'
+    'Based on <strong style="color:var(--tx);">judge win rate</strong> — '
+    'the % of head-to-head comparisons where a Gemini judge preferred the regional model '
+    'over Gemma-4 26B. 50 prompts judged per run, each twice (positions swapped) across '
+    '3 quality dimensions.</span></div></div>'
+)
+
+
+# ---------------------------------------------------------------------------
 # Routes
 # ---------------------------------------------------------------------------
 
@@ -511,6 +553,7 @@ def qualitative_page():
 {nav_html("qualitative")}
 <div style="max-width:1200px;margin:0 auto;padding:24px 20px;">
   {render_stats_bar(evs)}
+  {GRADE_LEGEND_HTML}
   <div class="filter-row">
     {pills}
     <button class="refresh-btn" id="refresh-btn" onclick="doRefresh()">↺ Refresh</button>
