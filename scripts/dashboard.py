@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import os
 import re
 import subprocess
 import sys
@@ -16,12 +17,16 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
-PORT = 8765
+REPO_ROOT    = Path(__file__).resolve().parent.parent
+PORT         = 8765
 MODAL_VOLUME = "phase2a-outputs"
-QUAL_JSON = REPO_ROOT / "data" / "qualitative_results.json"
-REVIEW_DIR = REPO_ROOT / "data" / "review"
-VIZ_DIR = REPO_ROOT / "docs" / "viz"
+QUAL_JSON    = REPO_ROOT / "data" / "qualitative_results.json"
+CACHE_DIR    = REPO_ROOT / "data" / "modal_cache"
+VIZ_DIR      = REPO_ROOT / "docs" / "viz"
+
+# On Vercel: filesystem is read-only except /tmp; Modal CLI is unavailable.
+IS_VERCEL  = bool(os.environ.get("VERCEL"))
+REVIEW_DIR = Path("/tmp/review") if IS_VERCEL else REPO_ROOT / "data" / "review"
 
 try:
     from fastapi import FastAPI, Request
@@ -36,7 +41,7 @@ app = FastAPI(title="Falcon Dashboard")
 
 REVIEW_DIR.mkdir(parents=True, exist_ok=True)
 app.mount("/static/viz", StaticFiles(directory=str(VIZ_DIR)), name="viz")
-app.mount("/static/review", StaticFiles(directory=str(REVIEW_DIR)), name="review")
+app.mount("/static/review", StaticFiles(directory=str(REVIEW_DIR), html=False), name="review")
 
 # ---------------------------------------------------------------------------
 # Design tokens
@@ -825,6 +830,50 @@ def load_generate_review():
     return gr
 
 
+def _review_html_path(slug: str, task: str, run_id: str) -> Path:
+    return REVIEW_DIR / f"{slug}_{task}_{run_id}" / "review.html"
+
+
+def _review_url(slug: str, task: str, run_id: str) -> str:
+    return f"/static/review/{slug}_{task}_{run_id}/review.html"
+
+
+def _grade_from_qual_json(run_id: str) -> tuple[Optional[str], Optional[float]]:
+    try:
+        for ev in json.loads(QUAL_JSON.read_text()).get("evaluations", []):
+            if ev.get("run_id") == run_id:
+                wr = ev.get("judge_win_rate")
+                return ev.get("grade"), (round(wr, 1) if wr is not None else None)
+    except Exception:
+        pass
+    return None, None
+
+
+def _grade_from_cache_meta(run_id: str) -> tuple[Optional[str], Optional[float]]:
+    meta_file = CACHE_DIR / run_id / "meta.json"
+    try:
+        m = json.loads(meta_file.read_text())
+        return m.get("grade"), m.get("judge_win_rate")
+    except Exception:
+        return None, None
+
+
+def _generate_review_html(run_id: str, slug: str, task: str,
+                           gemma4_path: Path, regional_path: Path, verdicts_path: Path) -> str:
+    gr               = load_generate_review()
+    gemma4_records   = gr.load_jsonl(gemma4_path)
+    regional_records = gr.load_jsonl(regional_path)
+    verdict_records  = gr.load_jsonl(verdicts_path)
+    aggregated       = gr.aggregate_verdicts(verdict_records)
+    meta             = SLUG_META.get(slug)
+    model_display    = meta[2] if meta else slug
+    return gr.generate_html(
+        run_id=run_id, slug=slug, task=task, model_display=model_display,
+        regional_records=regional_records, gemma4_records=gemma4_records,
+        aggregated=aggregated,
+    )
+
+
 @app.post("/api/review/load")
 async def load_review_api(request: Request):
     body   = await request.json()
@@ -832,13 +881,89 @@ async def load_review_api(request: Request):
     if not run_id:
         return JSONResponse({"error": "run_id is required"})
 
-    slug, task = discover_slug_task(run_id)
-    if not slug or not task:
-        return JSONResponse({"error": f"Could not discover slug/task from Modal volume. Does run ID '{run_id}' exist in phase2a-outputs?"})
+    # ── Step 1: scan for known slug/task from cache meta OR existing HTML folder ──
+    slug = task = ""
+    cache_run_dir = CACHE_DIR / run_id
+    meta_file     = cache_run_dir / "meta.json"
 
-    out_dir  = REVIEW_DIR / f"{slug}_{task}_{run_id}"
-    out_dir.mkdir(parents=True, exist_ok=True)
-    out_file = out_dir / "review.html"
+    if meta_file.exists():
+        try:
+            m    = json.loads(meta_file.read_text())
+            slug = m.get("slug", "")
+            task = m.get("task", "")
+        except Exception:
+            pass
+
+    if not slug or not task:
+        # Try parsing from existing review folder name
+        for folder in REVIEW_DIR.iterdir() if REVIEW_DIR.exists() else []:
+            name = folder.name
+            if run_id in name:
+                for t in ("instructions", "translation"):
+                    marker = f"_{t}_{run_id}"
+                    if name.endswith(marker):
+                        slug = name[: -len(marker)]
+                        task = t
+                        break
+            if slug:
+                break
+
+    # ── Step 2: if HTML already generated, return it immediately ──
+    if slug and task:
+        html_path = _review_html_path(slug, task, run_id)
+        if html_path.exists():
+            grade, win_rate = _grade_from_qual_json(run_id)
+            if grade is None:
+                grade, win_rate = _grade_from_cache_meta(run_id)
+            return JSONResponse({
+                "url": _review_url(slug, task, run_id),
+                "slug": slug, "task": task, "run_id": run_id,
+                "grade": grade, "win_rate": win_rate,
+            })
+
+    # ── Step 3: try generating from data/modal_cache/ ──
+    if cache_run_dir.exists() and slug and task:
+        verdicts_path  = cache_run_dir / "verdicts.jsonl"
+        gemma4_path    = cache_run_dir / "gemma4.jsonl"
+        regional_path  = cache_run_dir / "regional.jsonl"
+
+        if verdicts_path.exists() and gemma4_path.exists() and regional_path.exists():
+            try:
+                gr = load_generate_review()
+            except Exception as e:
+                return JSONResponse({"error": f"Failed to load generate_review.py: {e}"})
+            try:
+                html_content = _generate_review_html(
+                    run_id, slug, task, gemma4_path, regional_path, verdicts_path
+                )
+                out_file = _review_html_path(slug, task, run_id)
+                out_file.parent.mkdir(parents=True, exist_ok=True)
+                out_file.write_text(html_content, encoding="utf-8")
+                grade, win_rate = _grade_from_qual_json(run_id)
+                if grade is None:
+                    grade, win_rate = _grade_from_cache_meta(run_id)
+                return JSONResponse({
+                    "url": _review_url(slug, task, run_id),
+                    "slug": slug, "task": task, "run_id": run_id,
+                    "grade": grade, "win_rate": win_rate,
+                })
+            except Exception as e:
+                return JSONResponse({"error": f"Failed to generate review HTML: {e}"})
+
+    # ── Step 4: Vercel — no Modal access, nothing to fall back on ──
+    if IS_VERCEL:
+        return JSONResponse({
+            "error": (
+                f"Run {run_id} is not pre-loaded in the hosted version. "
+                "Run `python scripts/download_all_runs.py` locally, then redeploy."
+            )
+        })
+
+    # ── Step 5: Local — download from Modal ──
+    if not slug or not task:
+        slug, task = discover_slug_task(run_id)
+    if not slug or not task:
+        return JSONResponse({"error": f"Could not discover slug/task for run ID '{run_id}'. Is it in phase2a-outputs?"})
 
     with tempfile.TemporaryDirectory(prefix="dash_review_") as tmp:
         tmp_path      = Path(tmp)
@@ -859,31 +984,20 @@ async def load_review_api(request: Request):
         except Exception as e:
             return JSONResponse({"error": f"Failed to load generate_review.py: {e}"})
 
-        gemma4_records   = gr.load_jsonl(gemma4_path)
-        regional_records = gr.load_jsonl(regional_path)
-        verdict_records  = gr.load_jsonl(verdicts_path)
-        aggregated       = gr.aggregate_verdicts(verdict_records)
+        try:
+            html_content = _generate_review_html(
+                run_id, slug, task, gemma4_path, regional_path, verdicts_path
+            )
+        except Exception as e:
+            return JSONResponse({"error": f"Failed to generate review HTML: {e}"})
 
-        html_content = gr.generate_html(
-            run_id=run_id, slug=slug, task=task, model_display=slug,
-            regional_records=regional_records, gemma4_records=gemma4_records,
-            aggregated=aggregated,
-        )
+        out_file = _review_html_path(slug, task, run_id)
+        out_file.parent.mkdir(parents=True, exist_ok=True)
         out_file.write_text(html_content, encoding="utf-8")
 
-    grade = win_rate = None
-    try:
-        for ev in json.loads(QUAL_JSON.read_text()).get("evaluations", []):
-            if ev.get("run_id") == run_id:
-                grade    = ev.get("grade")
-                wr       = ev.get("judge_win_rate")
-                win_rate = round(wr, 1) if wr is not None else None
-                break
-    except Exception:
-        pass
-
+    grade, win_rate = _grade_from_qual_json(run_id)
     return JSONResponse({
-        "url": f"/static/review/{slug}_{task}_{run_id}/review.html",
+        "url": _review_url(slug, task, run_id),
         "slug": slug, "task": task, "run_id": run_id,
         "grade": grade, "win_rate": win_rate,
     })

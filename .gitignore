@@ -30,3 +30,6 @@ build/
 # Phase 2A — local data (large, not for git)
 data/datasets/
 outputs/
+
+# Dashboard — generated HTML cache (regenerated from modal_cache/ on demand)
+data/review/

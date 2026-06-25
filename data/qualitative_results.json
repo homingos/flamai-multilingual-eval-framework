@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-06-25T00:00:00Z",
+  "last_updated": "2026-06-25T12:20:44.079426+00:00",
   "evaluations": [
     {
       "language": "Tamil",
@@ -67,7 +67,7 @@
       "gemma4_win_rate": 93.3,
       "bleu_regional": 1.61,
       "bleu_gemma4": 13.25,
-      "chrf_regional": 25.10,
+      "chrf_regional": 25.1,
       "chrf_gemma4": 50.95,
       "run_id": "2026-06-25_094523_dace81",
       "status": "complete",
@@ -100,7 +100,7 @@
       "task": "translation",
       "grade": "E",
       "judge_win_rate": 0.0,
-      "gemma4_win_rate": 100.0,
+      "gemma4_win_rate": 99.7,
       "bleu_regional": 0.02,
       "bleu_gemma4": 15.48,
       "chrf_regional": 6.55,
@@ -132,7 +132,7 @@
       "bleu_regional": 2.07,
       "bleu_gemma4": 15.41,
       "chrf_regional": 15.17,
-      "chrf_gemma4": 50.20,
+      "chrf_gemma4": 50.2,
       "run_id": "2026-06-23_105532_c67e18",
       "status": "complete",
       "notes": ""
@@ -199,8 +199,8 @@
       "model": "Jais-2-8B",
       "task": "translation",
       "grade": "E",
-      "judge_win_rate": 13.0,
-      "gemma4_win_rate": 87.0,
+      "judge_win_rate": 13.4,
+      "gemma4_win_rate": 86.6,
       "bleu_regional": 27.0,
       "bleu_gemma4": 25.87,
       "chrf_regional": 54.93,
