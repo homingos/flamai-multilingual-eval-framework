@@ -9,20 +9,20 @@
     "korean": {
       "language": "Korean",
       "regional_model": "polyglot-ko-12b",
-      "bleu_regional": null,
-      "bleu_gemma4": null,
-      "chrf_regional": null,
-      "chrf_gemma4": null,
-      "bertscore_f1_regional": null,
-      "bertscore_f1_gemma4": null,
-      "comet_regional": null,
-      "comet_gemma4": null,
-      "back_translation_regional": null,
-      "back_translation_gemma4": null,
       "judge_win_rate": 0.0,
       "gemma4_win_rate": 1.0,
       "classification": "E",
-      "classification_rationale": "Gemma-4 strongly preferred \u2014 regional wins only 0%"
+      "classification_rationale": "Gemma-4 strongly preferred \u2014 regional wins only 0%",
+      "lang_adherence_regional": 0.4038,
+      "lang_adherence_gemma4": 0.983,
+      "tone_register_regional": 0.6154,
+      "tone_register_gemma4": 1.0,
+      "length_accuracy_regional": 0.33,
+      "length_accuracy_gemma4": 0.875,
+      "format_compliance_regional": 0.0,
+      "format_compliance_gemma4": 1.0,
+      "topic_boundary_regional": 0.8579,
+      "topic_boundary_gemma4": 0.87
     }
   },
   "classification_counts": {

@@ -1,0 +1,37 @@
+{
+  "run_id": "2026-06-23_115852_b7239e",
+  "task": "translation",
+  "stop_at": "report",
+  "generated_at": "2026-06-23T12:13:48.107175+00:00",
+  "models_run": 1,
+  "failed": [
+    "malay"
+  ],
+  "results": {
+    "malay": {
+      "language": "Malay",
+      "regional_model": "mallam-5b",
+      "bleu_regional": null,
+      "bleu_gemma4": null,
+      "judge_win_rate": null,
+      "classification": "?",
+      "classification_rationale": "inference raised: "
+    }
+  },
+  "classification_counts": {
+    "A": 0,
+    "B": 0,
+    "C": 0,
+    "D": 0,
+    "E": 0,
+    "?": 1
+  },
+  "cost_estimate": {
+    "regional_inference_usd": 0.26,
+    "gemma4_inference_usd": 1.05,
+    "judge_usd": 0.27,
+    "total_usd": 1.58,
+    "total_judge_calls": 300
+  },
+  "elapsed_minutes": null
+}

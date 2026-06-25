@@ -1,26 +1,28 @@
 {
-  "run_id": "2026-06-23_131533_46c68c",
+  "run_id": "2026-06-23_121423_58c3aa",
   "task": "instructions",
   "stop_at": "report",
-  "generated_at": "2026-06-24T07:31:10.596719+00:00",
+  "generated_at": "2026-06-23T13:36:40.695439+00:00",
   "models_run": 1,
   "failed": [],
   "results": {
-    "gujarati": {
-      "language": "Gujarati",
-      "regional_model": "gujju-llama-7b",
+    "swedish": {
+      "language": "Swedish",
+      "regional_model": "viking-7b",
       "judge_win_rate": 0.0,
       "gemma4_win_rate": 1.0,
       "classification": "E",
       "classification_rationale": "Gemma-4 strongly preferred \u2014 regional wins only 0%",
-      "lang_adherence_regional": 0.645,
-      "lang_adherence_gemma4": 0.995,
-      "tone_register_gemma4": 0.5102,
-      "length_accuracy_regional": 0.88,
-      "length_accuracy_gemma4": 0.875,
+      "lang_adherence_regional": 0.854,
+      "lang_adherence_gemma4": 0.975,
+      "tone_register_regional": 0.875,
+      "tone_register_gemma4": 1.0,
+      "length_accuracy_regional": 0.225,
+      "length_accuracy_gemma4": 0.9,
+      "format_compliance_regional": 0.25,
       "format_compliance_gemma4": 1.0,
-      "topic_boundary_gemma4": 0.845,
-      "tone_register_regional": null
+      "topic_boundary_regional": 0.83,
+      "topic_boundary_gemma4": 0.875
     }
   },
   "classification_counts": {

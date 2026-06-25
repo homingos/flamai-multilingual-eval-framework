@@ -1,0 +1,35 @@
+{
+  "run_id": "2026-06-23_185952_e4c835",
+  "task": "instructions",
+  "stop_at": "report",
+  "generated_at": "2026-06-23T20:17:05.087894+00:00",
+  "models_run": 1,
+  "failed": [
+    "czech"
+  ],
+  "results": {
+    "czech": {
+      "language": "Czech",
+      "regional_model": "csmpt-7b",
+      "judge_win_rate": null,
+      "classification": "E",
+      "classification_rationale": "inference raised: "
+    }
+  },
+  "classification_counts": {
+    "A": 0,
+    "B": 0,
+    "C": 0,
+    "D": 0,
+    "E": 1,
+    "?": 0
+  },
+  "cost_estimate": {
+    "regional_inference_usd": 0.26,
+    "gemma4_inference_usd": 1.05,
+    "judge_usd": 0.27,
+    "total_usd": 1.58,
+    "total_judge_calls": 300
+  },
+  "elapsed_minutes": null
+}

@@ -1,25 +1,27 @@
 {
-  "run_id": "2026-06-23_131533_46c68c",
+  "run_id": "2026-06-23_151122_746b99",
   "task": "instructions",
   "stop_at": "report",
-  "generated_at": "2026-06-24T07:31:10.596719+00:00",
+  "generated_at": "2026-06-23T15:58:52.962551+00:00",
   "models_run": 1,
   "failed": [],
   "results": {
-    "gujarati": {
-      "language": "Gujarati",
-      "regional_model": "gujju-llama-7b",
+    "amharic": {
+      "language": "Amharic",
+      "regional_model": "walia-llm-7b",
       "judge_win_rate": 0.0,
       "gemma4_win_rate": 1.0,
       "classification": "E",
       "classification_rationale": "Gemma-4 strongly preferred \u2014 regional wins only 0%",
-      "lang_adherence_regional": 0.645,
-      "lang_adherence_gemma4": 0.995,
-      "tone_register_gemma4": 0.5102,
-      "length_accuracy_regional": 0.88,
-      "length_accuracy_gemma4": 0.875,
+      "lang_adherence_regional": 0.0,
+      "lang_adherence_gemma4": 0.0,
+      "tone_register_gemma4": 0.3125,
+      "length_accuracy_regional": 1.0,
+      "length_accuracy_gemma4": 0.99,
+      "format_compliance_regional": 0.0,
       "format_compliance_gemma4": 1.0,
-      "topic_boundary_gemma4": 0.845,
+      "topic_boundary_regional": 1.0,
+      "topic_boundary_gemma4": 0.965,
       "tone_register_regional": null
     }
   },

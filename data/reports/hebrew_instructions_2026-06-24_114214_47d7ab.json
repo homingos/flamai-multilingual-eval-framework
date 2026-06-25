@@ -9,20 +9,20 @@
     "hebrew": {
       "language": "Hebrew",
       "regional_model": "dictalm-3-nemotron-12b",
-      "bleu_regional": null,
-      "bleu_gemma4": null,
-      "chrf_regional": null,
-      "chrf_gemma4": null,
-      "bertscore_f1_regional": null,
-      "bertscore_f1_gemma4": null,
-      "comet_regional": null,
-      "comet_gemma4": null,
-      "back_translation_regional": null,
-      "back_translation_gemma4": null,
       "judge_win_rate": 0.0,
       "gemma4_win_rate": 1.0,
       "classification": "E",
-      "classification_rationale": "Gemma-4 strongly preferred \u2014 regional wins only 0%"
+      "classification_rationale": "Gemma-4 strongly preferred \u2014 regional wins only 0%",
+      "lang_adherence_regional": 0.0,
+      "lang_adherence_gemma4": 0.99,
+      "tone_register_gemma4": 0.6078,
+      "length_accuracy_regional": 0.575,
+      "length_accuracy_gemma4": 0.9,
+      "format_compliance_regional": 0.0,
+      "format_compliance_gemma4": 1.0,
+      "topic_boundary_regional": 0.045,
+      "topic_boundary_gemma4": 0.865,
+      "tone_register_regional": null
     }
   },
   "classification_counts": {

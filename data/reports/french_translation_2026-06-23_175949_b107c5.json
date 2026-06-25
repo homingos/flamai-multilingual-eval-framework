@@ -1,0 +1,44 @@
+{
+  "run_id": "2026-06-23_175949_b107c5",
+  "task": "translation",
+  "stop_at": "report",
+  "generated_at": "2026-06-23T18:50:21.649806+00:00",
+  "models_run": 1,
+  "failed": [],
+  "results": {
+    "french": {
+      "language": "French",
+      "regional_model": "lucie-7b",
+      "bleu_regional": 46.77,
+      "bleu_gemma4": 50.57,
+      "chrf_regional": 69.53,
+      "chrf_gemma4": 70.03,
+      "bertscore_f1_regional": null,
+      "bertscore_f1_gemma4": null,
+      "comet_regional": null,
+      "comet_gemma4": null,
+      "back_translation_regional": null,
+      "back_translation_gemma4": null,
+      "judge_win_rate": 0.087,
+      "gemma4_win_rate": 0.8963,
+      "classification": "E",
+      "classification_rationale": "Gemma-4 strongly preferred \u2014 regional wins only 9%"
+    }
+  },
+  "classification_counts": {
+    "A": 0,
+    "B": 0,
+    "C": 0,
+    "D": 0,
+    "E": 1,
+    "?": 0
+  },
+  "cost_estimate": {
+    "regional_inference_usd": 0.26,
+    "gemma4_inference_usd": 1.05,
+    "judge_usd": 0.27,
+    "total_usd": 1.58,
+    "total_judge_calls": 300
+  },
+  "elapsed_minutes": null
+}
