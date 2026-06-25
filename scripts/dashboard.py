@@ -121,6 +121,43 @@ GRADE_LABELS = {
 
 REGION_ORDER = ["Indic","Middle East","East Asia","SEA","Africa","Europe","Americas","Oceania"]
 
+# slug → (language, region, model_display_name)
+# Registry slug is the source of truth — updated when a model is swapped.
+SLUG_META: dict[str, tuple[str, str, str]] = {
+    # Indic
+    "tamil":                    ("Tamil",                "Indic",        "Tamil-Mistral-7B"),
+    "sarvam-m-tamil":           ("Tamil",                "Indic",        "Sarvam-M-24B"),
+    "marathi":                  ("Marathi",              "Indic",        "MahaMarathi-7B"),
+    "sarvam-m-marathi":         ("Marathi",              "Indic",        "Sarvam-M-24B"),
+    "kannada":                  ("Kannada",              "Indic",        "Ambari-7B"),
+    "sarvam-m-kannada":         ("Kannada",              "Indic",        "Sarvam-M-24B"),
+    "gujarati":                 ("Gujarati",             "Indic",        "Gujju-Llama-7B"),
+    "sarvam-m-gujarati":        ("Gujarati",             "Indic",        "Sarvam-M-24B"),
+    # Middle East
+    "arabic":                   ("Arabic",               "Middle East",  "Jais-2-8B"),
+    "jais-70b":                 ("Arabic",               "Middle East",  "Jais-2-70B-Chat"),
+    "hebrew":                   ("Hebrew",               "Middle East",  "DictaLM-3.0-Nemotron-12B"),
+    # East Asia
+    "korean":                   ("Korean",               "East Asia",    "Polyglot-Ko-12B"),
+    "exaone-korean":            ("Korean",               "East Asia",    "EXAONE-3.5-32B-Instruct"),
+    # SEA
+    "malay":                    ("Malay",                "SEA",          "MaLLaM-5B"),
+    # Africa
+    "swahili":                  ("Swahili",              "Africa",       "Swahili-Gemma-7B"),
+    "amharic":                  ("Amharic",              "Africa",       "Walia-LLM-7B"),
+    # Europe
+    "greek":                    ("Greek",                "Europe",       "Meltemi-7B"),
+    "krikri-greek":             ("Greek",                "Europe",       "Krikri-8B-Instruct"),
+    "french":                   ("French",               "Europe",       "Lucie-7B-Instruct-v1.1"),
+    "swedish":                  ("Swedish",              "Europe",       "Viking-7B"),
+    "czech":                    ("Czech",                "Europe",       "CSMPT-7B"),
+    # Oceania
+    "maori":                    ("Māori",                "Oceania",      "Goldfish-mri-39M"),
+    "tok_pisin":                ("Tok Pisin",            "Oceania",      "Goldfish-tpi-125M"),
+    # Americas
+    "brazilian_portuguese":     ("Brazilian Portuguese", "Americas",     "Tucano-2b4"),
+}
+
 # Metric tooltips shown on hover
 METRIC_TIPS = {
     "Judge Win Rate":       "Primary signal. % of 50 judged prompts where the regional model was preferred by Gemini (LLM-as-judge). Each prompt is judged twice (positions swapped) across 3 quality dimensions → 300 verdicts total.",
@@ -471,9 +508,10 @@ def qualitative_page():
   {render_stats_bar(evs)}
   <div class="filter-row">
     {pills}
-    <button class="refresh-btn" onclick="doRefresh()">↺ Refresh</button>
+    <button class="refresh-btn" id="refresh-btn" onclick="doRefresh()">↺ Refresh</button>
   </div>
   <div style="font-size:11px;color:var(--mu);margin-bottom:18px;" id="last-updated">Last updated: {last}</div>
+  <div id="refresh-msg" style="font-size:11px;color:var(--ac);margin-bottom:10px;margin-top:-10px;display:none;"></div>
   <div id="cards-container">{render_qual_cards(evs)}</div>
 </div>
 <script>
@@ -487,13 +525,20 @@ function filterRegion(el,region){{
   }});
 }}
 function doRefresh(){{
-  var btn=document.querySelector(".refresh-btn");
-  btn.textContent="↺ Refreshing…";btn.disabled=true;
+  var btn=document.getElementById("refresh-btn");
+  var msg=document.getElementById("refresh-msg");
+  btn.textContent="↺ Scanning Modal…";btn.disabled=true;
+  msg.style.display="none";
   fetch("/api/qualitative/refresh").then(r=>r.json()).then(function(d){{
     document.getElementById("last-updated").textContent="Last updated: "+(d.last_updated||"unknown");
     document.getElementById("cards-container").innerHTML=d.html;
     var active=document.querySelector(".pill.active");
     if(active)filterRegion(active,activeRegion);
+    if(d.new_runs&&d.new_runs.length>0){{
+      msg.textContent="✓ Added "+d.new_runs.length+" new run"+(d.new_runs.length>1?"s":"")+": "+d.new_runs.join(", ");
+      msg.style.display="block";
+      setTimeout(function(){{msg.style.display="none";}},8000);
+    }}
   }}).catch(e=>alert("Refresh failed: "+e))
     .finally(()=>{{btn.textContent="↺ Refresh";btn.disabled=false;}});
 }}
@@ -848,6 +893,52 @@ async def load_review_api(request: Request):
 # API: GET /api/qualitative/refresh
 # ---------------------------------------------------------------------------
 
+_RUN_ID_RE = re.compile(r'\b(\d{4}-\d{2}-\d{2}_\d{6}_[a-f0-9]+)\b')
+
+
+def list_modal_run_ids() -> list[str]:
+    """Return all run_ids found in the phase2a-outputs/runs/ directory."""
+    output = modal_ls("runs/")
+    return list(dict.fromkeys(_RUN_ID_RE.findall(output)))  # preserve order, deduplicate
+
+
+def compute_grade(win_rate_pct: float) -> str:
+    if win_rate_pct >= 60: return "A"
+    if win_rate_pct >= 50: return "B"
+    if win_rate_pct >= 40: return "C"
+    if win_rate_pct >= 20: return "D"
+    return "E"
+
+
+def compute_stats_from_verdicts(verdicts_path: Path) -> dict:
+    """Read a verdicts JSONL, aggregate, return win_rate + grade."""
+    try:
+        gr = load_generate_review()
+        records    = gr.load_jsonl(verdicts_path)
+        aggregated = gr.aggregate_verdicts(records)
+    except Exception:
+        return {}
+
+    regional = gemma4 = ties = no_verdict = 0
+    for dims in aggregated.values():
+        winner = gr.overall_winner(dims)
+        if winner == "regional":   regional   += 1
+        elif winner == "gemma4":   gemma4     += 1
+        elif winner == "tie":      ties       += 1
+        else:                      no_verdict += 1
+
+    total_judged = regional + gemma4 + ties
+    if total_judged == 0:
+        return {}
+    win_rate = round(regional / total_judged * 100, 1)
+    gemma4_wr = round(gemma4 / total_judged * 100, 1)
+    return {
+        "judge_win_rate":  win_rate,
+        "gemma4_win_rate": gemma4_wr,
+        "grade":           compute_grade(win_rate),
+    }
+
+
 def parse_report_file(path: Path) -> Optional[dict]:
     try:
         data = json.loads(path.read_text())
@@ -882,12 +973,106 @@ def parse_report_file(path: Path) -> Optional[dict]:
     return ev
 
 
+def _merge_fields(target: dict, source: dict) -> None:
+    METRIC_FIELDS = [
+        "grade","judge_win_rate","gemma4_win_rate",
+        "bleu_regional","bleu_gemma4","chrf_regional","chrf_gemma4",
+        "lang_adherence_regional","lang_adherence_gemma4",
+        "format_compliance_regional","format_compliance_gemma4",
+        "length_accuracy_regional","length_accuracy_gemma4",
+        "tone_register_regional","tone_register_gemma4",
+    ]
+    for f in METRIC_FIELDS:
+        if f in source and source[f] is not None:
+            target[f] = source[f]
+    target["status"] = "complete"
+
+
+def scan_modal_new_runs(existing_run_ids: set[str]) -> list[dict]:
+    """
+    Scan Modal volume for run_ids not yet in qualitative_results.json.
+    For each new completed run, build an evaluation entry by:
+      1. Discovering slug + task from the judge/ directory listing.
+      2. Looking up language / region / model from SLUG_META.
+      3. Downloading the verdicts file to compute grade + win rate.
+      4. Trying the summary report for BLEU/chrF (optional).
+    Returns a list of new evaluation dicts ready to append.
+    """
+    try:
+        all_run_ids = list_modal_run_ids()
+    except Exception:
+        return []
+
+    new_entries: list[dict] = []
+
+    for run_id in all_run_ids:
+        if run_id in existing_run_ids:
+            continue
+
+        # Discover slug + task — skip if judge dir not present (run still going)
+        slug, task = discover_slug_task(run_id)
+        if not slug or not task:
+            continue
+
+        # Look up metadata from SLUG_META
+        meta = SLUG_META.get(slug)
+        if meta:
+            language, region, model = meta
+        else:
+            # Unknown slug — use slug itself, region unknown
+            language = slug.replace("-", " ").replace("_", " ").title()
+            region   = "Unknown"
+            model    = slug
+
+        with tempfile.TemporaryDirectory(prefix="scan_") as tmp:
+            tmp_path      = Path(tmp)
+            verdicts_path = tmp_path / "verdicts.jsonl"
+
+            ok = modal_get_file(
+                f"runs/{run_id}/judge/{slug}_{task}_verdicts.jsonl",
+                verdicts_path,
+            )
+            if not ok:
+                continue
+
+            stats = compute_stats_from_verdicts(verdicts_path)
+            if not stats:
+                continue  # verdicts file present but empty / parse failed
+
+            entry: dict = {
+                "language": language,
+                "region":   region,
+                "model":    model,
+                "task":     task,
+                "run_id":   run_id,
+                "status":   "complete",
+                "notes":    "",
+                **stats,
+            }
+
+            # Try to pull BLEU / chrF from summary report
+            report_path = tmp_path / "report.json"
+            if modal_get_file(f"runs/{run_id}/reports/{slug}_summary.json", report_path):
+                try:
+                    rdata = json.loads(report_path.read_text())
+                    for k in ["bleu_regional","bleu_gemma4","chrf_regional","chrf_gemma4"]:
+                        if k in rdata:
+                            entry[k] = rdata[k]
+                except Exception:
+                    pass
+
+        new_entries.append(entry)
+
+    return new_entries
+
+
 @app.get("/api/qualitative/refresh")
 def qualitative_refresh():
-    data = json.loads(QUAL_JSON.read_text()) if QUAL_JSON.exists() else {"evaluations":[]}
-    evaluations = data.get("evaluations",[])
-    idx = {ev.get("run_id"): ev for ev in evaluations if ev.get("run_id")}
+    data        = json.loads(QUAL_JSON.read_text()) if QUAL_JSON.exists() else {"evaluations":[]}
+    evaluations = data.get("evaluations", [])
+    idx         = {ev.get("run_id"): ev for ev in evaluations if ev.get("run_id")}
 
+    # 1. Update existing entries from local data/reports/ files
     reports_dir = REPO_ROOT / "data" / "reports"
     if reports_dir.exists():
         for f in sorted(reports_dir.glob("*.json")):
@@ -895,21 +1080,25 @@ def qualitative_refresh():
             if not parsed or not parsed.get("run_id"): continue
             existing = idx.get(parsed["run_id"])
             if existing:
-                for field in ["grade","judge_win_rate","gemma4_win_rate",
-                              "bleu_regional","bleu_gemma4","chrf_regional","chrf_gemma4",
-                              "lang_adherence_regional","lang_adherence_gemma4",
-                              "format_compliance_regional","format_compliance_gemma4",
-                              "length_accuracy_regional","length_accuracy_gemma4",
-                              "tone_register_regional","tone_register_gemma4"]:
-                    if field in parsed and parsed[field] is not None:
-                        existing[field] = parsed[field]
-                existing["status"] = "complete"
+                _merge_fields(existing, parsed)
+
+    # 2. Scan Modal for brand-new run_ids
+    new_entries = scan_modal_new_runs(set(idx.keys()))
+    new_run_labels: list[str] = []
+    for entry in new_entries:
+        evaluations.append(entry)
+        idx[entry["run_id"]] = entry
+        new_run_labels.append(f"{entry['language']} {entry['task']} ({entry['run_id'][:10]}…)")
 
     data["last_updated"] = datetime.now(timezone.utc).isoformat()
     data["evaluations"]  = evaluations
     QUAL_JSON.write_text(json.dumps(data, indent=2, ensure_ascii=False))
 
-    return JSONResponse({"last_updated": data["last_updated"], "html": render_qual_cards(evaluations)})
+    return JSONResponse({
+        "last_updated": data["last_updated"],
+        "html":         render_qual_cards(evaluations),
+        "new_runs":     new_run_labels,
+    })
 
 
 # ---------------------------------------------------------------------------
