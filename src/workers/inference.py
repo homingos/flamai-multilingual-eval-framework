@@ -260,6 +260,8 @@ class VLLMWorker:
                 if output is None:
                     continue
                 output_text = output.outputs[0].text
+                if "</think>" in output_text:
+                    output_text = output_text.split("</think>", 1)[-1].strip()
                 record = _make_record(sample, output_text)
                 append_output(out_path, record)
                 results.append(record)
