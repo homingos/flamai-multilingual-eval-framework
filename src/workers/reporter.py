@@ -214,24 +214,43 @@ def get_language_summary(report: dict, slug: str, task: str = "translation") -> 
     bl_light      = bl_task.get("light_metrics", {})
     bl_model      = bl_task.get("model_metrics", {})
 
-    return {
-        "language":                  lang_data.get("language", slug),
-        "regional_model":            lang_data.get("regional_model", ""),
-        "bleu_regional":             (light.get("bleu") or {}).get("bleu_en_to_target"),
-        "bleu_gemma4":               (bl_light.get("bleu") or {}).get("bleu_en_to_target"),
-        "chrf_regional":             (light.get("chrf") or {}).get("chrf_en_to_target"),
-        "chrf_gemma4":               (bl_light.get("chrf") or {}).get("chrf_en_to_target"),
-        "bertscore_f1_regional":     (model.get("bertscore") or {}).get("bertscore_f1_en_to_target"),
-        "bertscore_f1_gemma4":       (bl_model.get("bertscore") or {}).get("bertscore_f1_en_to_target"),
-        "comet_regional":            (model.get("comet") or {}).get("comet_en_to_target"),
-        "comet_gemma4":              (bl_model.get("comet") or {}).get("comet_en_to_target"),
-        "back_translation_regional": (model.get("back_translation") or {}).get("back_translation_bleu"),
-        "back_translation_gemma4":   (bl_model.get("back_translation") or {}).get("back_translation_bleu"),
-        "judge_win_rate":            judge.get("regional_win_rate"),
-        "gemma4_win_rate":           judge.get("gemma4_win_rate"),
-        "classification":            lang_data.get("classification", "?"),
-        "classification_rationale":  lang_data.get("classification_rationale", ""),
+    base = {
+        "language":                 lang_data.get("language", slug),
+        "regional_model":           lang_data.get("regional_model", ""),
+        "judge_win_rate":           judge.get("regional_win_rate"),
+        "gemma4_win_rate":          judge.get("gemma4_win_rate"),
+        "classification":           lang_data.get("classification", "?"),
+        "classification_rationale": lang_data.get("classification_rationale", ""),
     }
+
+    if task == "instructions":
+        base.update({
+            "lang_adherence_regional":    (light.get("lang_adherence") or {}).get("lang_adherence_rate"),
+            "lang_adherence_gemma4":      (bl_light.get("lang_adherence") or {}).get("lang_adherence_rate"),
+            "tone_register_regional":     (light.get("tone_register") or {}).get("tone_register_accuracy"),
+            "tone_register_gemma4":       (bl_light.get("tone_register") or {}).get("tone_register_accuracy"),
+            "length_accuracy_regional":   (light.get("length_accuracy") or {}).get("length_accuracy"),
+            "length_accuracy_gemma4":     (bl_light.get("length_accuracy") or {}).get("length_accuracy"),
+            "format_compliance_regional": (light.get("format_compliance") or {}).get("format_compliance"),
+            "format_compliance_gemma4":   (bl_light.get("format_compliance") or {}).get("format_compliance"),
+            "topic_boundary_regional":    (light.get("topic_boundary") or {}).get("topic_boundary_compliance"),
+            "topic_boundary_gemma4":      (bl_light.get("topic_boundary") or {}).get("topic_boundary_compliance"),
+        })
+    else:  # translation
+        base.update({
+            "bleu_regional":             (light.get("bleu") or {}).get("bleu_en_to_target"),
+            "bleu_gemma4":               (bl_light.get("bleu") or {}).get("bleu_en_to_target"),
+            "chrf_regional":             (light.get("chrf") or {}).get("chrf_en_to_target"),
+            "chrf_gemma4":               (bl_light.get("chrf") or {}).get("chrf_en_to_target"),
+            "bertscore_f1_regional":     (model.get("bertscore") or {}).get("bertscore_f1_en_to_target"),
+            "bertscore_f1_gemma4":       (bl_model.get("bertscore") or {}).get("bertscore_f1_en_to_target"),
+            "comet_regional":            (model.get("comet") or {}).get("comet_en_to_target"),
+            "comet_gemma4":              (bl_model.get("comet") or {}).get("comet_en_to_target"),
+            "back_translation_regional": (model.get("back_translation") or {}).get("back_translation_bleu"),
+            "back_translation_gemma4":   (bl_model.get("back_translation") or {}).get("back_translation_bleu"),
+        })
+
+    return base
 
 
 def summarize_run(run_id: str, slugs: list, task: str = "translation") -> dict:

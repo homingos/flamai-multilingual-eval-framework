@@ -193,12 +193,23 @@ def run_pipeline(
 
     for slug in failed:
         lr = runs[slug]
-        agg["results"][slug] = {
+        fail_result: dict = {
             "language": lr.spec.language, "regional_model": lr.spec.model_id,
-            "bleu_regional": None, "bleu_gemma4": None, "judge_win_rate": None,
+            "judge_win_rate": None, "gemma4_win_rate": None,
             "classification": "?",
             "classification_rationale": lr.error or "unknown failure",
         }
+        if task == "translation":
+            fail_result.update({
+                "bleu_regional": None, "bleu_gemma4": None,
+                "chrf_regional": None, "chrf_gemma4": None,
+            })
+        else:
+            fail_result.update({
+                "lang_adherence_regional": None, "lang_adherence_gemma4": None,
+                "length_accuracy_regional": None, "length_accuracy_gemma4": None,
+            })
+        agg["results"][slug] = fail_result
     agg["classification_counts"] = {
         g: sum(1 for r in agg["results"].values() if r["classification"] == g)
         for g in ["A", "B", "C", "D", "E", "?"]
