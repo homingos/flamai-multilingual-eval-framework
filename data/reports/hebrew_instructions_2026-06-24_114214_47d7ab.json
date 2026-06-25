@@ -12,7 +12,6 @@
       "judge_win_rate": 0.0,
       "gemma4_win_rate": 1.0,
       "classification": "E",
-      "classification_rationale": "Gemma-4 strongly preferred \u2014 regional wins only 0%",
       "lang_adherence_regional": 0.0,
       "lang_adherence_gemma4": 0.99,
       "tone_register_gemma4": 0.6078,
@@ -24,21 +23,5 @@
       "topic_boundary_gemma4": 0.865,
       "tone_register_regional": null
     }
-  },
-  "classification_counts": {
-    "A": 0,
-    "B": 0,
-    "C": 0,
-    "D": 0,
-    "E": 1,
-    "?": 0
-  },
-  "cost_estimate": {
-    "regional_inference_usd": 0.78,
-    "gemma4_inference_usd": 1.05,
-    "judge_usd": 0.27,
-    "total_usd": 2.1,
-    "total_judge_calls": 300
-  },
-  "elapsed_minutes": null
+  }
 }

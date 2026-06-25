@@ -12,24 +12,7 @@
       "language": "Czech",
       "regional_model": "csmpt-7b",
       "judge_win_rate": null,
-      "classification": "E",
-      "classification_rationale": "inference raised: "
+      "classification": "E"
     }
-  },
-  "classification_counts": {
-    "A": 0,
-    "B": 0,
-    "C": 0,
-    "D": 0,
-    "E": 1,
-    "?": 0
-  },
-  "cost_estimate": {
-    "regional_inference_usd": 0.26,
-    "gemma4_inference_usd": 1.05,
-    "judge_usd": 0.27,
-    "total_usd": 1.58,
-    "total_judge_calls": 300
-  },
-  "elapsed_minutes": null
+  }
 }

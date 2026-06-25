@@ -21,24 +21,7 @@
       "back_translation_gemma4": null,
       "judge_win_rate": 0.53,
       "gemma4_win_rate": 0.47,
-      "classification": "B",
-      "classification_rationale": "Regional wins 53% of judge comparisons (modest preference); COMET \u0394=+0.0037"
+      "classification": "B"
     }
-  },
-  "classification_counts": {
-    "A": 0,
-    "B": 1,
-    "C": 0,
-    "D": 0,
-    "E": 0,
-    "?": 0
-  },
-  "cost_estimate": {
-    "regional_inference_usd": 0.26,
-    "gemma4_inference_usd": 1.05,
-    "judge_usd": 0.27,
-    "total_usd": 1.58,
-    "total_judge_calls": 300
-  },
-  "elapsed_minutes": null
+  }
 }
