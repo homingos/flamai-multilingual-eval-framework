@@ -21,8 +21,9 @@ REPO_ROOT    = Path(__file__).resolve().parent.parent
 PORT         = 8765
 MODAL_VOLUME = "phase2a-outputs"
 QUAL_JSON    = REPO_ROOT / "data" / "qualitative_results.json"
-CACHE_DIR    = REPO_ROOT / "data" / "modal_cache"
-VIZ_DIR      = REPO_ROOT / "docs" / "viz"
+CACHE_DIR          = REPO_ROOT / "data" / "modal_cache"
+VIZ_DIR            = REPO_ROOT / "docs" / "viz"
+STATIC_REVIEW_DIR  = REPO_ROOT / "data" / "review_static"
 
 # On Vercel: filesystem is read-only except /tmp; Modal CLI is unavailable.
 IS_VERCEL  = bool(os.environ.get("VERCEL"))
@@ -40,8 +41,10 @@ except ImportError:
 app = FastAPI(title="Falcon Dashboard")
 
 REVIEW_DIR.mkdir(parents=True, exist_ok=True)
+STATIC_REVIEW_DIR.mkdir(parents=True, exist_ok=True)
 app.mount("/static/viz", StaticFiles(directory=str(VIZ_DIR)), name="viz")
 app.mount("/static/review", StaticFiles(directory=str(REVIEW_DIR), html=False), name="review")
+app.mount("/static/review_static", StaticFiles(directory=str(STATIC_REVIEW_DIR), html=False), name="review_static")
 
 # ---------------------------------------------------------------------------
 # Design tokens
@@ -923,6 +926,25 @@ async def load_review_api(request: Request):
     run_id = (body.get("run_id") or "").strip()
     if not run_id:
         return JSONResponse({"error": "run_id is required"})
+
+    # ── Step 0: check pre-generated static HTML (committed to git, works on Vercel) ──
+    for folder in STATIC_REVIEW_DIR.iterdir() if STATIC_REVIEW_DIR.exists() else []:
+        name = folder.name
+        if run_id in name:
+            for t in ("instructions", "translation"):
+                marker = f"_{t}_{run_id}"
+                if name.endswith(marker):
+                    pre_slug = name[: -len(marker)]
+                    pre_html = folder / "review.html"
+                    if pre_html.exists():
+                        grade, win_rate = _grade_from_qual_json(run_id)
+                        if grade is None:
+                            grade, win_rate = _grade_from_cache_meta(run_id)
+                        return JSONResponse({
+                            "url": f"/static/review_static/{name}/review.html",
+                            "slug": pre_slug, "task": t, "run_id": run_id,
+                            "grade": grade, "win_rate": win_rate,
+                        })
 
     # ── Step 1: scan for known slug/task from cache meta OR existing HTML folder ──
     slug = task = ""
