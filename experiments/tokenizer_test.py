@@ -40,7 +40,8 @@ SUMMARY_JSON = DATA_DIR / "summary.json"
 
 # ── Tokenizer IDs ─────────────────────────────────────────────────────────────
 # All Gemma 4 variants share the same tokenizer; production model is gemma-4-27b-it (26B A4B IT).
-GEMMA4_HF_ID = "google/gemma-4-27b-it"
+# Production model is gemma-4-26B-A4B-it; all Gemma-4 variants share the same tokenizer.
+GEMMA4_HF_ID = "google/gemma-4-12B-it"
 
 BASELINES = {
     "Gemma-4": GEMMA4_HF_ID,
