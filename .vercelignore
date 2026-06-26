@@ -1,0 +1,14 @@
+data/modal_cache/
+data/review/
+data/datasets/
+outputs/
+experiments/
+.claude/
+*.bin
+*.safetensors
+*.gguf
+__pycache__/
+*.py[cod]
+.env
+venv/
+.venv/
