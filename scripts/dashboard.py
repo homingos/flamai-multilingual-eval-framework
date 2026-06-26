@@ -41,7 +41,8 @@ except ImportError:
 app = FastAPI(title="Falcon Dashboard")
 
 REVIEW_DIR.mkdir(parents=True, exist_ok=True)
-STATIC_REVIEW_DIR.mkdir(parents=True, exist_ok=True)
+if not IS_VERCEL:
+    STATIC_REVIEW_DIR.mkdir(parents=True, exist_ok=True)
 app.mount("/static/viz", StaticFiles(directory=str(VIZ_DIR)), name="viz")
 app.mount("/static/review", StaticFiles(directory=str(REVIEW_DIR), html=False), name="review")
 app.mount("/static/review_static", StaticFiles(directory=str(STATIC_REVIEW_DIR), html=False), name="review_static")
