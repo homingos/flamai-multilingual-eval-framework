@@ -173,27 +173,31 @@ INDIA_STATE_LANG = {
 }
 
 MODEL_COLORS = {
-    "Gemma-4":             "#4A90D9",
-    "No Candidate Tested": "#2E3347",
-    "Multiple Winners":    "#F5A623",
-    "Tamil-Mistral-7B":   "#FF6B35",
-    "MahaMarathi-7B":     "#E63946",
-    "Ambari-7B":          "#FF9F1C",
-    "Gujju-Llama-7B":     "#F4A261",
-    "Jais-2-8B":          "#9B5DE5",
-    "DictaLM-2.0-7B":     "#C77DFF",
-    "Polyglot-Ko-12B":    "#00B4D8",
-    "MaLLaM-5B":          "#0096C7",
-    "Swahili-Gemma-7B":   "#52B788",
-    "Walia-LLM-7B":       "#2D6A4F",
-    "Lucie-7B":           "#3D5A80",
-    "Viking-7B":          "#98C1D9",
-    "CSMPT-7B":           "#A8DADC",
-    "Meltemi-7B":         "#457B9D",
-    "Tucano-2b4":         "#E76F51",
-    "Goldfish-mri-39M":   "#2EC4B6",
-    "Goldfish-tpi-125M":  "#80CED7",
-    "BanglaLLama-3.1-8B": "#E9C46A",
+    "Gemma-4":                      "#4A90D9",
+    "No Candidate Tested":          "#2E3347",
+    "Multiple Winners":             "#F5A623",
+    "Tamil-Mistral-7B":             "#FF6B35",
+    "MahaMarathi-7B":               "#E63946",
+    "Ambari-7B":                    "#FF9F1C",
+    "Gujju-Llama-7B":               "#F4A261",
+    "Sarvam-M-24B":                 "#FF8C42",
+    "Jais-2-8B":                    "#9B5DE5",
+    "DictaLM-2.0-7B":               "#C77DFF",
+    "DictaLM-3.0-Nemotron-12B":     "#B57BEE",
+    "Polyglot-Ko-12B":              "#00B4D8",
+    "EXAONE-3.5-32B":               "#00D4F5",
+    "MaLLaM-5B":                    "#0096C7",
+    "Swahili-Gemma-7B":             "#52B788",
+    "Walia-LLM-7B":                 "#2D6A4F",
+    "Lucie-7B":                     "#3D5A80",
+    "Viking-7B":                    "#98C1D9",
+    "CSMPT-7B":                     "#A8DADC",
+    "Meltemi-7B":                   "#457B9D",
+    "Krikri-8B":                    "#6AB0F5",
+    "Tucano-2b4":                   "#E76F51",
+    "Goldfish-mri-39M":             "#2EC4B6",
+    "Goldfish-tpi-125M":            "#80CED7",
+    "BanglaLLama-3.1-8B":           "#E9C46A",
 }
 
 LANG_REGION = {
@@ -221,48 +225,64 @@ def load_results():
 
 
 def best_per_language(rows):
-    g4   = {r["language"]: r for r in rows if r["tokenizer_name"] == "Gemma-4"}
-    cand = {r["language"]: r for r in rows
-            if r["tokenizer_name"] not in ("Gemma-4","BLOOM","mT5")}
+    g4       = {r["language"]: r for r in rows if r["tokenizer_name"] == "Gemma-4"}
+    all_cands: dict[str, list] = {}
+    for r in rows:
+        if r["tokenizer_name"] not in ("Gemma-4", "BLOOM", "mT5"):
+            all_cands.setdefault(r["language"], []).append(r)
+
     # English wasn't tested — Gemma-4 IS the production English model
     out = {"English": {"best": "Gemma-4", "candidate": "—",
                        "g4": None, "cand": None}}
+
     for lang, gr in g4.items():
-        cr = cand.get(lang)
+        cands = all_cands.get(lang, [])
 
         def f(r, k): return round(float(r[k]), 2) if r else None
 
         g4_metrics = {
-            "fertility":       f(gr,"fertility"),
-            "compression":     f(gr,"compression_ratio"),
-            "bfr":             f(gr,"byte_fallback_rate"),
-            "unk":             f(gr,"unknown_rate"),
-            "vcov":            f(gr,"vocab_coverage"),
-            "rt":              f(gr,"roundtrip_pass_rate"),
-            "avg_tok":         f(gr,"avg_tokens_per_sent"),
+            "fertility":   f(gr, "fertility"),
+            "compression": f(gr, "compression_ratio"),
+            "bfr":         f(gr, "byte_fallback_rate"),
+            "unk":         f(gr, "unknown_rate"),
+            "vcov":        f(gr, "vocab_coverage"),
+            "rt":          f(gr, "roundtrip_pass_rate"),
+            "avg_tok":     f(gr, "avg_tokens_per_sent"),
         }
-        if cr is None:
-            out[lang] = {"best":"No Candidate Tested","candidate":"—",
+
+        if not cands:
+            out[lang] = {"best": "No Candidate Tested", "candidate": "—",
                          "g4": g4_metrics, "cand": None}
-        else:
-            cand_metrics = {
-                "fertility":   f(cr,"fertility"),
-                "compression": f(cr,"compression_ratio"),
-                "bfr":         f(cr,"byte_fallback_rate"),
-                "unk":         f(cr,"unknown_rate"),
-                "vcov":        f(cr,"vocab_coverage"),
-                "rt":          f(cr,"roundtrip_pass_rate"),
-                "avg_tok":     f(cr,"avg_tokens_per_sent"),
-            }
-            gf, cf = g4_metrics["fertility"], cand_metrics["fertility"]
-            cv, rt = cand_metrics["vcov"], cand_metrics["rt"]
-            wins = cf < gf and cv >= 80 and rt >= 95
-            out[lang] = {
-                "best":      cr["tokenizer_name"] if wins else "Gemma-4",
-                "candidate": cr["tokenizer_name"],
-                "g4":        g4_metrics,
-                "cand":      cand_metrics,
-            }
+            continue
+
+        g4f = g4_metrics["fertility"]
+
+        def passes_gate(cr):
+            return (float(cr["fertility"]) < g4f
+                    and float(cr["vocab_coverage"]) >= 80
+                    and float(cr["roundtrip_pass_rate"]) >= 95)
+
+        passing = [cr for cr in cands if passes_gate(cr)]
+        # Among passers pick lowest fertility; if none pass, pick lowest fertility overall
+        best_cr = min(passing or cands, key=lambda cr: float(cr["fertility"]))
+        wins    = passes_gate(best_cr)
+
+        cand_metrics = {
+            "fertility":   f(best_cr, "fertility"),
+            "compression": f(best_cr, "compression_ratio"),
+            "bfr":         f(best_cr, "byte_fallback_rate"),
+            "unk":         f(best_cr, "unknown_rate"),
+            "vcov":        f(best_cr, "vocab_coverage"),
+            "rt":          f(best_cr, "roundtrip_pass_rate"),
+            "avg_tok":     f(best_cr, "avg_tokens_per_sent"),
+        }
+
+        out[lang] = {
+            "best":      best_cr["tokenizer_name"] if wins else "Gemma-4",
+            "candidate": best_cr["tokenizer_name"],
+            "g4":        g4_metrics,
+            "cand":      cand_metrics,
+        }
     return out
 
 
