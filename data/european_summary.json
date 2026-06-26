@@ -697,43 +697,43 @@
     },
     "Llama-3.3-70B|Slovenian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.422 ≥ Gemma-4 2.109",
+      "gemma4_fertility": 2.109
     },
     "Mistral-Small-3.2|Slovenian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.23 ≥ Gemma-4 2.109; roundtrip 0.0% < 95.0%",
+      "gemma4_fertility": 2.109
     },
     "Teuken-7B|Slovenian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "vocab_coverage 72.73% < 80.0%",
+      "gemma4_fertility": 2.109
     },
     "EuroLLM-22B|Slovenian": {
-      "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "passes": true,
+      "reason": "PASS",
+      "gemma4_fertility": 2.109
     },
     "SauerkrautLM-70B|Slovenian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.422 ≥ Gemma-4 2.109",
+      "gemma4_fertility": 2.109
     },
     "GEITje-7B|Slovenian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.654 ≥ Gemma-4 2.109",
+      "gemma4_fertility": 2.109
     },
     "TildeOpen-30B|Slovenian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.704 ≥ Gemma-4 2.109; roundtrip 0.0% < 95.0%",
+      "gemma4_fertility": 2.109
     },
     "Aya-Vision-32B|Slovenian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.271 ≥ Gemma-4 2.109",
+      "gemma4_fertility": 2.109
     },
     "Llama-3.3-70B|Bulgarian": {
       "passes": false,
@@ -1205,7 +1205,7 @@
     "Llama-3.3-70B": 1,
     "Mistral-Small-3.2": 0,
     "Teuken-7B": 0,
-    "EuroLLM-22B": 11,
+    "EuroLLM-22B": 12,
     "SauerkrautLM-70B": 1,
     "GEITje-7B": 0,
     "TildeOpen-30B": 0,
@@ -1280,6 +1280,11 @@
     {
       "model": "Aya-Vision-32B",
       "language": "Turkish",
+      "gemma4_fertility": 2.109
+    },
+    {
+      "model": "EuroLLM-22B",
+      "language": "Slovenian",
       "gemma4_fertility": 2.109
     },
     {
