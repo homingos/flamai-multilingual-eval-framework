@@ -10,12 +10,36 @@ AI/ML research and implementation project for adding robust multilingual support
 
 ---
 
-## Current Status (as of 2026-06-24)
+## Current Status (as of 2026-06-26)
 
-### Task 1 — Tokenizer Evaluation: ✅ Complete
+### Direction change: European Language Expansion
+**Pivoting to pan-European multilingual challenger models across 30 European languages.**
+- Sarvam-M-24B qualitative runs for Kannada, Marathi, Gujarati: **CANCELLED**
+- Those languages remain on Gemma-4 for now
+- Next step: tokenizer test on 8 European challenger models × 30 languages
+
+### Task 1 — Tokenizer Evaluation (original 17 languages): ✅ Complete
 17 regional models selected across 17 languages. Results in `data/results.csv`, report in `docs/llm-evaluation.md`.
 
-### Task 1B — Qualitative LLM Validation: 🔄 In Progress
+### Task 1 — Tokenizer Evaluation (European expansion): 🔜 Pending
+Run 8 European challenger models' tokenizers on FLORES-200 for 30 European languages.
+Decision rule: `fertility < Gemma-4 AND vocab_coverage ≥ 80% AND roundtrip ≥ 95%`
+
+**8 Challenger models:**
+| Role | HuggingFace Model ID | Params |
+|---|---|---|
+| General multilingual | `meta-llama/Llama-3.3-70B-Instruct` | 70B |
+| European multilingual | `mistralai/Mistral-Small-3.2-24B-Instruct-2506` | 24B |
+| EU sovereign | `openGPT-X/Teuken-7B-instruct-v0.6` | 7B |
+| European benchmark | `utter-project/EuroLLM-22B-Instruct-2512` | 22B |
+| German specialist | `VAGOsolutions/Llama-3.1-SauerkrautLM-70b-Instruct` | 70B |
+| Dutch specialist | `BramVanroy/GEITje-7B-ultra` | 7B |
+| Nordic/underrepresented | `TildeAI/TildeOpen-30b` | 30B (base; use `martinsu/tildeopen-30b-mu-instruct` for Phase 2) |
+| Multilingual instruction | `CohereLabs/aya-vision-32b` | 32B |
+
+**30 target languages:** French, German, Spanish, Italian, Portuguese, Dutch, Polish, Romanian, Ukrainian, Swedish, Czech, Greek, Russian, Danish, Finnish, Hungarian, Turkish, Croatian, Slovak, Slovenian, Bulgarian, Lithuanian, Latvian, Estonian, Irish, Norwegian, Maltese, Serbian, Icelandic, Albanian *(Welsh excluded — no model support)*
+
+### Task 1B — Qualitative LLM Validation (original languages): 🔄 Partial
 
 Two evaluation tasks per language: **Translation** and **Instruction Following**.
 Pipeline runs on Modal (`modal_app.py`). All infrastructure bugs have been resolved (see bug fix log below).
@@ -125,13 +149,11 @@ modal volume get phase2a-outputs runs/<run_id>/reports/<slug>_summary.json data/
 
 Then read the JSON and update the relevant Notion table row:
 
-**Translation task table** (10 columns):
+**Translation task table** (8 columns):
 - `bleu_regional` → BLEU (Regional)
 - `bleu_gemma4` → BLEU (Gemma-4)
 - `chrf_regional` → chrF (Regional)
 - `chrf_gemma4` → chrF (Gemma-4)
-- `bertscore_f1_regional` → BERTScore F1 (Regional) — use `—` if null (model metrics skipped)
-- `bertscore_f1_gemma4` → BERTScore F1 (Gemma-4) — use `—` if null
 - `judge_win_rate` → Judge Win Rate (as %, e.g. 0.53 → 53%)
 - `classification` → Grade (prefix ✅ for A/B, ❌ for D/E, ⚠️ for C)
 
@@ -201,15 +223,42 @@ Do NOT run languages assigned to the other person — each person runs their own
 | Arabic | Jais-2-8B | ✅ Grade D (win rate 24%) · `2026-06-24_073405_e6e60d` | ✅ Grade E (win rate 13%) · `2026-06-24_073508_1b374d` |
 | Korean | Polyglot-Ko-12B | ✅ Grade E (win rate 0%) · `2026-06-24_101013_9ce150` | ✅ Grade E (win rate 0%) · `2026-06-24_101013_5ad649` |
 | Hebrew | DictaLM-3.0-Nemotron-12B | ✅ Grade E (win rate 0%) · `2026-06-24_114214_47d7ab` | ✅ Grade E (win rate 0%) · `2026-06-24_114351_159a77` |
+| Tamil | Sarvam-M-24B | ✅ Grade E (win rate 5%) · `2026-06-25_081543_85cde3` | ✅ Grade E (win rate 6.7%) · `2026-06-25_094523_dace81` |
+
+### Instruction Metrics Detail
+(R = Regional model, G = Gemma-4 baseline; all values as %)
+
+| Language | Model | Lang Adh (R) | Lang Adh (G) | Format (R) | Format (G) | Length (R) | Length (G) | Tone (R) | Tone (G) | Judge Win |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Greek | Meltemi-7B | 2 | — | 100 | 100 | 39 | 88 | — | — | 2 |
+| Tamil | Tamil-Mistral-7B | 100 | 100 | 0 | 100 | 33 | 88 | 48 | 55 | 3 |
+| Marathi | MahaMarathi-7B | 90 | 100 | 50 | 100 | 48 | 88 | 50 | 75 | 0 |
+| Kannada | Ambari-7B | — | — | — | — | — | — | — | — | skipped |
+| Gujarati | Gujju-Llama-7B | 65 | 100 | — | 100 | 88 | 88 | — | 51 | 0 |
+| Arabic | Jais-2-8B | 98 | 100 | 100 | 100 | 63 | 90 | 53 | 100 | 24 |
+| Hebrew | DictaLM-3.0-Nemotron-12B | 0 | 99 | 0 | 100 | 58 | 90 | — | 61 | 0 |
+| Korean | Polyglot-Ko-12B | 40 | 98 | 0 | 100 | 33 | 88 | 62 | 100 | 0 |
+| Tamil | Sarvam-M-24B | 96 | 100 | 100 | 100 | 86 | 88 | 36 | 55 | 5 |
+
+### Translation Metrics Detail
+
+| Language | Model | BLEU (R) | BLEU (G) | chrF (R) | chrF (G) | Judge Win |
+|---|---|---|---|---|---|---|
+| Greek | Meltemi-7B | 27.38 | 26.04 | 51.27 | 50.55 | 53 |
+| Tamil | Tamil-Mistral-7B | 0.01 | 13.25 | 4.63 | 50.96 | 0 |
+| Marathi | MahaMarathi-7B | 0.02 | 15.48 | 6.55 | 47.85 | 0 |
+| Kannada | Ambari-7B | 2.07 | 15.41 | 15.17 | 50.20 | 0 |
+| Gujarati | Gujju-Llama-7B | 0.0 | 20.02 | 1.27 | 50.56 | 0 |
+| Arabic | Jais-2-8B | 27.0 | 25.87 | 54.93 | 55.62 | 13 |
+| Hebrew | DictaLM-3.0-Nemotron-12B | 0.04 | 31.39 | 0.91 | 58.64 | 0 |
+| Korean | Polyglot-Ko-12B | 0.02 | 15.53 | 0.64 | 37.42 | 0 |
+| Tamil | Sarvam-M-24B | 1.61 | 13.25 | 25.10 | 50.95 | 6.7 |
 
 ### Next up
-```bash
-# Indic re-runs — Sarvam-M 24B covers all 4 languages (registry + ALL_MODELS already updated)
-echo "" | modal run --detach modal_app.py::run_pipeline --slug tamil --task instructions --limit 1000
-echo "" | modal run --detach modal_app.py::run_pipeline --slug tamil --task translation --limit 1000
-# then kannada, marathi, gujarati (same pattern)
-# then Korean re-run with EXAONE-3.5-32B, Greek re-run with Krikri-8B
-```
+**European tokenizer expansion** — run tokenizer tests on the 8 challenger models above across all 30 European languages. Then qualitative eval for (model, language) pairs that beat Gemma-4's tokenizer.
+
+*Sarvam-M-24B Indic re-runs (Tamil, Kannada, Marathi, Gujarati): CANCELLED as of 2026-06-26.*
+*Korean re-run (EXAONE), Greek re-run (Krikri): on hold pending European phase results.*
 
 ---
 
