@@ -1234,3 +1234,105 @@ After qualitative evaluation (Task 1B) showed Grade E results for the original I
 - `data/summary.json` — per-tokenizer aggregates (unweighted + character-weighted)
 
 *Regenerate this report:* `python experiments/detailed_report.py`
+
+---
+
+## 9. European Language Expansion — Tokenizer Gate (2026-06-26)
+
+### 9.1 Scope
+
+8 European challenger models tested against the Gemma-4 baseline across 30 European languages using FLORES-200 devtest (~1,012 sentences per language). Three-way gate:
+
+```
+PASS ⟺ fertility < Gemma-4  AND  vocab_coverage ≥ 80%  AND  roundtrip_pass_rate ≥ 95%
+```
+
+Gemma-4 model ID used: `google/gemma-4-12B-it` (all Gemma-4 variants share one tokenizer). Baselines for 14 languages imported from `data/results.csv` (Task 1); Albanian added fresh; 15 remaining languages lack a Gemma-4 baseline and are held out of gating.
+
+### 9.2 Challenger models
+
+| Short name | HuggingFace ID |
+|---|---|
+| EuroLLM-22B | `utter-project/EuroLLM-22B-Instruct-2512` |
+| Aya-Vision-32B | `CohereLabs/aya-vision-32b` |
+| Llama-3.3-70B | `meta-llama/Llama-3.3-70B-Instruct` |
+| SauerkrautLM-70B | `VAGOsolutions/Llama-3.1-SauerkrautLM-70b-Instruct` |
+| Mistral-Small-3.2 | `mistralai/Mistral-Small-3.2-24B-Instruct-2506` |
+| Teuken-7B | `openGPT-X/Teuken-7B-instruct-v0.6` |
+| GEITje-7B | `BramVanroy/GEITje-7B-ultra` |
+| TildeOpen-30B | `TildeAI/TildeOpen-30b` |
+
+### 9.3 Gate results summary
+
+| Model | Gate passes / 15 gated langs | Verdict |
+|---|---|---|
+| **EuroLLM-22B** | **11 / 15** | ✅ Advances |
+| **Aya-Vision-32B** | **13 / 15** | ✅ Advances |
+| Llama-3.3-70B | 1 / 15 (Czech only) | ⚠️ Partial — Czech only |
+| SauerkrautLM-70B | 1 / 15 (Czech only) | ⚠️ Partial — Czech only |
+| Mistral-Small-3.2 | 0 / 15 | ❌ Eliminated |
+| Teuken-7B | 0 / 15 | ❌ Eliminated |
+| GEITje-7B | 0 / 15 | ❌ Eliminated |
+| TildeOpen-30B | 0 / 15 | ❌ Eliminated |
+
+*15 gated languages = the 15 with valid Gemma-4 baselines. Other 15 European languages lack a baseline and are untested.*
+
+### 9.4 EuroLLM-22B — passing languages (11)
+
+Czech, Dutch, German, Greek, Italian, Polish, Portuguese, Romanian, Russian, Swedish, Ukrainian.
+
+| Language | EuroLLM fertility | Gemma-4 fertility | Vocab cov | Roundtrip |
+|---|---|---|---|---|
+| Czech | 2.016 | 2.157 | 80.0% | 100% |
+| Dutch | 1.489 | 1.630 | 80.2% | 100% |
+| German | 1.623 | 1.655 | 82.4% | 100% |
+| Greek | 2.126 | 2.472 | 85.6% | 100% |
+| Italian | 1.482 | 1.535 | 82.1% | 100% |
+| Polish | 1.806 | 2.096 | 83.0% | 100% |
+| Portuguese | 1.418 | 1.453 | 80.7% | 100% |
+| Romanian | 1.749 | 1.800 | 83.9% | 100% |
+| Russian | 1.868 | 1.884 | 86.0% | 100% |
+| Swedish | 1.766 | 1.841 | 86.7% | 100% |
+| Ukrainian | 2.172 | 2.273 | 88.4% | 100% |
+
+### 9.5 Aya-Vision-32B — passing languages (13)
+
+Czech, Dutch, French, German, Greek, Italian, Polish, Portuguese, Romanian, Russian, Spanish, Turkish, Ukrainian.
+
+| Language | Aya fertility | Gemma-4 fertility | Vocab cov | Roundtrip |
+|---|---|---|---|---|
+| Czech | 1.805 | 2.157 | 99.1% | 100% |
+| Dutch | 1.483 | 1.630 | 98.1% | 100% |
+| French | 1.415 | 1.490 | 100.0% | 100% |
+| German | 1.635 | 1.655 | 99.1% | 100% |
+| Greek | 1.789 | 2.472 | 98.7% | 100% |
+| Italian | 1.464 | 1.535 | 99.1% | 100% |
+| Polish | 1.847 | 2.096 | 100.0% | 100% |
+| Portuguese | 1.331 | 1.453 | 100.0% | 100% |
+| Romanian | 1.569 | 1.800 | 99.1% | 100% |
+| Russian | 1.736 | 1.884 | 100.0% | 100% |
+| Spanish | 1.297 | 1.347 | 100.0% | 100% |
+| Turkish | 1.864 | 2.109 | 99.1% | 100% |
+| Ukrainian | 1.946 | 2.273 | 100.0% | 100% |
+
+### 9.6 Eliminated models — reasons
+
+| Model | Failure mode |
+|---|---|
+| Mistral-Small-3.2 | Tekken tokenizer normalizes on decode → roundtrip = 0% on every language. Structural, not recoverable. |
+| TildeOpen-30B | roundtrip = 0% on all tested languages (same Tekken-family behavior). |
+| Teuken-7B | vocab_coverage < 80% on 14/15 gated languages; heavy byte-fallback on non-Germanic scripts. |
+| GEITje-7B | Fertility ≥ Gemma-4 or vocab_coverage < 80% across the board; Dutch-only specialization too narrow. |
+
+### 9.7 Qualitative eval queue
+
+26 (model × language) pairs proceed to qualitative evaluation:
+- EuroLLM-22B × 11 languages  
+- Aya-Vision-32B × 13 languages  
+- Llama-3.3-70B × Czech  
+- SauerkrautLM-70B × Czech
+
+### 9.8 Raw files
+
+- `data/european_results.csv` — 255 rows (model × language), 13 metric columns
+- `data/european_summary.json` — gate decisions per pair, pass counts, qualitative eval queue

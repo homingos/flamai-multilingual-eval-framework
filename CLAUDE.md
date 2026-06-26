@@ -21,11 +21,35 @@ AI/ML research and implementation project for adding robust multilingual support
 ### Task 1 — Tokenizer Evaluation (original 17 languages): ✅ Complete
 17 regional models selected across 17 languages. Results in `data/results.csv`, report in `docs/llm-evaluation.md`.
 
-### Task 1 — Tokenizer Evaluation (European expansion): 🔜 Pending
-Run 8 European challenger models' tokenizers on FLORES-200 for 30 European languages.
+### Task 1 — Tokenizer Evaluation (European expansion): ✅ Complete (2026-06-26)
+Ran 8 European challenger models' tokenizers on FLORES-200 for 30 European languages.
 Decision rule: `fertility < Gemma-4 AND vocab_coverage ≥ 80% AND roundtrip ≥ 95%`
+Results: `data/european_results.csv`, summary: `data/european_summary.json`
+Script: `experiments/european_tokenizer_test.py`
 
-**8 Challenger models:**
+**Gate results by model:**
+| Model | Passes | Languages |
+|---|---|---|
+| `utter-project/EuroLLM-22B-Instruct-2512` | **11/30** | DE, IT, PT, NL, PL, RO, UK, SV, CS, EL, RU |
+| `CohereLabs/aya-vision-32b` | **13/30** | FR, DE, ES, IT, PT, NL, PL, RO, UK, CS, EL, RU, TR |
+| `meta-llama/Llama-3.3-70B-Instruct` | 1/30 | CS only |
+| `VAGOsolutions/Llama-3.1-SauerkrautLM-70b-Instruct` | 1/30 | CS only (identical tokenizer to Llama-3.3) |
+| `mistralai/Mistral-Small-3.2-24B-Instruct-2506` | **0/30** | roundtrip 0% on all languages (Tekken tokenizer) |
+| `openGPT-X/Teuken-7B-instruct-v0.6` | **0/30** | vocab_coverage <80% on 29/30 languages |
+| `BramVanroy/GEITje-7B-ultra` | **0/30** | fertility too high + vocab gaps |
+| `TildeAI/TildeOpen-30b` | **0/30** | roundtrip 0% on all languages |
+
+**Key finding:** Gemma-4's tokenizer already dominates for 16 smaller European languages (Baltic, Balkan, Nordic, Celtic, Slavic minorities — Danish, Finnish, Hungarian, Croatian, Slovak, Slovenian, Bulgarian, Lithuanian, Latvian, Estonian, Irish, Norwegian, Maltese, Serbian, Icelandic, Albanian). No challenger beats it there.
+
+**Eliminated models (do not proceed to qualitative):** Mistral-Small-3.2, Teuken-7B, GEITje-7B, TildeOpen-30B
+
+**26 (model × language) pairs queued for qualitative eval:**
+- EuroLLM-22B × {DE, IT, PT, NL, PL, RO, UK, SV, CS, EL, RU} — 11 pairs
+- Aya-Vision-32B × {FR, DE, ES, IT, PT, NL, PL, RO, UK, CS, EL, RU, TR} — 13 pairs
+- Llama-3.3-70B × CS — 1 pair
+- SauerkrautLM-70B × CS — 1 pair
+
+**8 Challenger models (for reference):**
 | Role | HuggingFace Model ID | Params |
 |---|---|---|
 | General multilingual | `meta-llama/Llama-3.3-70B-Instruct` | 70B |

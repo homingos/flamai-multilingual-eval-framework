@@ -183,9 +183,10 @@ METRIC_TIPS = {
 
 def nav_html(active: str) -> str:
     tabs = [
-        ("Tokenizer",           "/tokenizer",  "tokenizer"),
-        ("Qualitative Analysis","/qualitative", "qualitative"),
-        ("Manual Review (QA)",  "/review",      "review"),
+        ("Tokenizer",           "/tokenizer",    "tokenizer"),
+        ("EU Expansion",        "/eu-tokenizer", "eu-tokenizer"),
+        ("Qualitative Analysis","/qualitative",  "qualitative"),
+        ("Manual Review (QA)",  "/review",       "review"),
     ]
     def tab_link(label, href, key):
         s = ("color:var(--tx);border-bottom:2px solid var(--ac);padding-bottom:2px;font-weight:600;"
@@ -524,6 +525,116 @@ GRADE_LEGEND_HTML = (
 @app.get("/", include_in_schema=False)
 def root():
     return RedirectResponse("/tokenizer")
+
+
+@app.get("/eu-tokenizer", response_class=HTMLResponse)
+def eu_tokenizer_page():
+    EU_CSV  = REPO_ROOT / "data" / "european_results.csv"
+    EU_JSON = REPO_ROOT / "data" / "european_summary.json"
+
+    if not EU_CSV.exists():
+        return HTMLResponse("<p style='color:#8B949E;padding:40px;font-family:sans-serif'>european_results.csv not found. Run experiments/european_tokenizer_test.py first.</p>")
+
+    import csv as _csv
+    rows = []
+    with open(EU_CSV) as f:
+        for r in _csv.DictReader(f):
+            rows.append(r)
+
+    g4 = {r["language"]: float(r["fertility"]) for r in rows if r["model"] == "Gemma-4"}
+    MODELS = ["EuroLLM-22B", "Aya-Vision-32B", "Llama-3.3-70B", "SauerkrautLM-70B",
+              "Mistral-Small-3.2", "Teuken-7B", "GEITje-7B", "TildeOpen-30B"]
+    LANGS  = ["French","German","Spanish","Italian","Portuguese","Dutch","Polish","Romanian",
+              "Ukrainian","Swedish","Czech","Greek","Russian","Danish","Finnish","Hungarian",
+              "Turkish","Croatian","Slovak","Slovenian","Bulgarian","Lithuanian","Latvian",
+              "Estonian","Irish","Norwegian","Maltese","Serbian","Icelandic","Albanian"]
+
+    by_key = {(r["model"], r["language"]): r for r in rows if r["model"] != "Gemma-4"}
+
+    def gate(model, lang):
+        r = by_key.get((model, lang))
+        if r is None: return None
+        g4f = g4.get(lang)
+        if g4f is None: return None
+        return float(r["fertility"]) < g4f and float(r["vocab_coverage"]) >= 80 and float(r["roundtrip_pass_rate"]) >= 95
+
+    def cell(model, lang):
+        g = gate(model, lang)
+        r = by_key.get((model, lang))
+        if r is None:
+            return '<td style="background:#161B22;color:#484f58;text-align:center;font-size:11px;">—</td>'
+        g4f = g4.get(lang, "?")
+        tip = f"fertility={r['fertility']} vs G4={g4f} | vcov={r['vocab_coverage']}% | rt={r['roundtrip_pass_rate']}%"
+        if g is True:
+            return f'<td title="{tip}" style="background:rgba(46,160,67,.18);color:#3fb950;text-align:center;font-size:12px;font-weight:700;">✓</td>'
+        elif g is False:
+            return f'<td title="{tip}" style="background:rgba(248,81,73,.08);color:#f85149;text-align:center;font-size:11px;">✗</td>'
+        return f'<td title="{tip}" style="background:#161B22;color:#8b949e;text-align:center;font-size:11px;">?</td>'
+
+    pass_counts = {m: sum(1 for l in LANGS if gate(m, l) is True) for m in MODELS}
+
+    header_cells = "".join(
+        f'<th style="padding:8px 10px;font-size:11px;font-weight:700;text-transform:uppercase;'
+        f'letter-spacing:.06em;color:#8b949e;white-space:nowrap;border-bottom:1px solid #30363d;">'
+        f'{m}<br><span style="color:#3fb950;font-weight:800;font-size:13px;">{pass_counts[m]}</span>'
+        f'<span style="color:#8b949e;font-size:10px;">/30</span></th>'
+        for m in MODELS
+    )
+
+    body_rows = ""
+    for lang in LANGS:
+        g4f = g4.get(lang)
+        g4_cell = f'<td style="padding:6px 10px;font-size:12px;color:#8b949e;text-align:right;">{g4f if g4f else "—"}</td>'
+        data_cells = "".join(cell(m, lang) for m in MODELS)
+        body_rows += (
+            f'<tr><td style="padding:6px 12px;font-size:13px;font-weight:500;color:#c9d1d9;'
+            f'white-space:nowrap;border-bottom:1px solid #21262d;">{lang}</td>'
+            f'{g4_cell}{data_cells}</tr>'
+        )
+
+    summary_html = ""
+    if EU_JSON.exists():
+        summary = json.loads(EU_JSON.read_text())
+        n_pairs = len(summary.get("qualitative_eval_queue", []))
+        summary_html = (
+            f'<div style="margin-bottom:20px;padding:14px 18px;background:#161B22;border:1px solid #30363d;'
+            f'border-radius:8px;font-size:13px;color:#c9d1d9;">'
+            f'<strong style="color:#3fb950">{n_pairs} (model × language) pairs</strong> proceed to qualitative eval '
+            f'— EuroLLM-22B ({pass_counts.get("EuroLLM-22B",0)}) + Aya-Vision-32B ({pass_counts.get("Aya-Vision-32B",0)}) '
+            f'+ 2 Czech-only pairs (Llama-3.3-70B, SauerkrautLM-70B).<br>'
+            f'<span style="color:#8b949e;font-size:12px;">Hover a cell for fertility / vocab / roundtrip details. '
+            f'Gemma-4 column shows baseline fertility per language.</span></div>'
+        )
+
+    return f"""<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Falcon — EU Expansion</title>
+<style>{GLOBAL_CSS}</style></head>
+<body>
+{nav_html("eu-tokenizer")}
+<div style="max-width:1300px;margin:0 auto;padding:24px 20px;">
+  <h2 style="font-size:18px;font-weight:700;color:#c9d1d9;margin:0 0 6px;">European Language Expansion — Tokenizer Gate</h2>
+  <p style="font-size:13px;color:#8b949e;margin:0 0 20px;">
+    8 challenger models × 30 European languages · FLORES-200 devtest ·
+    Gate: <code style="color:#c9d1d9">fertility &lt; Gemma-4 AND vocab_coverage ≥ 80% AND roundtrip ≥ 95%</code>
+  </p>
+  {summary_html}
+  <div style="overflow-x:auto;">
+  <table style="border-collapse:collapse;width:100%;font-family:inherit;">
+    <thead><tr>
+      <th style="padding:8px 12px;font-size:11px;font-weight:700;text-align:left;color:#8b949e;border-bottom:1px solid #30363d;">Language</th>
+      <th style="padding:8px 10px;font-size:11px;font-weight:700;color:#8b949e;border-bottom:1px solid #30363d;white-space:nowrap;">G4 Fertility</th>
+      {header_cells}
+    </tr></thead>
+    <tbody>{body_rows}</tbody>
+  </table>
+  </div>
+  <p style="margin-top:16px;font-size:11px;color:#484f58;">
+    Eliminated: Mistral-Small-3.2 &amp; TildeOpen-30B (roundtrip 0% every language) ·
+    Teuken-7B (vocab &lt;80% on 29/30) · GEITje-7B (fertility + vocab gaps).
+    16 languages with no gate winner stay on Gemma-4.
+  </p>
+</div>
+</body></html>"""
 
 
 @app.get("/tokenizer", response_class=HTMLResponse)
