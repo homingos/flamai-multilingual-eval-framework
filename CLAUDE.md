@@ -27,27 +27,38 @@ Decision rule: `fertility < Gemma-4 AND vocab_coverage ≥ 80% AND roundtrip ≥
 Results: `data/european_results.csv`, summary: `data/european_summary.json`
 Script: `experiments/european_tokenizer_test.py`
 
-**Gate results by model:**
+**Gate results by model (final — all 30 languages with baselines):**
 | Model | Passes | Languages |
 |---|---|---|
-| `utter-project/EuroLLM-22B-Instruct-2512` | **11/30** | DE, IT, PT, NL, PL, RO, UK, SV, CS, EL, RU |
+| `utter-project/EuroLLM-22B-Instruct-2512` | **24/30** | DE, IT, PT, NL, PL, RO, UK, SV, CS, EL, RU, DA, FI, HU, HR, SK, SL, BG, LT, LV, ET, GA, NB, MT |
 | `CohereLabs/aya-vision-32b` | **13/30** | FR, DE, ES, IT, PT, NL, PL, RO, UK, CS, EL, RU, TR |
+| `openGPT-X/Teuken-7B-instruct-v0.6` | 1/30 | BG only (fertility 1.335 vs G4 2.055) |
 | `meta-llama/Llama-3.3-70B-Instruct` | 1/30 | CS only |
 | `VAGOsolutions/Llama-3.1-SauerkrautLM-70b-Instruct` | 1/30 | CS only (identical tokenizer to Llama-3.3) |
 | `mistralai/Mistral-Small-3.2-24B-Instruct-2506` | **0/30** | roundtrip 0% on all languages (Tekken tokenizer) |
-| `openGPT-X/Teuken-7B-instruct-v0.6` | **0/30** | vocab_coverage <80% on 29/30 languages |
-| `BramVanroy/GEITje-7B-ultra` | **0/30** | fertility too high + vocab gaps |
+| `BramVanroy/GEITje-7B-ultra` | **0/30** | fertility too high + vocab gaps across most languages |
 | `TildeAI/TildeOpen-30b` | **0/30** | roundtrip 0% on all languages |
 
-**Key finding:** Gemma-4's tokenizer already dominates for 16 smaller European languages (Baltic, Balkan, Nordic, Celtic, Slavic minorities — Danish, Finnish, Hungarian, Croatian, Slovak, Slovenian, Bulgarian, Lithuanian, Latvian, Estonian, Irish, Norwegian, Maltese, Serbian, Icelandic, Albanian). No challenger beats it there.
+**Official EU language coverage (24 official; English not tested):**
+- EuroLLM-22B: **21/23** — fails only French (fert 1.525 vs G4 1.490) and Spanish (fert 1.383 vs G4 1.347), both by < 3%
+- Aya-Vision-32B: **13/23**
+- Gemma-4 still best for: Serbian, Icelandic, Albanian (no challenger wins), French + Spanish (EuroLLM barely misses)
 
-**Eliminated models (do not proceed to qualitative):** Mistral-Small-3.2, Teuken-7B, GEITje-7B, TildeOpen-30B
+**Key findings:**
+- EuroLLM-22B dominates Central/Eastern/Northern Europe — sweeps all Baltic, Nordic, Slavic, and Celtic languages
+- EuroLLM fails French and Spanish only because Gemma-4's tokenizer is already extremely efficient on those high-resource Western languages (delta < 0.04 tokens/word)
+- Teuken-7B surprise win on Bulgarian: fertility 1.335 vs G4 2.055 (35% fewer tokens)
+- Aya-Vision-32B wins on Arabic-script/Cyrillic/Turkish where EuroLLM is weaker; near-perfect vocab coverage (98–100%)
+- Gemma-4 wins Serbia, Iceland, Albania — no challenger has sufficient vocab coverage or fertility advantage
 
-**26 (model × language) pairs queued for qualitative eval:**
-- EuroLLM-22B × {DE, IT, PT, NL, PL, RO, UK, SV, CS, EL, RU} — 11 pairs
-- Aya-Vision-32B × {FR, DE, ES, IT, PT, NL, PL, RO, UK, CS, EL, RU, TR} — 13 pairs
+**Eliminated models (do not proceed to qualitative):** Mistral-Small-3.2, GEITje-7B, TildeOpen-30B
+
+**40 (model × language) pairs queued for qualitative eval:**
+- EuroLLM-22B × 24 languages (DE, IT, PT, NL, PL, RO, UK, SV, CS, EL, RU, DA, FI, HU, HR, SK, SL, BG, LT, LV, ET, GA, NB, MT)
+- Aya-Vision-32B × 13 languages (FR, DE, ES, IT, PT, NL, PL, RO, UK, CS, EL, RU, TR)
 - Llama-3.3-70B × CS — 1 pair
 - SauerkrautLM-70B × CS — 1 pair
+- Teuken-7B × BG — 1 pair
 
 **8 Challenger models (for reference):**
 | Role | HuggingFace Model ID | Params |

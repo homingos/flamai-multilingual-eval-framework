@@ -1247,92 +1247,178 @@ After qualitative evaluation (Task 1B) showed Grade E results for the original I
 PASS ⟺ fertility < Gemma-4  AND  vocab_coverage ≥ 80%  AND  roundtrip_pass_rate ≥ 95%
 ```
 
-Gemma-4 model ID used: `google/gemma-4-12B-it` (all Gemma-4 variants share one tokenizer). Baselines for 14 languages imported from `data/results.csv` (Task 1); Albanian added fresh; 15 remaining languages lack a Gemma-4 baseline and are held out of gating.
+Gemma-4 model ID used: `google/gemma-4-12B-it` (all Gemma-4 variants share one tokenizer). Full baselines collected for all 30 languages (14 imported from Task 1 `data/results.csv`; 16 measured fresh). Total: **270 rows** in `data/european_results.csv` (30 languages × 9 models).
 
 ### 9.2 Challenger models
 
-| Short name | HuggingFace ID |
-|---|---|
-| EuroLLM-22B | `utter-project/EuroLLM-22B-Instruct-2512` |
-| Aya-Vision-32B | `CohereLabs/aya-vision-32b` |
-| Llama-3.3-70B | `meta-llama/Llama-3.3-70B-Instruct` |
-| SauerkrautLM-70B | `VAGOsolutions/Llama-3.1-SauerkrautLM-70b-Instruct` |
-| Mistral-Small-3.2 | `mistralai/Mistral-Small-3.2-24B-Instruct-2506` |
-| Teuken-7B | `openGPT-X/Teuken-7B-instruct-v0.6` |
-| GEITje-7B | `BramVanroy/GEITje-7B-ultra` |
-| TildeOpen-30B | `TildeAI/TildeOpen-30b` |
-
-### 9.3 Gate results summary
-
-| Model | Gate passes / 15 gated langs | Verdict |
+| Short name | HuggingFace ID | Params |
 |---|---|---|
-| **EuroLLM-22B** | **11 / 15** | ✅ Advances |
-| **Aya-Vision-32B** | **13 / 15** | ✅ Advances |
-| Llama-3.3-70B | 1 / 15 (Czech only) | ⚠️ Partial — Czech only |
-| SauerkrautLM-70B | 1 / 15 (Czech only) | ⚠️ Partial — Czech only |
-| Mistral-Small-3.2 | 0 / 15 | ❌ Eliminated |
-| Teuken-7B | 0 / 15 | ❌ Eliminated |
-| GEITje-7B | 0 / 15 | ❌ Eliminated |
-| TildeOpen-30B | 0 / 15 | ❌ Eliminated |
+| EuroLLM-22B | `utter-project/EuroLLM-22B-Instruct-2512` | 22B |
+| Aya-Vision-32B | `CohereLabs/aya-vision-32b` | 32B |
+| Llama-3.3-70B | `meta-llama/Llama-3.3-70B-Instruct` | 70B |
+| SauerkrautLM-70B | `VAGOsolutions/Llama-3.1-SauerkrautLM-70b-Instruct` | 70B |
+| Mistral-Small-3.2 | `mistralai/Mistral-Small-3.2-24B-Instruct-2506` | 24B |
+| Teuken-7B | `openGPT-X/Teuken-7B-instruct-v0.6` | 7B |
+| GEITje-7B | `BramVanroy/GEITje-7B-ultra` | 7B |
+| TildeOpen-30B | `TildeAI/TildeOpen-30b` | 30B |
 
-*15 gated languages = the 15 with valid Gemma-4 baselines. Other 15 European languages lack a baseline and are untested.*
+### 9.3 Per-model aggregate statistics (across all 30 languages)
 
-### 9.4 EuroLLM-22B — passing languages (11)
+| Model | Avg fertility | Min→Max fertility | Avg vocab cov | Avg roundtrip | Avg tok/sent | Gate passes |
+|---|---|---|---|---|---|---|
+| **Gemma-4** (baseline) | 2.103 | 1.347→3.047 | 99.6% | 100.0% | 42.78 | — |
+| **EuroLLM-22B** | **1.965** | 1.383→2.687 | 83.4% | 100.0% | 40.16 | **24/30** |
+| Aya-Vision-32B | 2.170 | 1.297→3.268 | 98.6% | 100.0% | 43.93 | 13/30 |
+| Teuken-7B | 1.969 | 1.335→3.384 | 70.7% | 99.6% | 40.48 | 1/30 |
+| Llama-3.3-70B | 2.438 | 1.604→3.394 | 98.7% | 100.0% | 49.52 | 1/30 |
+| SauerkrautLM-70B | 2.438 | 1.604→3.394 | 98.7% | 100.0% | 49.52 | 1/30 |
+| GEITje-7B | 2.880 | 1.809→6.581 | 78.6% | 100.0% | 58.80 | 0/30 |
+| Mistral-Small-3.2 | 2.068 | 0.136→3.244 | 84.9% | **0.0%** | 41.99 | 0/30 |
+| TildeOpen-30B | 2.961 | 2.472→7.193 | 84.8% | **0.0%** | 61.37 | 0/30 |
 
-Czech, Dutch, German, Greek, Italian, Polish, Portuguese, Romanian, Russian, Swedish, Ukrainian.
+*Llama-3.3-70B and SauerkrautLM-70B share identical tokenizers (Llama 3.1 family) — scores are identical across all 30 languages.*
 
-| Language | EuroLLM fertility | Gemma-4 fertility | Vocab cov | Roundtrip |
+### 9.4 Gate results summary
+
+| Model | Gate passes / 30 | Verdict |
+|---|---|---|
+| **EuroLLM-22B** | **24 / 30** | ✅ Advances |
+| **Aya-Vision-32B** | **13 / 30** | ✅ Advances |
+| Teuken-7B | 1 / 30 (Bulgarian only) | ⚠️ Partial |
+| Llama-3.3-70B | 1 / 30 (Czech only) | ⚠️ Partial |
+| SauerkrautLM-70B | 1 / 30 (Czech only) | ⚠️ Partial |
+| Mistral-Small-3.2 | 0 / 30 | ❌ Eliminated |
+| GEITje-7B | 0 / 30 | ❌ Eliminated |
+| TildeOpen-30B | 0 / 30 | ❌ Eliminated |
+
+### 9.5 Full per-language gate matrix
+
+| Language | G4 fert | EuroLLM fert | EuroLLM vcov | Aya fert | Aya vcov | Gate winner(s) |
+|---|---|---|---|---|---|---|
+| French | 1.490 | 1.525 | 80.5% | 1.415 | 100.0% | Aya |
+| German | 1.655 | 1.623 | 82.4% | 1.635 | 99.1% | EuroLLM, Aya |
+| Spanish | 1.347 | 1.383 | 83.7% | 1.297 | 100.0% | Aya |
+| Italian | 1.535 | 1.482 | 82.1% | 1.464 | 99.1% | EuroLLM, Aya |
+| Portuguese | 1.453 | 1.418 | 80.7% | 1.331 | 100.0% | EuroLLM, Aya |
+| Dutch | 1.630 | 1.489 | 80.2% | 1.483 | 98.1% | EuroLLM, Aya |
+| Polish | 2.096 | 1.806 | 83.0% | 1.847 | 100.0% | EuroLLM, Aya |
+| Romanian | 1.800 | 1.749 | 83.9% | 1.569 | 99.1% | EuroLLM, Aya |
+| Ukrainian | 2.273 | 2.172 | 88.4% | 1.946 | 100.0% | EuroLLM, Aya |
+| Swedish | 1.841 | 1.766 | 86.7% | 2.118 | 100.0% | EuroLLM |
+| Czech | 2.157 | 2.016 | 80.0% | 1.805 | 99.1% | EuroLLM, Aya, Llama, SauerkrautLM |
+| Greek | 2.472 | 2.126 | 85.6% | 1.789 | 98.7% | EuroLLM, Aya |
+| Russian | 1.884 | 1.868 | 86.0% | 1.736 | 100.0% | EuroLLM, Aya |
+| Danish | 1.814 | 1.701 | 83.8% | 2.078 | 99.1% | EuroLLM |
+| Finnish | 2.826 | 2.435 | 81.5% | 3.268 | 100.0% | EuroLLM |
+| Hungarian | 2.433 | 2.219 | 84.4% | 3.005 | 98.2% | EuroLLM |
+| Turkish | 2.109 | 2.109 | 83.3% | 1.864 | 99.1% | Aya |
+| Croatian | 2.036 | 1.902 | 81.8% | 2.349 | 99.1% | EuroLLM |
+| Slovak | 2.242 | 1.996 | 83.2% | 2.330 | 96.6% | EuroLLM |
+| Slovenian | 2.109 | 1.871 | 84.8% | 2.271 | 100.0% | EuroLLM |
+| Bulgarian | 2.055 | 1.898 | 88.5% | 2.279 | 99.3% | EuroLLM, Teuken |
+| Lithuanian | 2.607 | 2.193 | 83.7% | 2.938 | 98.0% | EuroLLM |
+| Latvian | 2.770 | 2.160 | 83.8% | 3.094 | 91.9% | EuroLLM |
+| Estonian | 2.553 | 2.226 | 83.2% | 2.884 | 98.2% | EuroLLM |
+| Irish | 2.177 | 1.799 | 83.8% | 2.301 | 99.1% | EuroLLM |
+| Norwegian | 1.777 | 1.674 | 83.3% | 2.020 | 99.1% | EuroLLM |
+| Maltese | 3.047 | 2.495 | 82.6% | 3.185 | 95.7% | EuroLLM |
+| Serbian | 2.268 | 2.652 | 82.1% | 2.625 | 93.8% | **Gemma-4** |
+| Icelandic | 2.480 | 2.687 | 82.3% | 2.676 | 99.1% | **Gemma-4** |
+| Albanian | 2.148 | 2.503 | 81.9% | 2.507 | 98.9% | **Gemma-4** |
+
+### 9.6 Official EU language coverage
+
+24 official EU languages; English not in test set → 23 testable:
+
+| Model | EU passes | Fails |
+|---|---|---|
+| EuroLLM-22B | **21 / 23** | French (Δ+2.4% fertility), Spanish (Δ+2.7% fertility) |
+| Aya-Vision-32B | 13 / 23 | Croatian, Slovak, Slovenian, Bulgarian, Lithuanian, Latvian, Estonian, Irish, Norwegian, Maltese |
+
+EuroLLM's French and Spanish failures are pure fertility margin misses (<0.04 tokens/word delta). Vocab coverage and roundtrip are fine for both.
+
+### 9.7 EuroLLM-22B — all 24 passing languages
+
+| Language | EuroLLM fert | G4 fert | Fertility Δ | Vocab cov | Avg tok/sent |
+|---|---|---|---|---|---|
+| Bulgarian | 1.898 | 2.055 | −7.6% | 88.5% | 39.0 |
+| Croatian | 1.902 | 2.036 | −6.6% | 81.8% | 39.8 |
+| Czech | 2.016 | 2.157 | −6.5% | 80.0% | 40.2 |
+| Danish | 1.701 | 1.814 | −6.2% | 83.8% | 34.4 |
+| Dutch | 1.489 | 1.630 | −8.6% | 80.2% | 32.8 |
+| Estonian | 2.226 | 2.553 | −12.8% | 83.2% | 45.1 |
+| Finnish | 2.435 | 2.826 | −13.8% | 81.5% | 49.0 |
+| German | 1.623 | 1.655 | −1.9% | 82.4% | 32.3 |
+| Greek | 2.126 | 2.472 | −14.0% | 85.6% | 41.5 |
+| Hungarian | 2.219 | 2.433 | −8.8% | 84.4% | 44.4 |
+| Irish | 1.799 | 2.177 | −17.4% | 83.8% | 37.3 |
+| Italian | 1.482 | 1.535 | −3.5% | 82.1% | 30.8 |
+| Latvian | 2.160 | 2.770 | −22.0% | 83.8% | 43.7 |
+| Lithuanian | 2.193 | 2.607 | −15.9% | 83.7% | 43.7 |
+| Maltese | 2.495 | 3.047 | −18.1% | 82.6% | 50.0 |
+| Norwegian | 1.674 | 1.777 | −5.8% | 83.3% | 33.7 |
+| Polish | 1.806 | 2.096 | −13.8% | 83.0% | 36.8 |
+| Portuguese | 1.418 | 1.453 | −2.4% | 80.7% | 29.7 |
+| Romanian | 1.749 | 1.800 | −2.8% | 83.9% | 35.6 |
+| Russian | 1.868 | 1.884 | −0.8% | 86.0% | 38.2 |
+| Slovak | 1.996 | 2.242 | −11.0% | 83.2% | 39.6 |
+| Slovenian | 1.871 | 2.109 | −11.3% | 84.8% | 38.3 |
+| Swedish | 1.766 | 1.841 | −4.1% | 86.7% | 35.9 |
+| Ukrainian | 2.172 | 2.273 | −4.4% | 88.4% | 43.0 |
+
+### 9.8 Aya-Vision-32B — all 13 passing languages
+
+| Language | Aya fert | G4 fert | Fertility Δ | Vocab cov | Avg tok/sent |
+|---|---|---|---|---|---|
+| Czech | 1.805 | 2.157 | −16.3% | 99.1% | 36.3 |
+| Dutch | 1.483 | 1.630 | −9.0% | 98.1% | 30.8 |
+| French | 1.415 | 1.490 | −5.0% | 100.0% | 30.1 |
+| German | 1.635 | 1.655 | −1.2% | 99.1% | 32.7 |
+| Greek | 1.789 | 2.472 | −27.6% | 98.7% | 36.2 |
+| Italian | 1.464 | 1.535 | −4.6% | 99.1% | 30.6 |
+| Polish | 1.847 | 2.096 | −11.9% | 100.0% | 37.3 |
+| Portuguese | 1.331 | 1.453 | −8.4% | 100.0% | 27.4 |
+| Romanian | 1.569 | 1.800 | −12.8% | 99.1% | 31.7 |
+| Russian | 1.736 | 1.884 | −7.9% | 100.0% | 35.1 |
+| Spanish | 1.297 | 1.347 | −3.7% | 100.0% | 27.4 |
+| Turkish | 1.864 | 2.109 | −11.6% | 99.1% | 37.3 |
+| Ukrainian | 1.946 | 2.273 | −14.4% | 100.0% | 38.2 |
+
+### 9.9 Teuken-7B — Bulgarian surprise pass
+
+| Language | Teuken fert | G4 fert | Fertility Δ | Vocab cov | Roundtrip |
+|---|---|---|---|---|---|
+| Bulgarian | 1.335 | 2.055 | **−35.0%** | 80.4% | 99.8% |
+
+Teuken's avg vocab_coverage is only 70.7% (fails gate on 29/30 languages), but Bulgarian Cyrillic aligns well enough with Teuken's vocabulary to clear both the 80% threshold and the fertility gate.
+
+### 9.10 Eliminated models
+
+| Model | Avg fertility | Avg vcov | Avg roundtrip | Avg tok/sent | Primary failure |
+|---|---|---|---|---|---|
+| Mistral-Small-3.2 | 2.068 | 84.9% | **0.0%** | 41.99 | Tekken tokenizer normalizes on decode — roundtrip 0% on all 30 languages. Structural, unrecoverable. |
+| TildeOpen-30B | 2.961 | 84.8% | **0.0%** | 61.37 | Same Tekken-family roundtrip failure. Avg fertility 41% higher than EuroLLM. |
+| GEITje-7B | 2.880 | 78.6% | 100.0% | 58.80 | Dutch-specialist tokenizer; fertility 37% higher than EuroLLM on average; vocab_coverage <80% on most non-Dutch languages. |
+
+### 9.11 Gemma-4 still wins (3 languages)
+
+| Language | G4 fert | Best challenger | Challenger fert | Gap |
 |---|---|---|---|---|
-| Czech | 2.016 | 2.157 | 80.0% | 100% |
-| Dutch | 1.489 | 1.630 | 80.2% | 100% |
-| German | 1.623 | 1.655 | 82.4% | 100% |
-| Greek | 2.126 | 2.472 | 85.6% | 100% |
-| Italian | 1.482 | 1.535 | 82.1% | 100% |
-| Polish | 1.806 | 2.096 | 83.0% | 100% |
-| Portuguese | 1.418 | 1.453 | 80.7% | 100% |
-| Romanian | 1.749 | 1.800 | 83.9% | 100% |
-| Russian | 1.868 | 1.884 | 86.0% | 100% |
-| Swedish | 1.766 | 1.841 | 86.7% | 100% |
-| Ukrainian | 2.172 | 2.273 | 88.4% | 100% |
+| Serbian | 2.268 | Aya-Vision-32B | 2.625 | +16% |
+| Icelandic | 2.480 | Aya-Vision-32B | 2.676 | +7.9% |
+| Albanian | 2.148 | Aya-Vision-32B | 2.507 | +16.7% |
 
-### 9.5 Aya-Vision-32B — passing languages (13)
+### 9.12 Qualitative eval queue (40 pairs)
 
-Czech, Dutch, French, German, Greek, Italian, Polish, Portuguese, Romanian, Russian, Spanish, Turkish, Ukrainian.
+| Model | Count | Languages |
+|---|---|---|
+| EuroLLM-22B | 24 | BG, HR, CS, DA, NL, ET, FI, DE, EL, HU, GA, IT, LV, LT, MT, NB, PL, PT, RO, RU, SK, SL, SV, UK |
+| Aya-Vision-32B | 13 | CS, NL, FR, DE, EL, IT, PL, PT, RO, RU, ES, TR, UK |
+| Llama-3.3-70B | 1 | CS |
+| SauerkrautLM-70B | 1 | CS |
+| Teuken-7B | 1 | BG |
 
-| Language | Aya fertility | Gemma-4 fertility | Vocab cov | Roundtrip |
-|---|---|---|---|---|
-| Czech | 1.805 | 2.157 | 99.1% | 100% |
-| Dutch | 1.483 | 1.630 | 98.1% | 100% |
-| French | 1.415 | 1.490 | 100.0% | 100% |
-| German | 1.635 | 1.655 | 99.1% | 100% |
-| Greek | 1.789 | 2.472 | 98.7% | 100% |
-| Italian | 1.464 | 1.535 | 99.1% | 100% |
-| Polish | 1.847 | 2.096 | 100.0% | 100% |
-| Portuguese | 1.331 | 1.453 | 100.0% | 100% |
-| Romanian | 1.569 | 1.800 | 99.1% | 100% |
-| Russian | 1.736 | 1.884 | 100.0% | 100% |
-| Spanish | 1.297 | 1.347 | 100.0% | 100% |
-| Turkish | 1.864 | 2.109 | 99.1% | 100% |
-| Ukrainian | 1.946 | 2.273 | 100.0% | 100% |
+### 9.13 Raw files
 
-### 9.6 Eliminated models — reasons
-
-| Model | Failure mode |
-|---|---|
-| Mistral-Small-3.2 | Tekken tokenizer normalizes on decode → roundtrip = 0% on every language. Structural, not recoverable. |
-| TildeOpen-30B | roundtrip = 0% on all tested languages (same Tekken-family behavior). |
-| Teuken-7B | vocab_coverage < 80% on 14/15 gated languages; heavy byte-fallback on non-Germanic scripts. |
-| GEITje-7B | Fertility ≥ Gemma-4 or vocab_coverage < 80% across the board; Dutch-only specialization too narrow. |
-
-### 9.7 Qualitative eval queue
-
-26 (model × language) pairs proceed to qualitative evaluation:
-- EuroLLM-22B × 11 languages  
-- Aya-Vision-32B × 13 languages  
-- Llama-3.3-70B × Czech  
-- SauerkrautLM-70B × Czech
-
-### 9.8 Raw files
-
-- `data/european_results.csv` — 255 rows (model × language), 13 metric columns
-- `data/european_summary.json` — gate decisions per pair, pass counts, qualitative eval queue
+- `data/european_results.csv` — 270 rows (9 models × 30 languages), 13 metric columns
+- `data/european_summary.json` — gate decisions per pair, pass counts per model, qualitative eval queue
