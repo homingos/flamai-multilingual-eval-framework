@@ -641,13 +641,154 @@ def eu_tokenizer_page():
 
 @app.get("/tokenizer", response_class=HTMLResponse)
 def tokenizer_page():
+    import csv as _csv
+
+    CSV_PATH = REPO_ROOT / "data" / "results.csv"
+    if not CSV_PATH.exists():
+        return HTMLResponse("<p style='color:#8B949E;padding:40px;font-family:sans-serif'>results.csv not found.</p>")
+
+    rows = []
+    with open(CSV_PATH) as f:
+        for r in _csv.DictReader(f):
+            rows.append(r)
+
+    BASELINES = {"Gemma-4", "BLOOM", "mT5"}
+    g4 = {r["language"]: float(r["fertility"]) for r in rows if r["tokenizer_name"] == "Gemma-4"}
+
+    challengers = [r for r in rows if r["tokenizer_name"] not in BASELINES]
+
+    def gate(r):
+        g4f = g4.get(r["language"])
+        if g4f is None:
+            return None
+        return (float(r["fertility"]) < g4f
+                and float(r["vocab_coverage"]) >= 80
+                and float(r["roundtrip_pass_rate"]) >= 95)
+
+    # Group: region → language → list of challenger rows
+    REGION_ORDER_LOCAL = ["Indic", "Middle East", "East Asia", "SEA", "Africa",
+                          "Europe", "Americas", "Oceania"]
+    by_region: dict = {}
+    for r in challengers:
+        by_region.setdefault(r["region"], {}).setdefault(r["language"], []).append(r)
+
+    total_passes = sum(1 for r in challengers if gate(r) is True)
+    total_fails  = sum(1 for r in challengers if gate(r) is False)
+    total_langs  = len({r["language"] for r in challengers})
+    pass_langs   = len({r["language"] for r in challengers if gate(r) is True})
+
+    summary_html = (
+        f'<div style="margin-bottom:20px;padding:14px 18px;background:#161B22;border:1px solid #30363d;'
+        f'border-radius:8px;font-size:13px;color:#c9d1d9;display:flex;gap:28px;flex-wrap:wrap;align-items:center;">'
+        f'<span><strong style="color:#c9d1d9">{total_langs}</strong> <span style="color:#8b949e">languages tested</span></span>'
+        f'<span><strong style="color:#3fb950">{pass_langs}</strong> <span style="color:#8b949e">with a passing challenger</span></span>'
+        f'<span><strong style="color:#3fb950">{total_passes}</strong> <span style="color:#8b949e">model/language pairs pass gate</span></span>'
+        f'<span><strong style="color:#f85149">{total_fails}</strong> <span style="color:#8b949e">fail</span></span>'
+        f'<span style="color:#8b949e;font-size:12px;margin-left:auto;">Hover cells for details</span>'
+        f'</div>'
+    )
+
+    def row_html(lang, is_first, total_in_lang, r):
+        g4f   = g4.get(r["language"])
+        fert  = float(r["fertility"])
+        vcov  = float(r["vocab_coverage"])
+        rt    = float(r["roundtrip_pass_rate"])
+        g     = gate(r)
+        delta = f"{(fert - g4f) / g4f * 100:+.1f}%" if g4f else "—"
+        tip   = f"fert={fert:.3f} vs G4={g4f:.3f} ({delta}) | vcov={vcov:.1f}% | rt={rt:.1f}%"
+        g4f_str = f"{g4f:.3f}" if g4f else "—"
+
+        if g is True:
+            gate_td = f'<td title="{tip}" style="background:rgba(46,160,67,.18);color:#3fb950;text-align:center;font-size:13px;font-weight:700;padding:5px 10px;">✓</td>'
+        elif g is False:
+            gate_td = f'<td title="{tip}" style="background:rgba(248,81,73,.08);color:#f85149;text-align:center;font-size:11px;padding:5px 10px;">✗</td>'
+        else:
+            gate_td = f'<td title="{tip}" style="background:#161B22;color:#484f58;text-align:center;font-size:11px;padding:5px 10px;">—</td>'
+
+        delta_col  = "#3fb950" if g4f and fert < g4f else "#f85149"
+        vcov_col   = "#3fb950" if vcov >= 80 else "#f85149"
+        rt_col     = "#3fb950" if rt >= 95 else "#f85149"
+        any_pass   = g is True  # used only on first row
+        lang_color = "#3fb950" if any_pass else "#c9d1d9"
+
+        top_border = "border-top:1px solid #21262d;" if is_first else ""
+
+        if is_first:
+            lang_td = (f'<td rowspan="{total_in_lang}" style="padding:7px 12px;font-size:13px;font-weight:600;'
+                       f'color:#c9d1d9;white-space:nowrap;{top_border}vertical-align:middle;">{lang}</td>'
+                       f'<td rowspan="{total_in_lang}" style="padding:7px 10px;font-size:12px;color:#8b949e;'
+                       f'text-align:right;{top_border}vertical-align:middle;">{g4f_str}</td>')
+        else:
+            lang_td = ""
+
+        return (
+            f'<tr>'
+            f'{lang_td}'
+            f'<td style="padding:5px 12px;font-size:12px;color:#c9d1d9;white-space:nowrap;{top_border}">'
+            f'{r["tokenizer_name"]}</td>'
+            f'<td style="padding:5px 10px;font-size:12px;color:#8b949e;text-align:right;{top_border}">'
+            f'{fert:.3f}</td>'
+            f'<td style="padding:5px 10px;font-size:12px;color:{delta_col};text-align:right;{top_border}">'
+            f'{delta}</td>'
+            f'<td style="padding:5px 10px;font-size:12px;color:{vcov_col};text-align:right;{top_border}">'
+            f'{vcov:.1f}%</td>'
+            f'<td style="padding:5px 10px;font-size:12px;color:{rt_col};text-align:right;{top_border}">'
+            f'{rt:.1f}%</td>'
+            f'{gate_td}'
+            f'</tr>'
+        )
+
+    sections = []
+    ordered_regions = [r for r in REGION_ORDER_LOCAL if r in by_region] + \
+                      [r for r in by_region if r not in REGION_ORDER_LOCAL]
+
+    for region in ordered_regions:
+        lang_map = by_region[region]
+        region_pass = sum(1 for lang, rs in lang_map.items()
+                          for r in rs if gate(r) is True)
+        region_langs = len(lang_map)
+
+        lang_rows_html = ""
+        for lang in sorted(lang_map.keys()):
+            rs = sorted(lang_map[lang], key=lambda x: float(x["fertility"]))
+            for i, r in enumerate(rs):
+                lang_rows_html += row_html(lang, i == 0, len(rs), r)
+
+        sections.append(
+            f'<div style="margin-bottom:32px;">'
+            f'<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;'
+            f'color:#8b949e;padding:6px 0;border-bottom:1px solid #30363d;margin-bottom:0;">'
+            f'{region} &nbsp;<span style="color:#3fb950;font-weight:800;">{region_pass}</span>'
+            f'<span style="color:#8b949e;font-size:10px;"> challengers pass</span></div>'
+            f'<table style="border-collapse:collapse;width:100%;font-family:inherit;">'
+            f'<thead><tr>'
+            f'<th style="padding:6px 12px;font-size:11px;font-weight:700;text-align:left;color:#8b949e;border-bottom:1px solid #30363d;">Language</th>'
+            f'<th style="padding:6px 10px;font-size:11px;font-weight:700;color:#8b949e;border-bottom:1px solid #30363d;white-space:nowrap;">G4 Fert</th>'
+            f'<th style="padding:6px 10px;font-size:11px;font-weight:700;text-align:left;color:#8b949e;border-bottom:1px solid #30363d;white-space:nowrap;">Challenger</th>'
+            f'<th style="padding:6px 10px;font-size:11px;font-weight:700;color:#8b949e;border-bottom:1px solid #30363d;white-space:nowrap;">Fertility</th>'
+            f'<th style="padding:6px 10px;font-size:11px;font-weight:700;color:#8b949e;border-bottom:1px solid #30363d;">Δ%</th>'
+            f'<th style="padding:6px 10px;font-size:11px;font-weight:700;color:#8b949e;border-bottom:1px solid #30363d;white-space:nowrap;">Vocab Cov</th>'
+            f'<th style="padding:6px 10px;font-size:11px;font-weight:700;color:#8b949e;border-bottom:1px solid #30363d;white-space:nowrap;">Roundtrip</th>'
+            f'<th style="padding:6px 10px;font-size:11px;font-weight:700;color:#8b949e;border-bottom:1px solid #30363d;">Gate</th>'
+            f'</tr></thead>'
+            f'<tbody>{lang_rows_html}</tbody>'
+            f'</table></div>'
+        )
+
     return f"""<!DOCTYPE html>
-<html style="margin:0;height:100vh;display:flex;flex-direction:column;background:#0D1117">
-<head><meta charset="UTF-8"><title>Falcon — Tokenizer</title>
+<html><head><meta charset="UTF-8"><title>Falcon — Tokenizer</title>
 <style>{GLOBAL_CSS}</style></head>
-<body style="margin:0;height:100vh;display:flex;flex-direction:column;overflow:hidden;">
+<body>
 {nav_html("tokenizer")}
-<iframe src="/static/viz/language-map.html" style="flex:1;border:none;width:100%;display:block;"></iframe>
+<div style="max-width:1200px;margin:0 auto;padding:24px 20px;">
+  <h2 style="font-size:18px;font-weight:700;color:#c9d1d9;margin:0 0 6px;">Tokenizer Evaluation — Regional Challengers vs Gemma-4</h2>
+  <p style="font-size:13px;color:#8b949e;margin:0 0 20px;">
+    63 challenger models across 47 languages · FLORES-200 devtest ·
+    Gate: <code style="color:#c9d1d9">fertility &lt; Gemma-4 AND vocab_coverage ≥ 80% AND roundtrip ≥ 95%</code>
+  </p>
+  {summary_html}
+  {"".join(sections)}
+</div>
 </body></html>"""
 
 
