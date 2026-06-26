@@ -196,10 +196,10 @@ def _handles() -> WorkerHandles:
 
 ALL_MODELS = [
     # Re-run upgraded models — Sarvam-M 24B covers all 4 Indic languages
-    LanguageSpec("sarvam-m-tamil",           "Tamil",                "tamil",                "l40s"),
-    LanguageSpec("sarvam-m-marathi",         "Marathi",              "marathi",              "l40s"),
-    LanguageSpec("sarvam-m-kannada",         "Kannada",              "kannada",              "l40s"),
-    LanguageSpec("sarvam-m-gujarati",        "Gujarati",             "gujarati",             "l40s"),
+    LanguageSpec("sarvam-m-tamil",           "Tamil",                "tamil",                "a100_80gb"),
+    LanguageSpec("sarvam-m-marathi",         "Marathi",              "marathi",              "a100_80gb"),
+    LanguageSpec("sarvam-m-kannada",         "Kannada",              "kannada",              "a100_80gb"),
+    LanguageSpec("sarvam-m-gujarati",        "Gujarati",             "gujarati",             "a100_80gb"),
     LanguageSpec("jais-2-8b",                "Arabic",               "arabic",               "l4"),
     LanguageSpec("dictalm-3-nemotron-12b",   "Hebrew",               "hebrew",               "l40s"),
     # Re-run upgraded — EXAONE-3.5-32B (Polyglot-Ko-12B was a base model, Grade E)

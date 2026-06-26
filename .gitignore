@@ -30,3 +30,10 @@ build/
 # Phase 2A — local data (large, not for git)
 data/datasets/
 outputs/
+
+# Dashboard — generated HTML cache (regenerated on demand, not for git)
+data/review/
+
+# Modal JSONL cache — large raw outputs, not for git (HTML pre-generated in data/review_static/)
+data/modal_cache/
+.vercel

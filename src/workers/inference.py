@@ -232,10 +232,11 @@ class VLLMWorker:
         for i in range(0, len(pending_samples), self.BATCH_SIZE):
             batch = pending_samples[i : i + self.BATCH_SIZE]
 
-            if self.config.chat_template:
+            if self.config.chat_template is not None:
                 # ── Chat mode ────────────────────────────────────────────────
-                # Build structured conversation dicts. vLLM applies the stored
-                # Jinja2 template to produce the correctly-formatted input string.
+                # "tokenizer" sentinel → pass chat_template=None to llm.chat() so
+                # vLLM uses the model's own built-in tokenizer template.
+                # Any other string → use that Jinja2 template verbatim.
                 conversations = []
                 for sample in batch:
                     system_prompt, user_prompt = build_prompt(self.task, sample)
@@ -259,6 +260,8 @@ class VLLMWorker:
                 if output is None:
                     continue
                 output_text = output.outputs[0].text
+                if "</think>" in output_text:
+                    output_text = output_text.split("</think>", 1)[-1].strip()
                 record = _make_record(sample, output_text)
                 append_output(out_path, record)
                 results.append(record)
@@ -281,10 +284,11 @@ class VLLMWorker:
         Returns list of outputs, or list of None on error.
         """
         try:
+            template = None if self.config.chat_template == "tokenizer" else self.config.chat_template
             return self.llm.chat(
                 conversations,
                 sampling_params=sampling_params,
-                chat_template=self.config.chat_template,
+                chat_template=template,
             )
         except Exception as exc:
             print(
