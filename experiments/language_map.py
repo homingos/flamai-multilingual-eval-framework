@@ -14,6 +14,7 @@ from pathlib import Path
 
 ROOT        = Path(__file__).resolve().parent.parent
 RESULTS_CSV = ROOT / "data" / "results.csv"
+EU_CSV      = ROOT / "data" / "european_results.csv"
 OUT         = ROOT / "docs" / "viz" / "language-map.html"
 
 # ── Language → ISO-3166-1 alpha-3 primary countries ──────────────────────────
@@ -84,7 +85,23 @@ LANG_COUNTRIES = {
     "Romanian":             ["ROU","MDA"],
     "Swedish":              ["SWE","FIN"],
     "Czech":                ["CZE"],
+    "Slovak":               ["SVK"],
     "Greek":                ["GRC","CYP"],
+    "Danish":               ["DNK"],
+    "Finnish":              ["FIN"],
+    "Hungarian":            ["HUN"],
+    "Croatian":             ["HRV"],
+    "Slovenian":            ["SVN"],
+    "Bulgarian":            ["BGR"],
+    "Lithuanian":           ["LTU"],
+    "Latvian":              ["LVA"],
+    "Estonian":             ["EST"],
+    "Norwegian":            ["NOR"],
+    "Maltese":              ["MLT"],
+    "Serbian":              ["SRB","BIH","MNE"],
+    "Icelandic":            ["ISL"],
+    "Albanian":             ["ALB","XKX"],
+    "Irish":                ["IRL"],
     "Lat.Am. Spanish":      ["MEX","COL","ARG","VEN","CHL","ECU","GTM",
                              "CUB","BOL","DOM","HND","PRY","SLV","NIC",
                              "CRI","PAN","URY","PRI"],
@@ -140,6 +157,12 @@ ISO_NAMES = {
     "GIN":"Guinea","MDG":"Madagascar","CAF":"Cent. African Rep.","TCD":"Chad",
     "GNQ":"Equatorial Guinea","MUS":"Mauritius","REU":"Réunion",
     "CPV":"Cape Verde","GNB":"Guinea-Bissau","STP":"São Tomé & Príncipe",
+    # New European countries
+    "DNK":"Denmark","FIN":"Finland","HUN":"Hungary","HRV":"Croatia",
+    "SVK":"Slovakia","SVN":"Slovenia","BGR":"Bulgaria","LTU":"Lithuania",
+    "LVA":"Latvia","EST":"Estonia","NOR":"Norway","MLT":"Malta",
+    "SRB":"Serbia","ISL":"Iceland","ALB":"Albania","XKX":"Kosovo",
+    "BIH":"Bosnia & Herz.","MNE":"Montenegro",
     # Other
     "HKG":"Hong Kong","MAC":"Macau","COM":"Comoros",
 }
@@ -198,6 +221,12 @@ MODEL_COLORS = {
     "Goldfish-mri-39M":             "#2EC4B6",
     "Goldfish-tpi-125M":            "#80CED7",
     "BanglaLLama-3.1-8B":           "#E9C46A",
+    # EU expansion winners
+    "EuroLLM-22B":                  "#00C49A",
+    "Aya-Vision-32B":               "#FF6B9D",
+    "Llama-3.3-70B":                "#8B5CF6",
+    "SauerkrautLM-70B":             "#A78BFA",
+    "Teuken-7B":                    "#F59E0B",
 }
 
 LANG_REGION = {
@@ -208,7 +237,7 @@ LANG_REGION = {
         "East Asia":   ["Chinese","Japanese","Korean"],
         "SEA":         ["Vietnamese","Thai","Indonesian","Malay","Tagalog","Burmese","Khmer"],
         "Africa":      ["Swahili","Amharic","Hausa","Yoruba","Igbo","Zulu","Xhosa","Somali","Wolof","Shona"],
-        "Europe":      ["French","German","Spanish","Portuguese","Italian","Dutch","Polish","Russian","Ukrainian","Romanian","Swedish","Czech","Greek"],
+        "Europe":      ["French","German","Spanish","Portuguese","Italian","Dutch","Polish","Russian","Ukrainian","Romanian","Swedish","Czech","Greek","Danish","Finnish","Hungarian","Croatian","Slovak","Slovenian","Bulgarian","Lithuanian","Latvian","Estonian","Irish","Norwegian","Maltese","Serbian","Icelandic","Albanian"],
         "Americas":    ["Lat.Am. Spanish","Brazilian Portuguese","Quechua","Haitian Creole"],
         "Oceania":     ["Māori","Samoan","Tok Pisin"],
         "Other":       ["English"],
@@ -220,8 +249,20 @@ LANG_REGION = {
 # ── Data helpers ──────────────────────────────────────────────────────────────
 
 def load_results():
+    rows = []
     with open(RESULTS_CSV, newline="", encoding="utf-8") as f:
-        return list(csv.DictReader(f))
+        rows.extend(csv.DictReader(f))
+
+    if EU_CSV.exists():
+        with open(EU_CSV, newline="", encoding="utf-8") as f:
+            for r in csv.DictReader(f):
+                # Normalise column names to match results.csv schema
+                r2 = {k: v for k, v in r.items()}
+                r2["tokenizer_name"] = r2.pop("model")
+                r2.setdefault("region", "Europe")
+                rows.append(r2)
+
+    return rows
 
 
 def best_per_language(rows):
