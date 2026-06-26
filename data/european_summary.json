@@ -457,123 +457,123 @@
     },
     "Llama-3.3-70B|Danish": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.044 ≥ Gemma-4 1.814",
+      "gemma4_fertility": 1.814
     },
     "Mistral-Small-3.2|Danish": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.101 ≥ Gemma-4 1.814; roundtrip 0.0% < 95.0%",
+      "gemma4_fertility": 1.814
     },
     "Teuken-7B|Danish": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "vocab_coverage 70.27% < 80.0%",
+      "gemma4_fertility": 1.814
     },
     "EuroLLM-22B|Danish": {
-      "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "passes": true,
+      "reason": "PASS",
+      "gemma4_fertility": 1.814
     },
     "SauerkrautLM-70B|Danish": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.044 ≥ Gemma-4 1.814",
+      "gemma4_fertility": 1.814
     },
     "GEITje-7B|Danish": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.279 ≥ Gemma-4 1.814; vocab_coverage 78.38% < 80.0%",
+      "gemma4_fertility": 1.814
     },
     "TildeOpen-30B|Danish": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.753 ≥ Gemma-4 1.814; roundtrip 0.0% < 95.0%",
+      "gemma4_fertility": 1.814
     },
     "Aya-Vision-32B|Danish": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.078 ≥ Gemma-4 1.814",
+      "gemma4_fertility": 1.814
     },
     "Llama-3.3-70B|Finnish": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 3.373 ≥ Gemma-4 2.826",
+      "gemma4_fertility": 2.826
     },
     "Mistral-Small-3.2|Finnish": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 3.244 ≥ Gemma-4 2.826; roundtrip 0.0% < 95.0%",
+      "gemma4_fertility": 2.826
     },
     "Teuken-7B|Finnish": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "vocab_coverage 66.99% < 80.0%",
+      "gemma4_fertility": 2.826
     },
     "EuroLLM-22B|Finnish": {
-      "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "passes": true,
+      "reason": "PASS",
+      "gemma4_fertility": 2.826
     },
     "SauerkrautLM-70B|Finnish": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 3.373 ≥ Gemma-4 2.826",
+      "gemma4_fertility": 2.826
     },
     "GEITje-7B|Finnish": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 3.776 ≥ Gemma-4 2.826; vocab_coverage 77.67% < 80.0%",
+      "gemma4_fertility": 2.826
     },
     "TildeOpen-30B|Finnish": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 3.16 ≥ Gemma-4 2.826; roundtrip 0.0% < 95.0%",
+      "gemma4_fertility": 2.826
     },
     "Aya-Vision-32B|Finnish": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 3.268 ≥ Gemma-4 2.826",
+      "gemma4_fertility": 2.826
     },
     "Llama-3.3-70B|Hungarian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 3.071 ≥ Gemma-4 2.433",
+      "gemma4_fertility": 2.433
     },
     "Mistral-Small-3.2|Hungarian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 3.19 ≥ Gemma-4 2.433; roundtrip 0.0% < 95.0%",
+      "gemma4_fertility": 2.433
     },
     "Teuken-7B|Hungarian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "vocab_coverage 71.56% < 80.0%",
+      "gemma4_fertility": 2.433
     },
     "EuroLLM-22B|Hungarian": {
-      "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "passes": true,
+      "reason": "PASS",
+      "gemma4_fertility": 2.433
     },
     "SauerkrautLM-70B|Hungarian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 3.071 ≥ Gemma-4 2.433",
+      "gemma4_fertility": 2.433
     },
     "GEITje-7B|Hungarian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 3.214 ≥ Gemma-4 2.433; vocab_coverage 79.82% < 80.0%",
+      "gemma4_fertility": 2.433
     },
     "TildeOpen-30B|Hungarian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 3.434 ≥ Gemma-4 2.433; roundtrip 0.0% < 95.0%",
+      "gemma4_fertility": 2.433
     },
     "Aya-Vision-32B|Hungarian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 3.005 ≥ Gemma-4 2.433",
+      "gemma4_fertility": 2.433
     },
     "Llama-3.3-70B|Turkish": {
       "passes": false,
@@ -617,83 +617,83 @@
     },
     "Llama-3.3-70B|Croatian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.455 ≥ Gemma-4 2.036",
+      "gemma4_fertility": 2.036
     },
     "Mistral-Small-3.2|Croatian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.283 ≥ Gemma-4 2.036; roundtrip 0.0% < 95.0%",
+      "gemma4_fertility": 2.036
     },
     "Teuken-7B|Croatian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "vocab_coverage 68.18% < 80.0%",
+      "gemma4_fertility": 2.036
     },
     "EuroLLM-22B|Croatian": {
-      "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "passes": true,
+      "reason": "PASS",
+      "gemma4_fertility": 2.036
     },
     "SauerkrautLM-70B|Croatian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.455 ≥ Gemma-4 2.036",
+      "gemma4_fertility": 2.036
     },
     "GEITje-7B|Croatian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.732 ≥ Gemma-4 2.036",
+      "gemma4_fertility": 2.036
     },
     "TildeOpen-30B|Croatian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.714 ≥ Gemma-4 2.036; roundtrip 0.0% < 95.0%",
+      "gemma4_fertility": 2.036
     },
     "Aya-Vision-32B|Croatian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.349 ≥ Gemma-4 2.036",
+      "gemma4_fertility": 2.036
     },
     "Llama-3.3-70B|Slovak": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.561 ≥ Gemma-4 2.242",
+      "gemma4_fertility": 2.242
     },
     "Mistral-Small-3.2|Slovak": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.651 ≥ Gemma-4 2.242; roundtrip 0.0% < 95.0%",
+      "gemma4_fertility": 2.242
     },
     "Teuken-7B|Slovak": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "vocab_coverage 66.39% < 80.0%",
+      "gemma4_fertility": 2.242
     },
     "EuroLLM-22B|Slovak": {
-      "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "passes": true,
+      "reason": "PASS",
+      "gemma4_fertility": 2.242
     },
     "SauerkrautLM-70B|Slovak": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.561 ≥ Gemma-4 2.242",
+      "gemma4_fertility": 2.242
     },
     "GEITje-7B|Slovak": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.989 ≥ Gemma-4 2.242; vocab_coverage 76.47% < 80.0%",
+      "gemma4_fertility": 2.242
     },
     "TildeOpen-30B|Slovak": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.767 ≥ Gemma-4 2.242; roundtrip 0.0% < 95.0%",
+      "gemma4_fertility": 2.242
     },
     "Aya-Vision-32B|Slovak": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.33 ≥ Gemma-4 2.242",
+      "gemma4_fertility": 2.242
     },
     "Llama-3.3-70B|Slovenian": {
       "passes": false,
@@ -737,363 +737,363 @@
     },
     "Llama-3.3-70B|Bulgarian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.59 ≥ Gemma-4 2.055",
+      "gemma4_fertility": 2.055
     },
     "Mistral-Small-3.2|Bulgarian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "vocab_coverage 55.41% < 80.0%; roundtrip 0.0% < 95.0%",
+      "gemma4_fertility": 2.055
     },
     "Teuken-7B|Bulgarian": {
-      "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "passes": true,
+      "reason": "PASS",
+      "gemma4_fertility": 2.055
     },
     "EuroLLM-22B|Bulgarian": {
-      "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "passes": true,
+      "reason": "PASS",
+      "gemma4_fertility": 2.055
     },
     "SauerkrautLM-70B|Bulgarian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.59 ≥ Gemma-4 2.055",
+      "gemma4_fertility": 2.055
     },
     "GEITje-7B|Bulgarian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.703 ≥ Gemma-4 2.055",
+      "gemma4_fertility": 2.055
     },
     "TildeOpen-30B|Bulgarian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.622 ≥ Gemma-4 2.055; roundtrip 0.0% < 95.0%",
+      "gemma4_fertility": 2.055
     },
     "Aya-Vision-32B|Bulgarian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.279 ≥ Gemma-4 2.055",
+      "gemma4_fertility": 2.055
     },
     "Llama-3.3-70B|Lithuanian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 3.349 ≥ Gemma-4 2.607",
+      "gemma4_fertility": 2.607
     },
     "Mistral-Small-3.2|Lithuanian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.669 ≥ Gemma-4 2.607; roundtrip 0.0% < 95.0%",
+      "gemma4_fertility": 2.607
     },
     "Teuken-7B|Lithuanian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "vocab_coverage 73.47% < 80.0%",
+      "gemma4_fertility": 2.607
     },
     "EuroLLM-22B|Lithuanian": {
-      "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "passes": true,
+      "reason": "PASS",
+      "gemma4_fertility": 2.607
     },
     "SauerkrautLM-70B|Lithuanian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 3.349 ≥ Gemma-4 2.607",
+      "gemma4_fertility": 2.607
     },
     "GEITje-7B|Lithuanian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 3.429 ≥ Gemma-4 2.607",
+      "gemma4_fertility": 2.607
     },
     "TildeOpen-30B|Lithuanian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.979 ≥ Gemma-4 2.607; roundtrip 0.0% < 95.0%",
+      "gemma4_fertility": 2.607
     },
     "Aya-Vision-32B|Lithuanian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.938 ≥ Gemma-4 2.607",
+      "gemma4_fertility": 2.607
     },
     "Llama-3.3-70B|Latvian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 3.394 ≥ Gemma-4 2.77",
+      "gemma4_fertility": 2.77
     },
     "Mistral-Small-3.2|Latvian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.981 ≥ Gemma-4 2.77; roundtrip 0.0% < 95.0%",
+      "gemma4_fertility": 2.77
     },
     "Teuken-7B|Latvian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "vocab_coverage 70.27% < 80.0%",
+      "gemma4_fertility": 2.77
     },
     "EuroLLM-22B|Latvian": {
-      "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "passes": true,
+      "reason": "PASS",
+      "gemma4_fertility": 2.77
     },
     "SauerkrautLM-70B|Latvian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 3.394 ≥ Gemma-4 2.77",
+      "gemma4_fertility": 2.77
     },
     "GEITje-7B|Latvian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 3.571 ≥ Gemma-4 2.77; vocab_coverage 72.07% < 80.0%",
+      "gemma4_fertility": 2.77
     },
     "TildeOpen-30B|Latvian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.857 ≥ Gemma-4 2.77; roundtrip 0.0% < 95.0%",
+      "gemma4_fertility": 2.77
     },
     "Aya-Vision-32B|Latvian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 3.094 ≥ Gemma-4 2.77",
+      "gemma4_fertility": 2.77
     },
     "Llama-3.3-70B|Estonian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 3.018 ≥ Gemma-4 2.553",
+      "gemma4_fertility": 2.553
     },
     "Mistral-Small-3.2|Estonian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.823 ≥ Gemma-4 2.553; roundtrip 0.0% < 95.0%",
+      "gemma4_fertility": 2.553
     },
     "Teuken-7B|Estonian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "vocab_coverage 71.68% < 80.0%",
+      "gemma4_fertility": 2.553
     },
     "EuroLLM-22B|Estonian": {
-      "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "passes": true,
+      "reason": "PASS",
+      "gemma4_fertility": 2.553
     },
     "SauerkrautLM-70B|Estonian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 3.018 ≥ Gemma-4 2.553",
+      "gemma4_fertility": 2.553
     },
     "GEITje-7B|Estonian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 3.304 ≥ Gemma-4 2.553",
+      "gemma4_fertility": 2.553
     },
     "TildeOpen-30B|Estonian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 3.031 ≥ Gemma-4 2.553; roundtrip 0.0% < 95.0%",
+      "gemma4_fertility": 2.553
     },
     "Aya-Vision-32B|Estonian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.884 ≥ Gemma-4 2.553",
+      "gemma4_fertility": 2.553
     },
     "Llama-3.3-70B|Irish": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.399 ≥ Gemma-4 2.177",
+      "gemma4_fertility": 2.177
     },
     "Mistral-Small-3.2|Irish": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.329 ≥ Gemma-4 2.177; roundtrip 0.0% < 95.0%",
+      "gemma4_fertility": 2.177
     },
     "Teuken-7B|Irish": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "vocab_coverage 70.27% < 80.0%",
+      "gemma4_fertility": 2.177
     },
     "EuroLLM-22B|Irish": {
-      "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "passes": true,
+      "reason": "PASS",
+      "gemma4_fertility": 2.177
     },
     "SauerkrautLM-70B|Irish": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.399 ≥ Gemma-4 2.177",
+      "gemma4_fertility": 2.177
     },
     "GEITje-7B|Irish": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.664 ≥ Gemma-4 2.177; vocab_coverage 79.28% < 80.0%",
+      "gemma4_fertility": 2.177
     },
     "TildeOpen-30B|Irish": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.84 ≥ Gemma-4 2.177; roundtrip 0.0% < 95.0%",
+      "gemma4_fertility": 2.177
     },
     "Aya-Vision-32B|Irish": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.301 ≥ Gemma-4 2.177",
+      "gemma4_fertility": 2.177
     },
     "Llama-3.3-70B|Norwegian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 1.981 ≥ Gemma-4 1.777",
+      "gemma4_fertility": 1.777
     },
     "Mistral-Small-3.2|Norwegian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.033 ≥ Gemma-4 1.777; roundtrip 0.0% < 95.0%",
+      "gemma4_fertility": 1.777
     },
     "Teuken-7B|Norwegian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "vocab_coverage 70.37% < 80.0%",
+      "gemma4_fertility": 1.777
     },
     "EuroLLM-22B|Norwegian": {
-      "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "passes": true,
+      "reason": "PASS",
+      "gemma4_fertility": 1.777
     },
     "SauerkrautLM-70B|Norwegian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 1.981 ≥ Gemma-4 1.777",
+      "gemma4_fertility": 1.777
     },
     "GEITje-7B|Norwegian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.231 ≥ Gemma-4 1.777; vocab_coverage 78.7% < 80.0%",
+      "gemma4_fertility": 1.777
     },
     "TildeOpen-30B|Norwegian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.719 ≥ Gemma-4 1.777; roundtrip 0.0% < 95.0%",
+      "gemma4_fertility": 1.777
     },
     "Aya-Vision-32B|Norwegian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.02 ≥ Gemma-4 1.777",
+      "gemma4_fertility": 1.777
     },
     "Llama-3.3-70B|Maltese": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 3.383 ≥ Gemma-4 3.047",
+      "gemma4_fertility": 3.047
     },
     "Mistral-Small-3.2|Maltese": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "roundtrip 0.0% < 95.0%",
+      "gemma4_fertility": 3.047
     },
     "Teuken-7B|Maltese": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "vocab_coverage 70.43% < 80.0%",
+      "gemma4_fertility": 3.047
     },
     "EuroLLM-22B|Maltese": {
-      "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "passes": true,
+      "reason": "PASS",
+      "gemma4_fertility": 3.047
     },
     "SauerkrautLM-70B|Maltese": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 3.383 ≥ Gemma-4 3.047",
+      "gemma4_fertility": 3.047
     },
     "GEITje-7B|Maltese": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 3.569 ≥ Gemma-4 3.047; vocab_coverage 75.65% < 80.0%",
+      "gemma4_fertility": 3.047
     },
     "TildeOpen-30B|Maltese": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 3.558 ≥ Gemma-4 3.047; roundtrip 0.0% < 95.0%",
+      "gemma4_fertility": 3.047
     },
     "Aya-Vision-32B|Maltese": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 3.185 ≥ Gemma-4 3.047",
+      "gemma4_fertility": 3.047
     },
     "Llama-3.3-70B|Serbian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.866 ≥ Gemma-4 2.268",
+      "gemma4_fertility": 2.268
     },
     "Mistral-Small-3.2|Serbian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "vocab_coverage 53.1% < 80.0%; roundtrip 0.0% < 95.0%",
+      "gemma4_fertility": 2.268
     },
     "Teuken-7B|Serbian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.761 ≥ Gemma-4 2.268; vocab_coverage 74.48% < 80.0%",
+      "gemma4_fertility": 2.268
     },
     "EuroLLM-22B|Serbian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.652 ≥ Gemma-4 2.268",
+      "gemma4_fertility": 2.268
     },
     "SauerkrautLM-70B|Serbian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.866 ≥ Gemma-4 2.268",
+      "gemma4_fertility": 2.268
     },
     "GEITje-7B|Serbian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.755 ≥ Gemma-4 2.268",
+      "gemma4_fertility": 2.268
     },
     "TildeOpen-30B|Serbian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.674 ≥ Gemma-4 2.268; roundtrip 0.0% < 95.0%",
+      "gemma4_fertility": 2.268
     },
     "Aya-Vision-32B|Serbian": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.625 ≥ Gemma-4 2.268",
+      "gemma4_fertility": 2.268
     },
     "Llama-3.3-70B|Icelandic": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.796 ≥ Gemma-4 2.48",
+      "gemma4_fertility": 2.48
     },
     "Mistral-Small-3.2|Icelandic": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.776 ≥ Gemma-4 2.48; roundtrip 0.0% < 95.0%",
+      "gemma4_fertility": 2.48
     },
     "Teuken-7B|Icelandic": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.721 ≥ Gemma-4 2.48; vocab_coverage 69.03% < 80.0%",
+      "gemma4_fertility": 2.48
     },
     "EuroLLM-22B|Icelandic": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.687 ≥ Gemma-4 2.48",
+      "gemma4_fertility": 2.48
     },
     "SauerkrautLM-70B|Icelandic": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.796 ≥ Gemma-4 2.48",
+      "gemma4_fertility": 2.48
     },
     "GEITje-7B|Icelandic": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 3.087 ≥ Gemma-4 2.48; vocab_coverage 78.76% < 80.0%",
+      "gemma4_fertility": 2.48
     },
     "TildeOpen-30B|Icelandic": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 3.091 ≥ Gemma-4 2.48; roundtrip 0.0% < 95.0%",
+      "gemma4_fertility": 2.48
     },
     "Aya-Vision-32B|Icelandic": {
       "passes": false,
-      "reason": "no Gemma-4 baseline",
-      "gemma4_fertility": null
+      "reason": "fertility 2.676 ≥ Gemma-4 2.48",
+      "gemma4_fertility": 2.48
     },
     "Llama-3.3-70B|Albanian": {
       "passes": false,
@@ -1204,8 +1204,8 @@
   "pass_counts": {
     "Llama-3.3-70B": 1,
     "Mistral-Small-3.2": 0,
-    "Teuken-7B": 0,
-    "EuroLLM-22B": 12,
+    "Teuken-7B": 1,
+    "EuroLLM-22B": 24,
     "SauerkrautLM-70B": 1,
     "GEITje-7B": 0,
     "TildeOpen-30B": 0,
@@ -1278,14 +1278,79 @@
       "gemma4_fertility": 1.884
     },
     {
+      "model": "EuroLLM-22B",
+      "language": "Danish",
+      "gemma4_fertility": 1.814
+    },
+    {
+      "model": "EuroLLM-22B",
+      "language": "Finnish",
+      "gemma4_fertility": 2.826
+    },
+    {
+      "model": "EuroLLM-22B",
+      "language": "Hungarian",
+      "gemma4_fertility": 2.433
+    },
+    {
       "model": "Aya-Vision-32B",
       "language": "Turkish",
       "gemma4_fertility": 2.109
     },
     {
       "model": "EuroLLM-22B",
+      "language": "Croatian",
+      "gemma4_fertility": 2.036
+    },
+    {
+      "model": "EuroLLM-22B",
+      "language": "Slovak",
+      "gemma4_fertility": 2.242
+    },
+    {
+      "model": "EuroLLM-22B",
       "language": "Slovenian",
       "gemma4_fertility": 2.109
+    },
+    {
+      "model": "Teuken-7B",
+      "language": "Bulgarian",
+      "gemma4_fertility": 2.055
+    },
+    {
+      "model": "EuroLLM-22B",
+      "language": "Bulgarian",
+      "gemma4_fertility": 2.055
+    },
+    {
+      "model": "EuroLLM-22B",
+      "language": "Lithuanian",
+      "gemma4_fertility": 2.607
+    },
+    {
+      "model": "EuroLLM-22B",
+      "language": "Latvian",
+      "gemma4_fertility": 2.77
+    },
+    {
+      "model": "EuroLLM-22B",
+      "language": "Estonian",
+      "gemma4_fertility": 2.553
+    },
+    {
+      "model": "EuroLLM-22B",
+      "language": "Irish",
+      "gemma4_fertility": 2.177
+    },
+    {
+      "model": "EuroLLM-22B",
+      "language": "Norwegian",
+      "gemma4_fertility": 1.777
+    },
+    {
+      "model": "EuroLLM-22B",
+      "language": "Maltese",
+      "gemma4_fertility": 3.047
     },
     {
       "model": "Aya-Vision-32B",
