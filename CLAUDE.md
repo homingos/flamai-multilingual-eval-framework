@@ -132,6 +132,37 @@ modal run modal_app.py::clear_csmpt_cache
 
 ---
 
+## EuroLLM-22B Evaluation — Key Run IDs
+
+### Smoke test runs (2026-06-29, limit=20, stop_at=light_metrics)
+| Run ID | Task | Notes |
+|---|---|---|
+| `2026-06-29_095132_b337bf` | translation | 24 EU languages × 20 samples — PASSED |
+| `2026-06-29_101435_3b48dd` | instructions | 24 EU languages × 20 samples — PASSED |
+
+### Full eval runs (limit=1000, stop_at=report)
+_Fill in as runs complete._
+| Run ID | Task | Language | Status |
+|---|---|---|---|
+| _(pending)_ | translation | German | — |
+
+### Reusing the Gemma-4 baseline across models (`--gemma4-run-id`)
+The `--gemma4-run-id` option copies a previous run's Gemma-4 baseline file instead of re-running inference. **When it helps:** if you already ran EuroLLM German translation (run ID `X`) and now want to run Aya-Vision German translation, the Gemma-4 outputs for German are identical — pass `--gemma4-run-id X` to skip re-generating them.
+
+**When it does NOT help:**
+- Across tasks: translation and instruction baselines are separate files with different sample IDs — cannot be shared
+- Across languages: a German baseline only has German sample IDs, cannot be reused for Italian
+
+Usage:
+```bash
+echo "" | modal run --detach modal_app.py::run_pipeline \
+  --model-id utter-project/EuroLLM-22B-Instruct-2512 \
+  --slug german --task translation --limit 1000 \
+  --gemma4-run-id <run_id_from_previous_german_translation_run>
+```
+
+---
+
 ## How to Run a Language
 
 Each language needs **both tasks** completed before a final verdict can be made. Run instructions and translation sequentially for each language — do not move to the next language until both tasks are done.
@@ -153,8 +184,11 @@ The `--detach` flag keeps the run alive after your terminal disconnects. The run
 modal run modal_app.py::check_run --run-id <run_id>
 ```
 
-**Available slugs:**
+**Available slugs (original 17 languages):**
 `tamil`, `marathi`, `kannada`, `gujarati`, `arabic`, `hebrew`, `korean`, `malay`, `swahili`, `amharic`, `french`, `swedish`, `czech`, `brazilian_portuguese`, `maori`, `tok_pisin`
+
+**EuroLLM-22B slugs (24 EU languages — always pass `--model-id utter-project/EuroLLM-22B-Instruct-2512`):**
+`german`, `italian`, `portuguese`, `dutch`, `polish`, `romanian`, `ukrainian`, `swedish`, `czech`, `greek`, `russian`, `danish`, `finnish`, `hungarian`, `croatian`, `slovak`, `slovenian`, `bulgarian`, `lithuanian`, `latvian`, `estonian`, `irish`, `norwegian`, `maltese`
 
 **Estimated cost per language:** ~$3.16 (both tasks: 2 × $1.58)
 **Estimated time per language:** ~90 minutes (two sequential 45-min runs)
