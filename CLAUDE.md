@@ -419,7 +419,7 @@ Ensure fine-tuning on language A doesn't silently degrade performance on languag
 
 The evaluation pipeline is a Modal app (`modal_app.py`). Key components:
 
-- **`RegistryService`** — permanently deployed FastAPI at `phase2a-registry.modal.run`. Stores model configs (HF IDs, GPU presets, chat templates). If a model config needs changing, update `phase2a-registry/models.json` and re-upload via `modal volume put --force`.
+- **`RegistryService`** — FastAPI web endpoint created as part of `modal run`. **Inference workers do NOT call it** — they read model configs directly from `/data/registry/models.json` (the `phase2a-registry` volume mounted in every container). If a model config needs changing, update `phase2a-registry/models.json` locally and re-upload via `modal volume put --force phase2a-registry models.json`.
 - **`VLLMWorkerL4/L40S/A100/T4`** — GPU inference workers. Model loads once at container startup (no memory snapshots — removed due to vLLM 0.9.x crash).
 - **`LightMetricWorkerModal`** — CPU worker for fast metrics (language adherence, tone, format).
 - **`JudgeWorkerModal`** — CPU worker making Gemini API calls. 300 calls per language (50 prompts × 2 swap runs × 3 dimensions).
