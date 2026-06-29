@@ -312,7 +312,7 @@ def _run_pipeline(run_id: str, slugs: list, stop_at_value: str, task: str, limit
 
 
 @app.local_entrypoint()
-def run_pipeline(slug="tamil", stop_at="report", task="translation", limit=200,
+def run_pipeline(slug="tamil", model_id="", stop_at="report", task="translation", limit=200,
                  judge_model="gemini-3.5-flash", judge_limit=50, swap_runs=2,
                  skip_model_metrics=True, run_id=""):
     """
@@ -347,8 +347,11 @@ def run_pipeline(slug="tamil", stop_at="report", task="translation", limit=200,
     swap_runs          = int(swap_runs)
     skip_model_metrics = str(skip_model_metrics).lower() not in ("false", "0", "no")
 
-    slugs = [] if slug == "all" else [s.strip() for s in slug.split(",") if s.strip()]
-    specs = [s for s in ALL_MODELS if not slugs or s.slug in slugs]
+    slugs    = [] if slug == "all" else [s.strip() for s in slug.split(",") if s.strip()]
+    model_ids = [m.strip() for m in model_id.split(",") if m.strip()] if model_id else []
+    specs = [s for s in ALL_MODELS
+             if (not slugs or s.slug in slugs)
+             and (not model_ids or s.model_id in model_ids)]
     if not specs:
         print(f"ERROR: no matching slug(s) for '{slug}'. Valid slugs: "
               f"{', '.join(s.slug for s in ALL_MODELS)}")
