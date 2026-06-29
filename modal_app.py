@@ -127,7 +127,7 @@ class VLLMWorkerL40S(_VLLMWorker):
         pass
 
 
-@app.cls(**_vllm_cls("A100-80GB"))
+@app.cls(**_vllm_cls("A100-80GB"), max_containers=1)
 class VLLMWorkerA100(_VLLMWorker):
     model_id: str = modal.parameter()
     run_id:   str = modal.parameter()
