@@ -196,10 +196,10 @@ def _handles() -> WorkerHandles:
 
 ALL_MODELS = [
     # Re-run upgraded models — Sarvam-M 24B covers all 4 Indic languages
-    LanguageSpec("sarvam-m-tamil",           "Tamil",                "tamil",                "l40s"),
-    LanguageSpec("sarvam-m-marathi",         "Marathi",              "marathi",              "l40s"),
-    LanguageSpec("sarvam-m-kannada",         "Kannada",              "kannada",              "l40s"),
-    LanguageSpec("sarvam-m-gujarati",        "Gujarati",             "gujarati",             "l40s"),
+    LanguageSpec("sarvam-m-tamil",           "Tamil",                "tamil",                "a100_80gb"),
+    LanguageSpec("sarvam-m-marathi",         "Marathi",              "marathi",              "a100_80gb"),
+    LanguageSpec("sarvam-m-kannada",         "Kannada",              "kannada",              "a100_80gb"),
+    LanguageSpec("sarvam-m-gujarati",        "Gujarati",             "gujarati",             "a100_80gb"),
     LanguageSpec("jais-2-8b",                "Arabic",               "arabic",               "l4"),
     LanguageSpec("dictalm-3-nemotron-12b",   "Hebrew",               "hebrew",               "l40s"),
     # Re-run upgraded — EXAONE-3.5-32B (Polyglot-Ko-12B was a base model, Grade E)
@@ -215,6 +215,31 @@ ALL_MODELS = [
     LanguageSpec("tucano-2b4",               "Brazilian Portuguese", "brazilian_portuguese", "l4"),
     LanguageSpec("goldfish-mri-39m",         "Māori",                "maori",                "t4"),
     LanguageSpec("goldfish-tpi-125m",        "Tok Pisin",            "tok_pisin",            "t4"),
+    # EuroLLM-22B — EU multilingual expansion (24 languages, tokenizer gate passed)
+    LanguageSpec("eurollm-22b", "German",     "german",     "a100_80gb"),
+    LanguageSpec("eurollm-22b", "Italian",    "italian",    "a100_80gb"),
+    LanguageSpec("eurollm-22b", "Portuguese", "portuguese", "a100_80gb"),
+    LanguageSpec("eurollm-22b", "Dutch",      "dutch",      "a100_80gb"),
+    LanguageSpec("eurollm-22b", "Polish",     "polish",     "a100_80gb"),
+    LanguageSpec("eurollm-22b", "Romanian",   "romanian",   "a100_80gb"),
+    LanguageSpec("eurollm-22b", "Ukrainian",  "ukrainian",  "a100_80gb"),
+    LanguageSpec("eurollm-22b", "Russian",    "russian",    "a100_80gb"),
+    LanguageSpec("eurollm-22b", "Danish",     "danish",     "a100_80gb"),
+    LanguageSpec("eurollm-22b", "Finnish",    "finnish",    "a100_80gb"),
+    LanguageSpec("eurollm-22b", "Hungarian",  "hungarian",  "a100_80gb"),
+    LanguageSpec("eurollm-22b", "Croatian",   "croatian",   "a100_80gb"),
+    LanguageSpec("eurollm-22b", "Slovak",     "slovak",     "a100_80gb"),
+    LanguageSpec("eurollm-22b", "Slovenian",  "slovenian",  "a100_80gb"),
+    LanguageSpec("eurollm-22b", "Bulgarian",  "bulgarian",  "a100_80gb"),
+    LanguageSpec("eurollm-22b", "Lithuanian", "lithuanian", "a100_80gb"),
+    LanguageSpec("eurollm-22b", "Latvian",    "latvian",    "a100_80gb"),
+    LanguageSpec("eurollm-22b", "Estonian",   "estonian",   "a100_80gb"),
+    LanguageSpec("eurollm-22b", "Irish",      "irish",      "a100_80gb"),
+    LanguageSpec("eurollm-22b", "Norwegian",  "norwegian",  "a100_80gb"),
+    LanguageSpec("eurollm-22b", "Maltese",    "maltese",    "a100_80gb"),
+    LanguageSpec("eurollm-22b", "Swedish",    "swedish",    "a100_80gb"),
+    LanguageSpec("eurollm-22b", "Czech",      "czech",      "a100_80gb"),
+    LanguageSpec("eurollm-22b", "Greek",      "greek",      "a100_80gb"),
 ]
 
 BASE_MODELS = {  # no instruct variant — plain-text prompts only

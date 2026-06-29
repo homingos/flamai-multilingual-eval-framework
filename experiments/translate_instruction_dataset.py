@@ -57,6 +57,28 @@ SLUG_TO_LANGUAGE = {
     "swedish":              "Swedish",
     "tamil":                "Tamil",
     "tok_pisin":            "Tok Pisin",
+    # EuroLLM-22B EU expansion
+    "german":               "German",
+    "italian":              "Italian",
+    "portuguese":           "Portuguese",
+    "dutch":                "Dutch",
+    "polish":               "Polish",
+    "romanian":             "Romanian",
+    "ukrainian":            "Ukrainian",
+    "russian":              "Russian",
+    "danish":               "Danish",
+    "finnish":              "Finnish",
+    "hungarian":            "Hungarian",
+    "croatian":             "Croatian",
+    "slovak":               "Slovak",
+    "slovenian":            "Slovenian",
+    "bulgarian":            "Bulgarian",
+    "lithuanian":           "Lithuanian",
+    "latvian":              "Latvian",
+    "estonian":             "Estonian",
+    "irish":                "Irish",
+    "norwegian":            "Norwegian",
+    "maltese":              "Maltese",
 }
 
 
