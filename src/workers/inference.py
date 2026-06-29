@@ -61,7 +61,7 @@ class VLLMWorker:
     # attributes before @modal.enter() is called.
 
     CHECKPOINT_EVERY = 50
-    BATCH_SIZE       = 16
+    BATCH_SIZE       = 64
     TEMPERATURE      = 0.0
     TOP_P            = 1.0
     MAX_NEW_TOKENS   = 512
