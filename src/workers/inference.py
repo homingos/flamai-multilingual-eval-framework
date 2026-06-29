@@ -108,47 +108,38 @@ class VLLMWorker:
 
     def _fetch_model_config(self) -> _ModelInfo:
         """
-        Fetches model data from the registry API using urllib (no src/ import).
-        Reads REGISTRY_URL and JWT_TOKEN from environment (set via Modal secrets).
-        Raises RuntimeError if the model is not found or the request fails.
+        Reads model config directly from /data/registry/models.json (the
+        phase2a-registry volume mounted by modal_app.py). No HTTP call needed.
         """
         import json
-        import os
-        import urllib.request
 
-        registry_url = os.environ["REGISTRY_URL"]
-        jwt_token    = os.environ["JWT_TOKEN"]
-        url = f"{registry_url}/models/{self.model_id}"
-
-        req = urllib.request.Request(
-            url,
-            headers={"Authorization": f"Bearer {jwt_token}"},
-        )
+        registry_path = "/data/registry/models.json"
         try:
-            with urllib.request.urlopen(req) as resp:
-                body = json.loads(resp.read())
-        except Exception as exc:
+            with open(registry_path) as f:
+                models = json.load(f)
+        except FileNotFoundError:
             raise RuntimeError(
-                f"Failed to fetch model config for '{self.model_id}': {exc}"
-            ) from exc
-
-        data = body.get("data")
-        if data is None:
-            raise RuntimeError(
-                f"Registry returned no data for model '{self.model_id}'. "
-                f"Response: {body}"
+                f"Registry file not found at {registry_path}. "
+                f"Ensure the phase2a-registry volume is mounted."
             )
 
-        return _ModelInfo(
-            id=data["id"],
-            name=data["name"],
-            hf_model_id=data["hf_model_id"],
-            language=data["language"],
-            slug=data["slug"],
-            dtype=data.get("dtype", "bfloat16"),
-            gpu_memory_utilization=data.get("gpu_memory_utilization", 0.88),
-            max_model_len=data.get("max_model_len", 2048),
-            chat_template=data.get("chat_template"),  # None if not yet fetched
+        for data in models:
+            if data.get("id") == self.model_id:
+                return _ModelInfo(
+                    id=data["id"],
+                    name=data["name"],
+                    hf_model_id=data["hf_model_id"],
+                    language=data["language"],
+                    slug=data["slug"],
+                    dtype=data.get("dtype", "bfloat16"),
+                    gpu_memory_utilization=data.get("gpu_memory_utilization", 0.88),
+                    max_model_len=data.get("max_model_len", 2048),
+                    chat_template=data.get("chat_template"),
+                )
+
+        raise RuntimeError(
+            f"Model '{self.model_id}' not found in {registry_path}. "
+            f"Add an entry with id='{self.model_id}' to models.json and re-upload."
         )
 
     @modal.method()
@@ -232,10 +223,11 @@ class VLLMWorker:
         for i in range(0, len(pending_samples), self.BATCH_SIZE):
             batch = pending_samples[i : i + self.BATCH_SIZE]
 
-            if self.config.chat_template:
+            if self.config.chat_template is not None:
                 # ── Chat mode ────────────────────────────────────────────────
-                # Build structured conversation dicts. vLLM applies the stored
-                # Jinja2 template to produce the correctly-formatted input string.
+                # "tokenizer" sentinel → pass chat_template=None to llm.chat() so
+                # vLLM uses the model's own built-in tokenizer template.
+                # Any other string → use that Jinja2 template verbatim.
                 conversations = []
                 for sample in batch:
                     system_prompt, user_prompt = build_prompt(self.task, sample)
@@ -259,6 +251,8 @@ class VLLMWorker:
                 if output is None:
                     continue
                 output_text = output.outputs[0].text
+                if "</think>" in output_text:
+                    output_text = output_text.split("</think>", 1)[-1].strip()
                 record = _make_record(sample, output_text)
                 append_output(out_path, record)
                 results.append(record)
@@ -281,10 +275,11 @@ class VLLMWorker:
         Returns list of outputs, or list of None on error.
         """
         try:
+            template = None if self.config.chat_template == "tokenizer" else self.config.chat_template
             return self.llm.chat(
                 conversations,
                 sampling_params=sampling_params,
-                chat_template=self.config.chat_template,
+                chat_template=template,
             )
         except Exception as exc:
             print(
