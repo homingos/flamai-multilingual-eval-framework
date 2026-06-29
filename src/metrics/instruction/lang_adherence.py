@@ -26,6 +26,28 @@ class LangAdherenceMetric(BaseMetric):
         "Brazilian Portuguese": "pt",
         "Māori":                "mi",
         "Tok Pisin":            "tpi",
+        # EuroLLM-22B expansion
+        "German":               "de",
+        "Italian":              "it",
+        "Portuguese":           "pt",
+        "Dutch":                "nl",
+        "Polish":               "pl",
+        "Romanian":             "ro",
+        "Ukrainian":            "uk",
+        "Russian":              "ru",
+        "Danish":               "da",
+        "Finnish":              "fi",
+        "Hungarian":            "hu",
+        "Croatian":             "hr",
+        "Slovak":               "sk",
+        "Slovenian":            "sl",
+        "Bulgarian":            "bg",
+        "Lithuanian":           "lt",
+        "Latvian":              "lv",
+        "Estonian":             "et",
+        "Irish":                "ga",
+        "Norwegian":            "no",
+        "Maltese":              "mt",
     }
 
     def compute(self, outputs, language, task):

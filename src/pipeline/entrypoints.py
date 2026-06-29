@@ -79,6 +79,7 @@ def run_pipeline(
     VLLMWorkerA100: Optional[Any] = None,
     advance_remote_fn: Optional[Any] = None,
     poll_interval_s: int = 60,
+    gemma4_run_id: str = "",
 ) -> dict:
     """
     Runs every language in `specs` through the state machine up to `stop_at`,
@@ -140,8 +141,20 @@ def run_pipeline(
     # VLLMWorkerA100 from somewhere.
     needs_baseline = any(s.slug not in completed for s in specs) and stop_at != State.PENDING
     if needs_baseline:
-        a100 = VLLMWorkerA100 or handles.gpu_worker_map.get("a100_80gb")
-        ensure_gemma4_baseline(ctx, a100, all_slugs=[s.slug for s in specs])
+        if gemma4_run_id:
+            # Reuse an existing Gemma-4 baseline instead of re-running inference.
+            import shutil
+            import modal as _modal
+            from src.pipeline.run import gemma_output_path
+            src_path = gemma_output_path(gemma4_run_id, task)
+            dst_path = gemma_output_path(run_id, task)
+            os.makedirs(os.path.dirname(dst_path), exist_ok=True)
+            shutil.copy2(src_path, dst_path)
+            _modal.Volume.from_name("phase2a-outputs").commit()
+            print(f"[run_pipeline] Reused Gemma-4 baseline from run {gemma4_run_id} → {dst_path}")
+        else:
+            a100 = VLLMWorkerA100 or handles.gpu_worker_map.get("a100_80gb")
+            ensure_gemma4_baseline(ctx, a100, all_slugs=[s.slug for s in specs])
 
     # ── Run every spec to stop_at — inline if 1, fanned out if N ────────────
     runs: dict[str, LanguageRun] = {}

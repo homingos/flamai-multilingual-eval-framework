@@ -290,7 +290,7 @@ def _run_one_language(run_id: str, model_id: str, language: str, slug: str,
               secrets=[_registry_secret, _judge_secret], volumes=VOLUME_MOUNTS)
 def _run_pipeline(run_id: str, slugs: list, stop_at_value: str, task: str, limit: int,
                   judge_model: str, judge_limit: int, swap_runs: int,
-                  skip_model_metrics: bool) -> dict:
+                  skip_model_metrics: bool, gemma4_run_id: str = "") -> dict:
     from src.pipeline.entrypoints import run_pipeline
 
     specs = [s for s in ALL_MODELS if s.slug in slugs] if slugs else ALL_MODELS
@@ -308,13 +308,14 @@ def _run_pipeline(run_id: str, slugs: list, stop_at_value: str, task: str, limit
         handles=_handles(), judge_model=judge_model, judge_limit=judge_limit,
         swap_runs=swap_runs, skip_model_metrics=skip_model_metrics,
         VLLMWorkerA100=VLLMWorkerA100, advance_remote_fn=_spawn,
+        gemma4_run_id=gemma4_run_id,
     )
 
 
 @app.local_entrypoint()
 def run_pipeline(slug="tamil", model_id="", stop_at="report", task="translation", limit=200,
                  judge_model="gemini-3.5-flash", judge_limit=50, swap_runs=2,
-                 skip_model_metrics=True, run_id=""):
+                 skip_model_metrics=True, run_id="", gemma4_run_id=""):
     """
     Run the evaluation pipeline for one language, a few, or all 17 — to
     whatever stop point you need. Replaces compare / phase4 / phase5.
@@ -389,7 +390,7 @@ def run_pipeline(slug="tamil", model_id="", stop_at="report", task="translation"
     _run_pipeline.remote(
         run_id=run_id, slugs=slugs, stop_at_value=stop_state.value, task=task, limit=limit,
         judge_model=judge_model, judge_limit=judge_limit, swap_runs=swap_runs,
-        skip_model_metrics=skip_model_metrics,
+        skip_model_metrics=skip_model_metrics, gemma4_run_id=gemma4_run_id,
     )
 
     print(f"\n  Run complete — Run ID: {run_id}")

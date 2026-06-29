@@ -173,10 +173,18 @@ class VLLMWorker:
         from datetime import datetime, timezone
 
         # 1. Determine output path
+        # For multi-language models (e.g. EuroLLM-22B, config.slug="eurollm"),
+        # derive the per-language slug from the sample's "language" field so
+        # each language gets its own output file (german_translation_outputs.jsonl).
+        # Single-language models have config.slug == language slug, so this is a no-op.
         if self.model_id == "gemma-4-26b":
             out_path = gemma_output_path(self.run_id, self.task)
         else:
-            out_path = regional_output_path(self.run_id, self.config.slug, self.task)
+            if samples and "language" in samples[0]:
+                output_slug = samples[0]["language"].lower().replace(" ", "_")
+            else:
+                output_slug = self.config.slug
+            out_path = regional_output_path(self.run_id, output_slug, self.task)
 
         # 2. Resume: skip already-completed prompts
         completed_ids = load_completed_ids(out_path)
