@@ -1,0 +1,8 @@
+{
+  "language": "Croatian",
+  "slug": "croatian",
+  "region": "Europe",
+  "winner_model": "EuroLLM-22B",
+  "flores_code": "hrv_Latn",
+  "total_samples": 2024
+}

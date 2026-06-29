@@ -28,5 +28,5 @@ build/
 *.gguf
 
 # Phase 2A — local data (large, not for git)
-data/datasets/
 outputs/
+.vercel

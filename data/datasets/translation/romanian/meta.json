@@ -1,0 +1,8 @@
+{
+  "language": "Romanian",
+  "slug": "romanian",
+  "region": "Europe",
+  "winner_model": "EuroLLM-22B",
+  "flores_code": "ron_Latn",
+  "total_samples": 2024
+}

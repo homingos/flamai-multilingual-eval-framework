@@ -1,0 +1,8 @@
+{
+  "language": "Norwegian",
+  "slug": "norwegian",
+  "region": "Europe",
+  "winner_model": "EuroLLM-22B",
+  "flores_code": "nob_Latn",
+  "total_samples": 2024
+}

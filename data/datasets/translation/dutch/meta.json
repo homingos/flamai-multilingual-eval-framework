@@ -1,0 +1,8 @@
+{
+  "language": "Dutch",
+  "slug": "dutch",
+  "region": "Europe",
+  "winner_model": "EuroLLM-22B",
+  "flores_code": "nld_Latn",
+  "total_samples": 2024
+}

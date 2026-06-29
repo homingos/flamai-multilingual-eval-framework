@@ -1,0 +1,8 @@
+{
+  "language": "Russian",
+  "slug": "russian",
+  "region": "Europe",
+  "winner_model": "EuroLLM-22B",
+  "flores_code": "rus_Cyrl",
+  "total_samples": 2024
+}

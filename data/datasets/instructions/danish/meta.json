@@ -1,0 +1,7 @@
+{
+  "language": "Danish",
+  "slug": "danish",
+  "region": "Europe",
+  "winner_model": "EuroLLM-22B",
+  "total_samples": 1200
+}

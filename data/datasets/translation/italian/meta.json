@@ -1,0 +1,8 @@
+{
+  "language": "Italian",
+  "slug": "italian",
+  "region": "Europe",
+  "winner_model": "EuroLLM-22B",
+  "flores_code": "ita_Latn",
+  "total_samples": 2024
+}

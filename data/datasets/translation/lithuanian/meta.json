@@ -1,0 +1,8 @@
+{
+  "language": "Lithuanian",
+  "slug": "lithuanian",
+  "region": "Europe",
+  "winner_model": "EuroLLM-22B",
+  "flores_code": "lit_Latn",
+  "total_samples": 2024
+}

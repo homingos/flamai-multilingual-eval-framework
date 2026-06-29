@@ -1,0 +1,8 @@
+{
+  "language": "Danish",
+  "slug": "danish",
+  "region": "Europe",
+  "winner_model": "EuroLLM-22B",
+  "flores_code": "dan_Latn",
+  "total_samples": 2024
+}

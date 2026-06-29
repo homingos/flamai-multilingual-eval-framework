@@ -1,0 +1,8 @@
+{
+  "language": "Hungarian",
+  "slug": "hungarian",
+  "region": "Europe",
+  "winner_model": "EuroLLM-22B",
+  "flores_code": "hun_Latn",
+  "total_samples": 2024
+}

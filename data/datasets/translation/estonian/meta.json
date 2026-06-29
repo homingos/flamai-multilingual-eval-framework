@@ -1,0 +1,8 @@
+{
+  "language": "Estonian",
+  "slug": "estonian",
+  "region": "Europe",
+  "winner_model": "EuroLLM-22B",
+  "flores_code": "est_Latn",
+  "total_samples": 2024
+}

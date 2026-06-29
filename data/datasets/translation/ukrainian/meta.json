@@ -1,0 +1,8 @@
+{
+  "language": "Ukrainian",
+  "slug": "ukrainian",
+  "region": "Europe",
+  "winner_model": "EuroLLM-22B",
+  "flores_code": "ukr_Cyrl",
+  "total_samples": 2024
+}

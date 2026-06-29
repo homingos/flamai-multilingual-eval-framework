@@ -1,0 +1,8 @@
+{
+  "language": "Slovak",
+  "slug": "slovak",
+  "region": "Europe",
+  "winner_model": "EuroLLM-22B",
+  "flores_code": "slk_Latn",
+  "total_samples": 2024
+}
