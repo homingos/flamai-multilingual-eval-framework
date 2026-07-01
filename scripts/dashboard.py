@@ -161,7 +161,7 @@ SLUG_META: dict[str, tuple[str, str, str]] = {
     "french":                   ("French",               "Europe",       "Lucie-7B-Instruct-v1.1"),
     "swedish":                  ("Swedish",              "Europe",       "Viking-7B"),
     "czech":                    ("Czech",                "Europe",       "CSMPT-7B"),
-    "eurollm-german":           ("German",               "Europe",       "EuroLLM-22B"),
+    "german":                   ("German",               "Europe",       "EuroLLM-22B"),
     # Oceania
     "maori":                    ("Māori",                "Oceania",      "Goldfish-mri-39M"),
     "tok_pisin":                ("Tok Pisin",            "Oceania",      "Goldfish-tpi-125M"),
@@ -1375,17 +1375,18 @@ def qualitative_refresh():
             if existing:
                 _merge_fields(existing, parsed)
 
-    # 2. Scan Modal for brand-new run_ids
-    new_entries = scan_modal_new_runs(set(idx.keys()))
+    # 2. Scan Modal for brand-new run_ids (local only — no Modal CLI on Vercel)
     new_run_labels: list[str] = []
-    for entry in new_entries:
-        evaluations.append(entry)
-        idx[entry["run_id"]] = entry
-        new_run_labels.append(f"{entry['language']} {entry['task']} ({entry['run_id'][:10]}…)")
+    if not IS_VERCEL:
+        new_entries = scan_modal_new_runs(set(idx.keys()))
+        for entry in new_entries:
+            evaluations.append(entry)
+            idx[entry["run_id"]] = entry
+            new_run_labels.append(f"{entry['language']} {entry['task']} ({entry['run_id'][:10]}…)")
 
-    data["last_updated"] = datetime.now(timezone.utc).isoformat()
-    data["evaluations"]  = evaluations
-    QUAL_JSON.write_text(json.dumps(data, indent=2, ensure_ascii=False))
+        data["last_updated"] = datetime.now(timezone.utc).isoformat()
+        data["evaluations"]  = evaluations
+        QUAL_JSON.write_text(json.dumps(data, indent=2, ensure_ascii=False))
 
     return JSONResponse({
         "last_updated": data["last_updated"],

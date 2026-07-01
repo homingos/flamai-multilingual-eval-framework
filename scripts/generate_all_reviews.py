@@ -41,6 +41,7 @@ SLUG_META = {
     "maori":                    ("Māori",                "Goldfish-mri-39M"),
     "tok_pisin":                ("Tok Pisin",            "Goldfish-tpi-125M"),
     "brazilian_portuguese":     ("Brazilian Portuguese", "Tucano-2b4"),
+    "german":                   ("German",               "EuroLLM-22B"),
 }
 
 
