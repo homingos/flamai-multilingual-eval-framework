@@ -98,7 +98,9 @@ model_metrics_image = (
 judge_image = (
     modal.Image.debian_slim(python_version="3.11")
     .apt_install("curl")
-    .add_local_dir("src", remote_path="/root/src")
+    .pip_install("pyyaml")
+    .add_local_dir("src",    remote_path="/root/src")
+    .add_local_dir("config", remote_path="/root/config")
     .add_local_file("modal_app.py",    remote_path="/root/modal_app.py")
     .add_local_file("modal_common.py", remote_path="/root/modal_common.py")
 )
@@ -138,7 +140,7 @@ MODEL_GPU_MAP: dict[str, str] = {
     "Polyglot-Ko-12B":                   "l40s",
     "Gemma-4":                           "a100_80gb",
     # Re-run upgraded models
-    "Sarvam-M-24B":                      "l40s",
+    "Sarvam-M-24B":                      "a100_80gb",
     "EXAONE-3.5-32B-Instruct":           "a100_80gb",
     "Llama-Krikri-8B-Instruct":          "l4",
     "DictaLM-3.0-Nemotron-12B-Instruct": "l40s",
