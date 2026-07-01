@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-07-01T08:00:00.000000+00:00",
+  "last_updated": "2026-07-01T11:24:55.202461+00:00",
   "evaluations": [
     {
       "language": "Tamil",
@@ -614,6 +614,42 @@
       "run_id": "2026-07-01_070156_f721ae",
       "status": "complete",
       "notes": "Strong structural compliance (format 100%, lang adh 99%) but Gemma-4 responses more helpful and detailed. Topic boundary score better (100% vs 87.5%)."
+    },
+    {
+      "language": "Italian",
+      "region": "Europe",
+      "model": "EuroLLM-22B",
+      "task": "translation",
+      "grade": "E",
+      "judge_win_rate": 18.67,
+      "gemma4_win_rate": 69.33,
+      "bleu_regional": 32.61,
+      "bleu_gemma4": 33.58,
+      "chrf_regional": 58.76,
+      "chrf_gemma4": 59.19,
+      "run_id": "2026-07-01_094424_d04bf7",
+      "status": "complete",
+      "notes": "BLEU/chrF nearly identical to Gemma-4 but judge strongly prefers Gemma-4."
+    },
+    {
+      "language": "Italian",
+      "region": "Europe",
+      "model": "EuroLLM-22B",
+      "task": "instructions",
+      "grade": "E",
+      "judge_win_rate": 12.67,
+      "gemma4_win_rate": 87.0,
+      "lang_adherence_regional": 99.8,
+      "lang_adherence_gemma4": 98,
+      "format_compliance_regional": 100,
+      "format_compliance_gemma4": 100,
+      "length_accuracy_regional": 88.5,
+      "length_accuracy_gemma4": 90,
+      "tone_register_regional": null,
+      "tone_register_gemma4": null,
+      "run_id": "2026-07-01_103347_5e75d1",
+      "status": "complete",
+      "notes": "Strong structural compliance but Gemma-4 responses more helpful."
     }
   ]
 }

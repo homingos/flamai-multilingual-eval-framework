@@ -42,6 +42,7 @@ SLUG_META = {
     "tok_pisin":                ("Tok Pisin",            "Goldfish-tpi-125M"),
     "brazilian_portuguese":     ("Brazilian Portuguese", "Tucano-2b4"),
     "german":                   ("German",               "EuroLLM-22B"),
+    "italian":                  ("Italian",              "EuroLLM-22B"),
 }
 
 
