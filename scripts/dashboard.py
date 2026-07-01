@@ -161,6 +161,7 @@ SLUG_META: dict[str, tuple[str, str, str]] = {
     "french":                   ("French",               "Europe",       "Lucie-7B-Instruct-v1.1"),
     "swedish":                  ("Swedish",              "Europe",       "Viking-7B"),
     "czech":                    ("Czech",                "Europe",       "CSMPT-7B"),
+    "eurollm-german":           ("German",               "Europe",       "EuroLLM-22B"),
     # Oceania
     "maori":                    ("Māori",                "Oceania",      "Goldfish-mri-39M"),
     "tok_pisin":                ("Tok Pisin",            "Oceania",      "Goldfish-tpi-125M"),

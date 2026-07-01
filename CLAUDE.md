@@ -141,10 +141,10 @@ modal run modal_app.py::clear_csmpt_cache
 | `2026-06-29_101435_3b48dd` | instructions | 24 EU languages × 20 samples — PASSED |
 
 ### Full eval runs (limit=1000, stop_at=report)
-_Fill in as runs complete._
-| Run ID | Task | Language | Status |
-|---|---|---|---|
-| _(pending)_ | translation | German | — |
+| Run ID | Task | Language | Grade | Notes |
+|---|---|---|---|---|
+| `2026-06-29_105640_e350db` | translation | German | ❌ E | BLEU 42.36 vs 41.35, chrF 65.72 vs 65.09 — judge prefers Gemma-4 (76% win) |
+| `2026-07-01_070156_f721ae` | instructions | German | ❌ E | Lang adh 99%, format 100%, but judge strongly prefers Gemma-4 (84% win) |
 
 ### Reusing the Gemma-4 baseline across models (`--gemma4-run-id`)
 The `--gemma4-run-id` option copies a previous run's Gemma-4 baseline file instead of re-running inference. **When it helps:** if you already ran EuroLLM German translation (run ID `X`) and now want to run Aya-Vision German translation, the Gemma-4 outputs for German are identical — pass `--gemma4-run-id X` to skip re-generating them.
@@ -293,6 +293,7 @@ Do NOT run languages assigned to the other person — each person runs their own
 | Korean | Polyglot-Ko-12B | ✅ Grade E (win rate 0%) · `2026-06-24_101013_9ce150` | ✅ Grade E (win rate 0%) · `2026-06-24_101013_5ad649` |
 | Hebrew | DictaLM-3.0-Nemotron-12B | ✅ Grade E (win rate 0%) · `2026-06-24_114214_47d7ab` | ✅ Grade E (win rate 0%) · `2026-06-24_114351_159a77` |
 | Tamil | Sarvam-M-24B | ✅ Grade E (win rate 5%) · `2026-06-25_081543_85cde3` | ✅ Grade E (win rate 6.7%) · `2026-06-25_094523_dace81` |
+| German | EuroLLM-22B | ✅ Grade E (win rate 15%) · `2026-07-01_070156_f721ae` | ✅ Grade E (win rate 24%) · `2026-06-29_105640_e350db` |
 
 ### Instruction Metrics Detail
 (R = Regional model, G = Gemma-4 baseline; all values as %)
@@ -308,6 +309,7 @@ Do NOT run languages assigned to the other person — each person runs their own
 | Hebrew | DictaLM-3.0-Nemotron-12B | 0 | 99 | 0 | 100 | 58 | 90 | — | 61 | 0 |
 | Korean | Polyglot-Ko-12B | 40 | 98 | 0 | 100 | 33 | 88 | 62 | 100 | 0 |
 | Tamil | Sarvam-M-24B | 96 | 100 | 100 | 100 | 86 | 88 | 36 | 55 | 5 |
+| German | EuroLLM-22B | 99 | 98 | 100 | 100 | 89.5 | 90 | — | — | 15 |
 
 ### Translation Metrics Detail
 
@@ -322,6 +324,7 @@ Do NOT run languages assigned to the other person — each person runs their own
 | Hebrew | DictaLM-3.0-Nemotron-12B | 0.04 | 31.39 | 0.91 | 58.64 | 0 |
 | Korean | Polyglot-Ko-12B | 0.02 | 15.53 | 0.64 | 37.42 | 0 |
 | Tamil | Sarvam-M-24B | 1.61 | 13.25 | 25.10 | 50.95 | 6.7 |
+| German | EuroLLM-22B | 42.36 | 41.35 | 65.72 | 65.09 | 24 |
 
 ### Next up
 **European tokenizer expansion** — run tokenizer tests on the 8 challenger models above across all 30 European languages. Then qualitative eval for (model, language) pairs that beat Gemma-4's tokenizer.
