@@ -132,6 +132,43 @@ modal run modal_app.py::clear_csmpt_cache
 
 ---
 
+## EuroLLM-22B Per-Language Checklist
+
+Run this exact sequence for each of the 23 remaining EU languages. Do not start the next language until both tasks are done and `/viz` is updated.
+
+**Step 1 — Pre-translate instruction dataset**
+```bash
+modal run --detach experiments/translate_instruction_dataset.py --slug <lang>
+```
+Wait for it to complete (check Modal dashboard or logs). This generates the translated prompts that the instructions eval pipeline reads.
+
+**Step 2 — Translation eval**
+```bash
+echo "" | modal run --detach modal_app.py::run_pipeline \
+  --model-id eurollm-22b --slug <lang> --task translation --n-samples 200
+```
+Save the printed run ID. Check when done: `modal run modal_app.py::check_run --run-id <run_id>`
+
+**Step 3 — Instructions eval**
+```bash
+echo "" | modal run --detach modal_app.py::run_pipeline \
+  --model-id eurollm-22b --slug <lang> --task instructions --n-samples 200
+```
+Save the printed run ID. Check when done: `modal run modal_app.py::check_run --run-id <run_id>`
+
+**Step 4 — Update dashboard + CLAUDE.md + Notion**
+```
+/viz add <Language> EuroLLM-22B translation run_id=<id> and instructions run_id=<id>
+```
+This updates `qualitative_results.json`, pre-generates review HTML, updates CLAUDE.md tables (Ram's Queue, Instruction Metrics, Translation Metrics, full eval runs), updates both Notion tables, commits, and deploys.
+
+**Remaining languages in order:**
+`italian`, `portuguese`, `dutch`, `polish`, `romanian`, `ukrainian`, `swedish`, `czech`, `greek`, `russian`, `danish`, `finnish`, `hungarian`, `croatian`, `slovak`, `slovenian`, `bulgarian`, `lithuanian`, `latvian`, `estonian`, `irish`, `norwegian`, `maltese`
+
+**Note:** Steps 2 and 3 can run in parallel (translation and instructions are independent). Step 1 must complete before Step 3 (instructions needs translated prompts). Step 2 has no dependency on Step 1.
+
+---
+
 ## EuroLLM-22B Evaluation — Key Run IDs
 
 ### Smoke test runs (2026-06-29, limit=20, stop_at=light_metrics)
@@ -145,21 +182,8 @@ modal run modal_app.py::clear_csmpt_cache
 |---|---|---|---|---|
 | `2026-06-29_105640_e350db` | translation | German | ❌ E | BLEU 42.36 vs 41.35, chrF 65.72 vs 65.09 — judge prefers Gemma-4 (76% win) |
 | `2026-07-01_070156_f721ae` | instructions | German | ❌ E | Lang adh 99%, format 100%, but judge strongly prefers Gemma-4 (84% win) |
-
-### Reusing the Gemma-4 baseline across models (`--gemma4-run-id`)
-The `--gemma4-run-id` option copies a previous run's Gemma-4 baseline file instead of re-running inference. **When it helps:** if you already ran EuroLLM German translation (run ID `X`) and now want to run Aya-Vision German translation, the Gemma-4 outputs for German are identical — pass `--gemma4-run-id X` to skip re-generating them.
-
-**When it does NOT help:**
-- Across tasks: translation and instruction baselines are separate files with different sample IDs — cannot be shared
-- Across languages: a German baseline only has German sample IDs, cannot be reused for Italian
-
-Usage:
-```bash
-echo "" | modal run --detach modal_app.py::run_pipeline \
-  --model-id utter-project/EuroLLM-22B-Instruct-2512 \
-  --slug german --task translation --limit 1000 \
-  --gemma4-run-id <run_id_from_previous_german_translation_run>
-```
+| `2026-07-01_094424_d04bf7` | translation | Italian | ❌ E | BLEU 32.61 vs 33.58, chrF 58.76 vs 59.19 — judge prefers Gemma-4 (69% win) |
+| `2026-07-01_103347_5e75d1` | instructions | Italian | ❌ E | Lang adh 99.8%, format 100%, but judge strongly prefers Gemma-4 (87% win) |
 
 ---
 
@@ -169,12 +193,12 @@ Each language needs **both tasks** completed before a final verdict can be made.
 
 **Run instructions task:**
 ```bash
-echo "" | modal run --detach modal_app.py::run_pipeline --slug <slug> --task instructions --limit 1000
+echo "" | modal run --detach modal_app.py::run_pipeline --slug <slug> --task instructions --n-samples 200
 ```
 
 **Run translation task:**
 ```bash
-echo "" | modal run --detach modal_app.py::run_pipeline --slug <slug> --task translation --limit 1000
+echo "" | modal run --detach modal_app.py::run_pipeline --slug <slug> --task translation --n-samples 200
 ```
 
 The `--detach` flag keeps the run alive after your terminal disconnects. The run ID is printed at startup — save it.
@@ -190,14 +214,14 @@ modal run modal_app.py::check_run --run-id <run_id>
 **EuroLLM-22B slugs (24 EU languages — always pass `--model-id utter-project/EuroLLM-22B-Instruct-2512`):**
 `german`, `italian`, `portuguese`, `dutch`, `polish`, `romanian`, `ukrainian`, `swedish`, `czech`, `greek`, `russian`, `danish`, `finnish`, `hungarian`, `croatian`, `slovak`, `slovenian`, `bulgarian`, `lithuanian`, `latvian`, `estonian`, `irish`, `norwegian`, `maltese`
 
-**Estimated cost per language:** ~$3.16 (both tasks: 2 × $1.58)
-**Estimated time per language:** ~90 minutes (two sequential 45-min runs)
+**Estimated cost per language:** ~$0.75 (both tasks: 2 × ~$0.38) — v2 uses 200 samples and no Gemma-4 baseline
+**Estimated time per language:** ~30 minutes (two sequential ~15-min runs)
 
 **After each task completes**, check the report:
 ```bash
 modal run modal_app.py::check_run --run-id <run_id>
 ```
-A valid result has a Grade (A–E) with an actual win rate percentage. If it shows "Insufficient signal" or 0 judge verdicts, something went wrong — check the logs.
+A valid result has a Grade (A–D) with an `avg_score` (0–1). If it shows "?" or no judge verdicts, something went wrong — check the logs.
 
 ---
 
@@ -218,19 +242,25 @@ modal volume get phase2a-outputs runs/<run_id>/reports/<slug>_summary.json data/
 
 Then read the JSON and update the relevant Notion table row:
 
-**Translation task table** (8 columns):
-- `bleu_regional` → BLEU (Regional)
-- `bleu_gemma4` → BLEU (Gemma-4)
-- `chrf_regional` → chrF (Regional)
-- `chrf_gemma4` → chrF (Gemma-4)
-- `judge_win_rate` → Judge Win Rate (as %, e.g. 0.53 → 53%)
-- `classification` → Grade (prefix ✅ for A/B, ❌ for D/E, ⚠️ for C)
+**Translation task table** (v2 pointwise — score-based):
+- `avg_score` → Avg Score (0–1)
+- `fluency_avg` → Fluency avg
+- `adequacy_avg` → Adequacy avg
+- `overall_avg` → Overall avg
+- `sample_count` → Samples judged
+- `classification` → Grade (prefix ✅ for A/B, ⚠️ for C, ❌ for D)
 
-**Instruction following task table** (6 columns):
-- `judge_win_rate` → Judge Win Rate (Regional) — as %
-- `gemma4_win_rate` → Judge Win Rate (Gemma-4) — as %
-- `classification` → Grade (prefix ✅ for A/B, ❌ for D/E, ⚠️ for C)
-- Add a short Notes entry describing the primary failure mode (e.g. repetition loops, language mixing, etc.)
+**Instruction following task table** (v2 pointwise — score-based):
+- `avg_score` → Avg Score (0–1)
+- `language_compliance_avg` → Language compliance avg
+- `instruction_following_avg` → Instruction following avg
+- `helpfulness_avg` → Helpfulness avg
+- `overall_avg` → Overall avg
+- `sample_count` → Samples judged
+- `classification` → Grade (prefix ✅ for A/B, ⚠️ for C, ❌ for D)
+- Add a short Notes entry describing the primary failure mode
+
+**Grade mapping (v2):** A ≥ 0.75, B ≥ 0.50, C ≥ 0.25, D < 0.25. Only A and B grades move forward to Whisper fine-tuning.
 
 Also update the CLAUDE.md progress table (Ram's Queue section) after each run.
 
@@ -294,6 +324,7 @@ Do NOT run languages assigned to the other person — each person runs their own
 | Hebrew | DictaLM-3.0-Nemotron-12B | ✅ Grade E (win rate 0%) · `2026-06-24_114214_47d7ab` | ✅ Grade E (win rate 0%) · `2026-06-24_114351_159a77` |
 | Tamil | Sarvam-M-24B | ✅ Grade E (win rate 5%) · `2026-06-25_081543_85cde3` | ✅ Grade E (win rate 6.7%) · `2026-06-25_094523_dace81` |
 | German | EuroLLM-22B | ✅ Grade E (win rate 15%) · `2026-07-01_070156_f721ae` | ✅ Grade E (win rate 24%) · `2026-06-29_105640_e350db` |
+| Italian | EuroLLM-22B | ❌ Grade E (win rate 12.67%) · `2026-07-01_103347_5e75d1` | ❌ Grade E (win rate 18.67%) · `2026-07-01_094424_d04bf7` |
 
 ### Instruction Metrics Detail
 (R = Regional model, G = Gemma-4 baseline; all values as %)
@@ -310,6 +341,7 @@ Do NOT run languages assigned to the other person — each person runs their own
 | Korean | Polyglot-Ko-12B | 40 | 98 | 0 | 100 | 33 | 88 | 62 | 100 | 0 |
 | Tamil | Sarvam-M-24B | 96 | 100 | 100 | 100 | 86 | 88 | 36 | 55 | 5 |
 | German | EuroLLM-22B | 99 | 98 | 100 | 100 | 89.5 | 90 | — | — | 15 |
+| Italian | EuroLLM-22B | 99.8 | 98 | 100 | 100 | 88.5 | 90 | — | — | 12.67 |
 
 ### Translation Metrics Detail
 
@@ -325,6 +357,7 @@ Do NOT run languages assigned to the other person — each person runs their own
 | Korean | Polyglot-Ko-12B | 0.02 | 15.53 | 0.64 | 37.42 | 0 |
 | Tamil | Sarvam-M-24B | 1.61 | 13.25 | 25.10 | 50.95 | 6.7 |
 | German | EuroLLM-22B | 42.36 | 41.35 | 65.72 | 65.09 | 24 |
+| Italian | EuroLLM-22B | 32.61 | 33.58 | 58.76 | 59.19 | 18.67 |
 
 ### Next up
 **European tokenizer expansion** — run tokenizer tests on the 8 challenger models above across all 30 European languages. Then qualitative eval for (model, language) pairs that beat Gemma-4's tokenizer.
