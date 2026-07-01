@@ -3,20 +3,14 @@ src/pipeline/entrypoints.py
 =============================
 One function drives every evaluation run: run_pipeline().
 
-There is no compare_one / evaluate_one / evaluate_many anymore. Those
-existed only because someone needed to (a) write a manifest, (b) run
-1-or-N specs through the state machine, (c) render a report — and all
-three of those are the same code regardless of how many specs you pass
-or where you tell it to stop.
+v2 pipeline flow: PENDING → SAMPLE → INFERENCE → JUDGE → REPORT → DONE
+- No Gemma-4 baseline — regional LLM evaluated standalone (pointwise).
+- 200 stratified samples per run (configurable via n_samples).
+- Grade derived from avg_score across rubric dimensions, not win rate.
 
-"Phase 3"  = run_pipeline(specs=[one], stop_at=LIGHT_METRICS)
-"Phase 4"  = run_pipeline(specs=[one], stop_at=REPORT, resume_from_existing=True)
-"Phase 5"  = run_pipeline(specs=[...17], stop_at=REPORT)
-
-The only thing that actually branches on len(specs) is whether the
-Gemma-4 baseline and the per-language work happen inline (1 spec, no
-Modal spawn needed) or fanned out to parallel containers (N specs).
-That branch lives inside run_pipeline, not as a separate function.
+"Run one language"   = run_pipeline(specs=[one], stop_at=REPORT)
+"Run multiple"       = run_pipeline(specs=[...], stop_at=REPORT, advance_remote_fn=...)
+"Resume"             = run_pipeline(specs=[...], stop_at=REPORT, run_id=existing_id)
 """
 from __future__ import annotations
 
@@ -32,30 +26,29 @@ from src.pipeline.state_machine import (
     State,
     WorkerHandles,
     advance,
-    ensure_gemma4_baseline,
     language_run_to_dict,
     run_fanout,
 )
 
 
 # ---------------------------------------------------------------------------
-# Cost estimation — run-level, not pipeline-state concern
+# Cost estimation
 # ---------------------------------------------------------------------------
 
 _GPU_COST_PER_HR = {"t4": 0.59, "l4": 0.80, "l40s": 1.95, "a100_80gb": 2.50}
 _INFER_HOURS     = {"t4": 0.08, "l4": 0.33, "l40s": 0.40, "a100_80gb": 0.42}
 
 
-def estimate_cost(specs: list[LanguageSpec], judge_limit: int, swap_runs: int = 2, dimensions: int = 3) -> dict:
-    regional = sum(_GPU_COST_PER_HR[s.gpu_preset] * _INFER_HOURS[s.gpu_preset] for s in specs)
-    gemma    = _GPU_COST_PER_HR["a100_80gb"] * _INFER_HOURS["a100_80gb"]
-    calls    = len(specs) * judge_limit * swap_runs * dimensions
-    judge    = calls * 600 / 1_000_000 * 1.50  # ~600 tokens/call, $1.50/1M input
+def estimate_cost(specs: list[LanguageSpec], n_samples: int, dimensions: int = 3) -> dict:
+    """Estimates cost for a v2 pointwise run (no Gemma-4)."""
+    scale    = n_samples / 1000.0
+    regional = sum(_GPU_COST_PER_HR[s.gpu_preset] * _INFER_HOURS[s.gpu_preset] * scale for s in specs)
+    calls    = len(specs) * n_samples * dimensions  # 1 call per (sample, dimension), no swap
+    judge    = calls * 600 / 1_000_000 * 1.50       # ~600 tokens/call, $1.50/1M input
     return {
         "regional_inference_usd": round(regional, 2),
-        "gemma4_inference_usd":   round(gemma, 2),
         "judge_usd":              round(judge, 2),
-        "total_usd":              round(regional + gemma + judge, 2),
+        "total_usd":              round(regional + judge, 2),
         "total_judge_calls":      calls,
     }
 
@@ -70,34 +63,22 @@ def run_pipeline(
     specs: list[LanguageSpec],
     stop_at: State,
     task: str,
-    limit: int,
+    n_samples: int = 200,
+    seed: int = 42,
     handles: WorkerHandles,
     judge_model: str = "",
-    judge_limit: int = 0,
-    swap_runs: int = 0,
-    skip_model_metrics: bool = True,
-    VLLMWorkerA100: Optional[Any] = None,
     advance_remote_fn: Optional[Any] = None,
     poll_interval_s: int = 60,
-    gemma4_run_id: str = "",
 ) -> dict:
     """
-    Runs every language in `specs` through the state machine up to `stop_at`,
-    then writes a manifest, a JSON summary, and a markdown report.
+    Drives every language in `specs` through the state machine to `stop_at`.
+    Writes a manifest, a JSON summary, and a markdown report.
 
-    len(specs) == 1   → runs inline, in this process. advance_remote_fn unused.
-    len(specs) > 1    → fans out to parallel containers via advance_remote_fn,
-                         which the caller (modal_app.py) supplies as a Modal
-                         .spawn() wrapper. VLLMWorkerA100 is required in this
-                         case so the Gemma-4 baseline can be generated once,
-                         up front, before any per-language container starts.
+    len(specs) == 1   → runs inline, in this process.
+    len(specs) > 1    → fans out via advance_remote_fn (Modal .spawn() wrapper).
 
-    If a manifest/report already exists for run_id, languages already
-    present in it are skipped (resume) regardless of whether you're running
-    1 or N specs — this is what "Phase 4 assumes Phase 3 already ran" and
-    "Phase 5 resume" both reduce to.
-
-    Returns a summary dict: {run_id, state_per_slug, results, classification_counts, ...}.
+    Existing completed languages are skipped (resume support).
+    Returns a summary dict: {run_id, task, results, classification_counts, ...}.
     """
     from src.pipeline.run import (
         append_run_to_index,
@@ -114,60 +95,33 @@ def run_pipeline(
         run_id = generate_run_id()
 
     write_manifest(run_id, {
-        "run_id":  run_id, "task": task,
-        "models":  [s.model_id for s in specs] + ["gemma-4-26b"],
-        "limit":   limit, "stop_at": stop_at.value, "status": "started",
+        "run_id":    run_id, "task": task,
+        "models":    [s.model_id for s in specs],
+        "n_samples": n_samples, "stop_at": stop_at.value, "status": "started",
     })
     append_run_to_index(run_id, status="started")
 
-    # ── Resume detection — same check whether 1 spec or 17 ──────────────────
+    # ── Resume detection ─────────────────────────────────────────────────────
     existing_report = load_report(run_id)
-    completed = set(existing_report.get("languages", {}).keys())
+    completed       = set(existing_report.get("languages", {}).keys())
     if completed:
         print(f"[run_pipeline] Resuming — already done: {sorted(completed)}")
 
     ctx = RunContext(
-        run_id=run_id, task=task, limit=limit,
-        judge_model=judge_model, judge_limit=judge_limit, swap_runs=swap_runs,
-        skip_model_metrics=skip_model_metrics, handles=handles,
+        run_id=run_id, task=task, n_samples=n_samples, seed=seed,
+        judge_model=judge_model, handles=handles,
     )
 
-    # ── Gemma-4 baseline precondition ───────────────────────────────────────
-    # Needed once before INFERENCE runs for anyone — whether that's 1 spec
-    # running inline or 17 specs about to fan out. Skip entirely if every
-    # spec is already past INFERENCE (resume case), since the baseline
-    # would already exist on disk and ensure_gemma4_baseline is a no-op
-    # then anyway — but for a single un-started spec we still need
-    # VLLMWorkerA100 from somewhere.
-    needs_baseline = any(s.slug not in completed for s in specs) and stop_at != State.PENDING
-    if needs_baseline:
-        if gemma4_run_id:
-            # Reuse an existing Gemma-4 baseline instead of re-running inference.
-            import shutil
-            import modal as _modal
-            from src.pipeline.run import gemma_output_path
-            src_path = gemma_output_path(gemma4_run_id, task)
-            dst_path = gemma_output_path(run_id, task)
-            os.makedirs(os.path.dirname(dst_path), exist_ok=True)
-            shutil.copy2(src_path, dst_path)
-            _modal.Volume.from_name("phase2a-outputs").commit()
-            print(f"[run_pipeline] Reused Gemma-4 baseline from run {gemma4_run_id} → {dst_path}")
-        else:
-            a100 = VLLMWorkerA100 or handles.gpu_worker_map.get("a100_80gb")
-            ensure_gemma4_baseline(ctx, a100, all_slugs=[s.slug for s in specs])
-
-    # ── Run every spec to stop_at — inline if 1, fanned out if N ────────────
+    # ── Drive every spec to stop_at ─────────────────────────────────────────
     runs: dict[str, LanguageRun] = {}
     elapsed_s = 0.0
 
     pending_specs = [s for s in specs if s.slug not in completed]
 
     if not pending_specs:
-        pass  # everything already done — fall straight through to reporting
+        pass  # everything already done
 
     elif len(specs) == 1 or advance_remote_fn is None:
-        # Inline path — no Modal spawn needed. Used by single-language runs
-        # ("Phase 3"/"Phase 4") and as a fallback if no fan-out fn is given.
         for spec in pending_specs:
             lr = advance(ctx, LanguageRun(spec=spec), stop_at=stop_at)
             runs[spec.slug] = lr
@@ -175,7 +129,6 @@ def run_pipeline(
                 print(f"[run_pipeline] FAILED — {spec.language}: {lr.error}")
 
     else:
-        # Fan-out path — N specs in parallel containers ("Phase 5").
         result = run_fanout(
             ctx, specs, stop_at=stop_at,
             advance_remote_fn=advance_remote_fn,
@@ -183,7 +136,7 @@ def run_pipeline(
             resume_completed=completed,
             resume_report=existing_report,
         )
-        runs = result.runs
+        runs      = result.runs
         elapsed_s = result.elapsed_s
 
     failed = [slug for slug, lr in runs.items() if lr.state == State.FAILED]
@@ -196,40 +149,27 @@ def run_pipeline(
     else:
         update_manifest_status(run_id, "completed")
 
-    # ── Reporting — identical for 1 spec or N ───────────────────────────────
-    # final_report.json is the single source of truth: _do_report (inside
-    # advance()) already wrote every successful language's classification
-    # there. summarize_run reads it once; failed languages never reached
-    # _do_report so they're patched in here with their error.
+    # ── Reporting ────────────────────────────────────────────────────────────
     all_slugs = [s.slug for s in specs]
-    agg = summarize_run(run_id, all_slugs, task)
+    agg       = summarize_run(run_id, all_slugs, task)
 
     for slug in failed:
         lr = runs[slug]
-        fail_result: dict = {
-            "language": lr.spec.language, "regional_model": lr.spec.model_id,
-            "judge_win_rate": None, "gemma4_win_rate": None,
+        agg["results"][slug] = {
+            "language":       lr.spec.language,
+            "regional_model": lr.spec.model_id,
+            "avg_score":      None,
             "classification": "?",
+            "error":          lr.error,
         }
-        if task == "translation":
-            fail_result.update({
-                "bleu_regional": None, "bleu_gemma4": None,
-                "chrf_regional": None, "chrf_gemma4": None,
-            })
-        else:
-            fail_result.update({
-                "lang_adherence_regional": None, "lang_adherence_gemma4": None,
-                "length_accuracy_regional": None, "length_accuracy_gemma4": None,
-            })
-        agg["results"][slug] = fail_result
 
     classification_counts = {
         g: sum(1 for r in agg["results"].values() if r["classification"] == g)
-        for g in ["A", "B", "C", "D", "E", "?"]
+        for g in ["A", "B", "C", "D", "?"]
     }
 
     generated_at = datetime.now(timezone.utc).isoformat()
-    cost = estimate_cost(specs, judge_limit, swap_runs) if judge_limit else None
+    cost         = estimate_cost(specs, n_samples) if stop_at == State.DONE else None
 
     summary = {
         "run_id": run_id, "task": task, "stop_at": stop_at.value,
@@ -238,12 +178,10 @@ def run_pipeline(
         "results": agg["results"],
     }
 
-    # One spec gets a per-language filename; many get the run-level name.
-    # Same write, same renderer — only the filename and title differ.
-    is_single = len(specs) == 1
-    summary_filename = f"{specs[0].slug}_summary.json" if is_single else "phase5_summary.json"
-    md_filename       = f"{specs[0].slug}_summary.md"   if is_single else "phase5_summary.md"
-    title = f"Evaluation report — {specs[0].language}" if is_single else "Phase 5 evaluation report"
+    is_single       = len(specs) == 1
+    summary_filename = f"{specs[0].slug}_summary.json" if is_single else "run_summary.json"
+    md_filename      = f"{specs[0].slug}_summary.md"   if is_single else "run_summary.md"
+    title = f"Evaluation report — {specs[0].language}" if is_single else "Evaluation report"
 
     summary_path = os.path.join(run_dir(run_id), "reports", summary_filename)
     os.makedirs(os.path.dirname(summary_path), exist_ok=True)
@@ -257,22 +195,20 @@ def run_pipeline(
     )
     write_markdown_report(run_id, md, filename=md_filename)
 
-    # ── Console summary ──────────────────────────────────────────────────────
     counts = classification_counts
     print(f"\n{'='*65}\n  PIPELINE COMPLETE — {len(specs) - len(failed)}/{len(specs)} succeeded")
     print(f"{'='*65}")
-    for g in ["A", "B", "C", "D", "E"]:
+    for g in ["A", "B", "C", "D"]:
         print(f"  {g}: {counts.get(g, 0):2d}  {'█' * counts.get(g, 0)}")
     if failed:
         print(f"\n  Failed: {failed}")
-    print(f"\n  Summary: {summary_path}")
-    print(f"{'='*65}\n")
+    print(f"\n  Summary: {summary_path}\n{'='*65}\n")
 
     return summary
 
 
 # ---------------------------------------------------------------------------
-# Single-language remote runner — what advance_remote_fn spawns per language
+# Single-language remote runner — spawned once per language in fan-out
 # ---------------------------------------------------------------------------
 
 def run_single_language_to_state(
@@ -281,23 +217,19 @@ def run_single_language_to_state(
     spec: LanguageSpec,
     stop_at_value: str,
     task: str,
-    limit: int,
+    n_samples: int,
+    seed: int,
     judge_model: str,
-    judge_limit: int,
-    swap_runs: int,
-    skip_model_metrics: bool,
     handles: WorkerHandles,
 ) -> dict:
     """
-    The function body that runs INSIDE one per-language Modal container
-    during a fan-out. Drives one LanguageRun from PENDING through stop_at
-    and returns a JSON-serializable dict — this is the unit advance_remote_fn
-    spawns, not a separate orchestration layer.
+    Runs inside one per-language Modal container during a fan-out.
+    Drives one LanguageRun from PENDING through stop_at and returns
+    a JSON-serializable dict.
     """
     ctx = RunContext(
-        run_id=run_id, task=task, limit=limit,
-        judge_model=judge_model, judge_limit=judge_limit, swap_runs=swap_runs,
-        skip_model_metrics=skip_model_metrics, handles=handles,
+        run_id=run_id, task=task, n_samples=n_samples, seed=seed,
+        judge_model=judge_model, handles=handles,
     )
     lr = advance(ctx, LanguageRun(spec=spec), stop_at=State(stop_at_value))
     return language_run_to_dict(lr)

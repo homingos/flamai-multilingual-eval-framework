@@ -119,11 +119,13 @@ GRADE_COLORS = {
     "skipped": "#8B949E", "failed": "#8B949E", "pending": "#484F58",
 }
 GRADE_LABELS = {
-    "A": "Grade A — Regional superior (>60% judge win rate)",
-    "B": "Grade B — Regional preferred (50–60%)",
-    "C": "Grade C — Comparable (40–50%)",
-    "D": "Grade D — Gemma-4 preferred (20–40%)",
-    "E": "Grade E — Gemma-4 strongly preferred (<20%)",
+    # v2 (pointwise, score-based)
+    "A": "Grade A — Good quality (avg score ≥ 0.75)",
+    "B": "Grade B — Acceptable quality (avg score ≥ 0.50)",
+    "C": "Grade C — Marginal quality (avg score ≥ 0.25)",
+    "D": "Grade D — Poor quality (avg score < 0.25)",
+    # v1 labels preserved for old entries
+    "E": "Grade E — Gemma-4 strongly preferred (v1, <20% win rate)",
     "skipped": "Skipped — run failed or crashed mid-inference",
     "failed":  "Failed — infrastructure/pipeline error",
     "pending": "Pending — not yet evaluated",
@@ -276,6 +278,40 @@ def metric_bar(name: str, val_r, val_g, unit: str = "", scale: Optional[float] =
 </div>"""
 
 # ---------------------------------------------------------------------------
+# Pointwise score bar — single-model, 0–1 scale (v2)
+# ---------------------------------------------------------------------------
+
+_DIM_COLORS = {
+    "fluency":               "#58a6ff",
+    "adequacy":              "#3fb950",
+    "overall":               "#8957e5",
+    "language_compliance":   "#58a6ff",
+    "instruction_following": "#3fb950",
+    "helpfulness":           "#d29922",
+}
+
+def score_dim_bar(dim_name: str, score: Optional[float]) -> str:
+    if score is None:
+        return ""
+    label  = dim_name.replace("_", " ").title()
+    pct    = int(score * 100)
+    col    = _DIM_COLORS.get(dim_name, "#8b949e")
+    cls_gr = ("var(--gr)" if score >= 0.75 else
+              "#52b788"   if score >= 0.50 else
+              "var(--or)" if score >= 0.25 else "var(--rd)")
+    _ = col  # suppress unused
+    return f"""<div style="margin-bottom:7px;">
+  <div style="margin-bottom:3px;font-size:10px;color:var(--mu);">{label}</div>
+  <div style="display:flex;align-items:center;gap:7px;">
+    <div style="flex:1;height:7px;background:var(--bd);border-radius:4px;overflow:hidden;">
+      <div style="height:100%;width:{pct}%;background:{cls_gr};border-radius:4px;"></div>
+    </div>
+    <span style="font-size:11px;font-weight:700;min-width:32px;text-align:right;color:{cls_gr};">{score:.2f}</span>
+  </div>
+</div>"""
+
+
+# ---------------------------------------------------------------------------
 # Task panel renderer
 # ---------------------------------------------------------------------------
 
@@ -321,37 +357,53 @@ def render_task_panel(ev: Optional[dict], task: str) -> str:
                 f'<span style="font-size:12px;color:var(--mu);">{GRADE_LABELS.get(grade,"")}</span>'
                 f'</div>{nt}</div>')
 
-    win_r = ev.get("judge_win_rate")
-    win_g = ev.get("gemma4_win_rate")
+    is_v2 = ev.get("avg_score") is not None
 
     parts = [
         f'<div style="padding:14px 16px;border-top:2px solid {color};">',
         f'<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">',
         f'<span style="font-size:10px;font-weight:700;color:{color};letter-spacing:.07em;">{icon} {label}</span>',
         grade_badge(grade),
-        "</div>",
-        metric_bar("Judge Win Rate", win_r, win_g, unit="%", scale=100.0),
     ]
+    if is_v2:
+        avg_score = ev.get("avg_score")
+        parts.append(
+            f'<span style="font-size:11px;color:var(--mu);margin-left:4px;">avg {avg_score:.2f}</span>'
+            if avg_score is not None else ""
+        )
+    parts.append("</div>")
 
-    if task == "translation":
-        bleu_r = ev.get("bleu_regional"); bleu_g = ev.get("bleu_gemma4")
-        chrf_r = ev.get("chrf_regional"); chrf_g = ev.get("chrf_gemma4")
-        if bleu_r is not None or bleu_g is not None:
-            parts.append(metric_bar("BLEU", bleu_r, bleu_g))
-        if chrf_r is not None or chrf_g is not None:
-            parts.append(metric_bar("chrF", chrf_r, chrf_g))
-
-    if task == "instructions":
-        for name, key in [
-            ("Language Adherence", "lang_adherence"),
-            ("Format Compliance",  "format_compliance"),
-            ("Length Accuracy",    "length_accuracy"),
-            ("Tone Register",      "tone_register"),
-        ]:
-            r = ev.get(f"{key}_regional")
-            g = ev.get(f"{key}_gemma4")
-            if r is not None or g is not None:
-                parts.append(metric_bar(name, r, g, unit="%", scale=100.0))
+    if is_v2:
+        # v2: pointwise dimension score bars
+        if task == "translation":
+            for dim in ("fluency", "adequacy", "overall"):
+                parts.append(score_dim_bar(dim, ev.get(f"{dim}_avg")))
+        else:
+            for dim in ("language_compliance", "instruction_following", "helpfulness", "overall"):
+                parts.append(score_dim_bar(dim, ev.get(f"{dim}_avg")))
+    else:
+        # v1 fallback: pairwise win rate bars (old German/Italian etc.)
+        win_r = ev.get("judge_win_rate")
+        win_g = ev.get("gemma4_win_rate")
+        parts.append(metric_bar("Judge Win Rate", win_r, win_g, unit="%", scale=100.0))
+        if task == "translation":
+            bleu_r = ev.get("bleu_regional"); bleu_g = ev.get("bleu_gemma4")
+            chrf_r = ev.get("chrf_regional"); chrf_g = ev.get("chrf_gemma4")
+            if bleu_r is not None or bleu_g is not None:
+                parts.append(metric_bar("BLEU", bleu_r, bleu_g))
+            if chrf_r is not None or chrf_g is not None:
+                parts.append(metric_bar("chrF", chrf_r, chrf_g))
+        else:
+            for name, key in [
+                ("Language Adherence", "lang_adherence"),
+                ("Format Compliance",  "format_compliance"),
+                ("Length Accuracy",    "length_accuracy"),
+                ("Tone Register",      "tone_register"),
+            ]:
+                r = ev.get(f"{key}_regional")
+                g = ev.get(f"{key}_gemma4")
+                if r is not None or g is not None:
+                    parts.append(metric_bar(name, r, g, unit="%", scale=100.0))
 
     if run_id:
         review_url = f"/review?run_id={run_id}"
@@ -426,7 +478,8 @@ def render_stats_bar(evaluations: list) -> str:
     for g in ("A","B","C","D","E","skipped","failed","pending"):
         cnt = grade_counts.get(g, 0)
         if cnt:
-            chips.append(chip(f"Grade {g.upper()}", cnt, GRADE_COLORS[g]))
+            label = f"Grade {g.upper()}" + (" (legacy)" if g == "E" else "")
+            chips.append(chip(label, cnt, GRADE_COLORS[g]))
 
     return ('<div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px;'
             'padding:14px 18px;background:var(--sf);border:1px solid var(--bd);border-radius:10px;align-items:center;">'
@@ -499,11 +552,11 @@ def _grade_chip(grade: str, label: str, sublabel: str) -> str:
     )
 
 _GRADE_CHIPS = "".join([
-    _grade_chip("A", "Regional superior",   ">60% judge win rate"),
-    _grade_chip("B", "Regional preferred",  "50–60% win rate"),
-    _grade_chip("C", "Comparable",          "40–50% win rate"),
-    _grade_chip("D", "Gemma-4 preferred",   "20–40% win rate"),
-    _grade_chip("E", "Gemma-4 dominant",    "<20% win rate"),
+    _grade_chip("A", "Good quality",      "avg score ≥ 0.75"),
+    _grade_chip("B", "Acceptable",        "avg score ≥ 0.50"),
+    _grade_chip("C", "Marginal",          "avg score ≥ 0.25"),
+    _grade_chip("D", "Poor quality",      "avg score < 0.25"),
+    _grade_chip("E", "v1 legacy",         "Gemma-4 win rate <20%"),
 ])
 
 GRADE_LEGEND_HTML = (
@@ -515,10 +568,10 @@ GRADE_LEGEND_HTML = (
     + _GRADE_CHIPS +
     '<div style="padding:8px 14px;display:flex;align-items:center;flex:1;min-width:180px;">'
     '<span style="font-size:11px;color:var(--mu);line-height:1.5;">'
-    'Based on <strong style="color:var(--tx);">judge win rate</strong> — '
-    'the % of head-to-head comparisons where a Gemini judge preferred the regional model '
-    'over Gemma-4 26B. 50 prompts judged per run, each twice (positions swapped) across '
-    '3 quality dimensions.</span></div></div>'
+    'Based on <strong style="color:var(--tx);">avg pointwise score</strong> (0–1) across rubric dimensions — '
+    'Gemini judges each output standalone on fluency/adequacy/helpfulness. '
+    '200 stratified samples per run. Grade E shown for legacy v1 runs (pairwise vs Gemma-4).'
+    '</span></div></div>'
 )
 
 
@@ -785,7 +838,7 @@ REVIEW_CSS = """
 
 REVIEW_JS = """
 var progressTimer=null, progressVal=0;
-var STAGES={0:"Connecting to Modal volume…",12:"Discovering run metadata…",28:"Downloading Gemma-4 baseline outputs…",52:"Downloading regional model outputs…",70:"Downloading judge verdicts…",85:"Generating review HTML…",93:"Almost ready…"};
+var STAGES={0:"Connecting to Modal volume…",12:"Discovering run metadata…",35:"Downloading regional model outputs…",60:"Downloading judge verdicts…",80:"Generating review HTML…",93:"Almost ready…"};
 
 function startProgress(){
   progressVal=0;
@@ -917,7 +970,7 @@ def review_page(run_id: str = ""):
       <div class="mrow"><span class="mkey">Slug </span><span class="mval" id="m-slug"></span></div>
       <div class="mrow"><span class="mkey">Task </span><span class="mval" id="m-task"></span></div>
       <div class="mrow" id="m-grade-row"><span class="mkey">Grade </span><span id="m-grade"></span></div>
-      <div class="mrow" id="m-wr-row"><span class="mkey">Win rate </span><span class="mval" id="m-wr"></span></div>
+      <div class="mrow" id="m-wr-row"><span class="mkey">Avg score </span><span class="mval" id="m-wr"></span></div>
       <div style="margin-top:12px;">
         <a id="m-full-link" href="#" target="_blank" style="font-size:12px;color:var(--ac);">Open full page ↗</a>
       </div>
@@ -1003,8 +1056,13 @@ def _grade_from_qual_json(run_id: str) -> tuple[Optional[str], Optional[float]]:
     try:
         for ev in json.loads(QUAL_JSON.read_text()).get("evaluations", []):
             if ev.get("run_id") == run_id:
-                wr = ev.get("judge_win_rate")
-                return ev.get("grade"), (round(wr, 1) if wr is not None else None)
+                grade = ev.get("grade")
+                # v2: return avg_score; v1: return win_rate for sidebar
+                score = ev.get("avg_score")
+                if score is None:
+                    wr = ev.get("judge_win_rate")
+                    score = round(wr, 1) if wr is not None else None
+                return grade, score
     except Exception:
         pass
     return None, None
@@ -1014,15 +1072,15 @@ def _grade_from_cache_meta(run_id: str) -> tuple[Optional[str], Optional[float]]
     meta_file = CACHE_DIR / run_id / "meta.json"
     try:
         m = json.loads(meta_file.read_text())
-        return m.get("grade"), m.get("judge_win_rate")
+        score = m.get("avg_score") or m.get("judge_win_rate")
+        return m.get("grade"), score
     except Exception:
         return None, None
 
 
 def _generate_review_html(run_id: str, slug: str, task: str,
-                           gemma4_path: Path, regional_path: Path, verdicts_path: Path) -> str:
+                           regional_path: Path, verdicts_path: Path) -> str:
     gr               = load_generate_review()
-    gemma4_records   = gr.load_jsonl(gemma4_path)
     regional_records = gr.load_jsonl(regional_path)
     verdict_records  = gr.load_jsonl(verdicts_path)
     aggregated       = gr.aggregate_verdicts(verdict_records)
@@ -1030,8 +1088,7 @@ def _generate_review_html(run_id: str, slug: str, task: str,
     model_display    = meta[2] if meta else slug
     return gr.generate_html(
         run_id=run_id, slug=slug, task=task, model_display=model_display,
-        regional_records=regional_records, gemma4_records=gemma4_records,
-        aggregated=aggregated,
+        regional_records=regional_records, aggregated=aggregated,
     )
 
 
@@ -1103,18 +1160,17 @@ async def load_review_api(request: Request):
 
     # ── Step 3: try generating from data/modal_cache/ ──
     if cache_run_dir.exists() and slug and task:
-        verdicts_path  = cache_run_dir / "verdicts.jsonl"
-        gemma4_path    = cache_run_dir / "gemma4.jsonl"
-        regional_path  = cache_run_dir / "regional.jsonl"
+        verdicts_path = cache_run_dir / "verdicts.jsonl"
+        regional_path = cache_run_dir / "regional.jsonl"
 
-        if verdicts_path.exists() and gemma4_path.exists() and regional_path.exists():
+        if verdicts_path.exists() and regional_path.exists():
             try:
                 gr = load_generate_review()
             except Exception as e:
                 return JSONResponse({"error": f"Failed to load generate_review.py: {e}"})
             try:
                 html_content = _generate_review_html(
-                    run_id, slug, task, gemma4_path, regional_path, verdicts_path
+                    run_id, slug, task, regional_path, verdicts_path
                 )
                 out_file = _review_html_path(slug, task, run_id)
                 out_file.parent.mkdir(parents=True, exist_ok=True)
@@ -1147,16 +1203,14 @@ async def load_review_api(request: Request):
 
     with tempfile.TemporaryDirectory(prefix="dash_review_") as tmp:
         tmp_path      = Path(tmp)
-        gemma4_path   = tmp_path / "gemma4.jsonl"
         regional_path = tmp_path / "regional.jsonl"
         verdicts_path = tmp_path / "verdicts.jsonl"
 
-        ok1 = modal_get_file(f"runs/{run_id}/gemma4/{task}_outputs.jsonl", gemma4_path)
         ok2 = modal_get_file(f"runs/{run_id}/regional/{slug}_{task}_outputs.jsonl", regional_path)
         ok3 = modal_get_file(f"runs/{run_id}/judge/{slug}_{task}_verdicts.jsonl", verdicts_path)
 
-        if not (ok1 and ok2 and ok3):
-            missing = [n for ok, n in [(ok1,"gemma4 outputs"),(ok2,"regional outputs"),(ok3,"judge verdicts")] if not ok]
+        if not (ok2 and ok3):
+            missing = [n for ok, n in [(ok2,"regional outputs"),(ok3,"judge verdicts")] if not ok]
             return JSONResponse({"error": f"Could not download: {', '.join(missing)}. Run ID: {run_id}"})
 
         try:
@@ -1166,7 +1220,7 @@ async def load_review_api(request: Request):
 
         try:
             html_content = _generate_review_html(
-                run_id, slug, task, gemma4_path, regional_path, verdicts_path
+                run_id, slug, task, regional_path, verdicts_path
             )
         except Exception as e:
             return JSONResponse({"error": f"Failed to generate review HTML: {e}"})
@@ -1196,41 +1250,44 @@ def list_modal_run_ids() -> list[str]:
     return list(dict.fromkeys(_RUN_ID_RE.findall(output)))  # preserve order, deduplicate
 
 
-def compute_grade(win_rate_pct: float) -> str:
-    if win_rate_pct >= 60: return "A"
-    if win_rate_pct >= 50: return "B"
-    if win_rate_pct >= 40: return "C"
-    if win_rate_pct >= 20: return "D"
-    return "E"
+def compute_grade_from_score(avg: float) -> str:
+    if avg >= 0.75: return "A"
+    if avg >= 0.50: return "B"
+    if avg >= 0.25: return "C"
+    return "D"
 
 
 def compute_stats_from_verdicts(verdicts_path: Path) -> dict:
-    """Read a verdicts JSONL, aggregate, return win_rate + grade."""
+    """Read a pointwise verdicts JSONL, aggregate avg_score per dimension + grade."""
     try:
-        gr = load_generate_review()
-        records    = gr.load_jsonl(verdicts_path)
+        gr      = load_generate_review()
+        records = gr.load_jsonl(verdicts_path)
         aggregated = gr.aggregate_verdicts(records)
     except Exception:
         return {}
 
-    regional = gemma4 = ties = no_verdict = 0
-    for dims in aggregated.values():
-        winner = gr.overall_winner(dims)
-        if winner == "regional":   regional   += 1
-        elif winner == "gemma4":   gemma4     += 1
-        elif winner == "tie":      ties       += 1
-        else:                      no_verdict += 1
-
-    total_judged = regional + gemma4 + ties
-    if total_judged == 0:
+    if not aggregated:
         return {}
-    win_rate = round(regional / total_judged * 100, 1)
-    gemma4_wr = round(gemma4 / total_judged * 100, 1)
-    return {
-        "judge_win_rate":  win_rate,
-        "gemma4_win_rate": gemma4_wr,
-        "grade":           compute_grade(win_rate),
-    }
+
+    # Gather per-dimension scores
+    dim_scores: dict = {}
+    for dims in aggregated.values():
+        for dim, v in dims.items():
+            score = v.get("score")
+            if score is not None:
+                dim_scores.setdefault(dim, []).append(float(score))
+
+    if not dim_scores:
+        return {}
+
+    dim_avgs   = {dim: round(sum(scores) / len(scores), 3) for dim, scores in dim_scores.items()}
+    overall_avg = round(sum(dim_avgs.values()) / len(dim_avgs), 3)
+
+    result: dict = {"avg_score": overall_avg, "grade": compute_grade_from_score(overall_avg)}
+    # e.g. fluency_avg, adequacy_avg, overall_avg for translation
+    for dim, val in dim_avgs.items():
+        result[f"{dim}_avg"] = val
+    return result
 
 
 def parse_report_file(path: Path) -> Optional[dict]:
@@ -1242,39 +1299,57 @@ def parse_report_file(path: Path) -> Optional[dict]:
     if not run_id or not task:
         return None
 
-    if "classification" in data:
-        wr = data.get("judge_win_rate")
-        win_rate = round(float(wr)*100,1) if wr is not None and float(wr)<=1.0 else (round(float(wr),1) if wr is not None else None)
-        ev = {"run_id":run_id,"task":task,"grade":data.get("classification"),"judge_win_rate":win_rate}
-        for k in ["bleu_regional","bleu_gemma4","chrf_regional","chrf_gemma4"]:
-            if k in data: ev[k]=data[k]
+    results = data.get("results", {})
+    if not results:
+        return None
+
+    slug = next(iter(results))
+    res  = results[slug]
+
+    # v2 format: has avg_score
+    if res.get("avg_score") is not None:
+        ev = {
+            "run_id": run_id, "task": task,
+            "grade": res.get("classification"),
+            "avg_score": res.get("avg_score"),
+        }
+        for k in ("fluency_avg", "adequacy_avg", "overall_avg",
+                  "language_compliance_avg", "instruction_following_avg",
+                  "helpfulness_avg"):
+            if k in res:
+                ev[k] = res[k]
         return ev
 
-    results = data.get("results",{})
-    if not results: return None
-    slug = next(iter(results)); res = results[slug]
-    wr_raw = res.get("judge_win_rate")
-    win_rate = round(float(wr_raw)*100,1) if wr_raw is not None else None
-    ev = {"run_id":run_id,"task":task,"grade":res.get("classification"),"judge_win_rate":win_rate}
-    if task=="instructions":
-        for k in ["lang_adherence_regional","lang_adherence_gemma4","format_compliance_regional",
-                  "format_compliance_gemma4","length_accuracy_regional","length_accuracy_gemma4",
-                  "tone_register_regional","tone_register_gemma4"]:
-            v = res.get(k); ev[k] = round(v*100) if v is not None else None
+    # v1 format: has judge_win_rate
+    wr_raw   = res.get("judge_win_rate")
+    win_rate = round(float(wr_raw) * 100, 1) if wr_raw is not None else None
+    ev = {"run_id": run_id, "task": task, "grade": res.get("classification"), "judge_win_rate": win_rate}
+    if task == "instructions":
+        for k in ["lang_adherence_regional", "lang_adherence_gemma4",
+                  "format_compliance_regional", "format_compliance_gemma4",
+                  "length_accuracy_regional", "length_accuracy_gemma4",
+                  "tone_register_regional", "tone_register_gemma4"]:
+            v = res.get(k)
+            ev[k] = round(v * 100) if v is not None else None
     else:
-        for k in ["bleu_regional","bleu_gemma4","chrf_regional","chrf_gemma4"]:
+        for k in ["bleu_regional", "bleu_gemma4", "chrf_regional", "chrf_gemma4"]:
             ev[k] = res.get(k)
     return ev
 
 
 def _merge_fields(target: dict, source: dict) -> None:
     METRIC_FIELDS = [
-        "grade","judge_win_rate","gemma4_win_rate",
-        "bleu_regional","bleu_gemma4","chrf_regional","chrf_gemma4",
-        "lang_adherence_regional","lang_adherence_gemma4",
-        "format_compliance_regional","format_compliance_gemma4",
-        "length_accuracy_regional","length_accuracy_gemma4",
-        "tone_register_regional","tone_register_gemma4",
+        # v2
+        "grade", "avg_score",
+        "fluency_avg", "adequacy_avg", "overall_avg",
+        "language_compliance_avg", "instruction_following_avg", "helpfulness_avg",
+        # v1 (preserved for backward compat)
+        "judge_win_rate", "gemma4_win_rate",
+        "bleu_regional", "bleu_gemma4", "chrf_regional", "chrf_gemma4",
+        "lang_adherence_regional", "lang_adherence_gemma4",
+        "format_compliance_regional", "format_compliance_gemma4",
+        "length_accuracy_regional", "length_accuracy_gemma4",
+        "tone_register_regional", "tone_register_gemma4",
     ]
     for f in METRIC_FIELDS:
         if f in source and source[f] is not None:

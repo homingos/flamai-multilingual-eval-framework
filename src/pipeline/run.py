@@ -48,6 +48,10 @@ def regional_output_path(run_id: str, slug: str, task: str) -> str:
     return f"{OUTPUTS_ROOT}/runs/{run_id}/regional/{slug}_{task}_outputs.jsonl"
 
 
+def sampled_ids_path(run_id: str, slug: str, task: str) -> str:
+    return f"{OUTPUTS_ROOT}/runs/{run_id}/sampled/{slug}_{task}_ids.json"
+
+
 def judge_path(run_id: str, slug: str, task: str) -> str:
     return f"{OUTPUTS_ROOT}/runs/{run_id}/judge/{slug}_{task}_verdicts.jsonl"
 

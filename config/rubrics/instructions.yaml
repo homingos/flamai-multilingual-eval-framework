@@ -1,0 +1,49 @@
+task: instructions
+
+response_rules:
+  reasoning_max_words: 20
+  reasoning_sentences: 1
+  output_format: "JSON only — no markdown fences, no preamble, no text outside the JSON object"
+
+dimensions:
+  - name: language_compliance
+    question: "Does the response use the correct target language throughout?"
+    criteria:
+      "1.0": "Entirely in the correct target language"
+      "0.75": "Mostly correct language, minor code-switching or transliteration"
+      "0.5": "Mixed languages, roughly half in target language"
+      "0.25": "Mostly in wrong language"
+      "0.0": "Entirely in wrong language or gibberish"
+
+  - name: instruction_following
+    question: "Does the response follow the given system instructions and user constraints?"
+    criteria:
+      "1.0": "All instructions followed precisely"
+      "0.75": "Most instructions followed, minor constraint missed"
+      "0.5": "Some instructions followed, some clearly violated"
+      "0.25": "Mostly ignores the constraints"
+      "0.0": "Completely ignores all instructions"
+
+  - name: helpfulness
+    question: "Is the response helpful, appropriate, and natural for a Talking Avatar assistant?"
+    criteria:
+      "1.0": "Perfect — fully addresses the user, natural and contextually appropriate"
+      "0.75": "Good — helpful with minor improvement possible"
+      "0.5": "Somewhat helpful but has noticeable issues"
+      "0.25": "Barely helpful — vague, off-topic, or robotic"
+      "0.0": "Not helpful at all — irrelevant or harmful"
+
+  - name: overall
+    question: "Considering language compliance, instruction following, and helpfulness, how good is this response overall?"
+    criteria:
+      "1.0": "Excellent response"
+      "0.75": "Good response, minor issues"
+      "0.5": "Moderate quality, noticeable issues"
+      "0.25": "Poor response, significant problems"
+      "0.0": "Complete failure"
+
+inputs:
+  required:
+    - system_instruction
+    - user_prompt_localized
+    - candidate_text

@@ -1,0 +1,40 @@
+task: translation
+
+response_rules:
+  reasoning_max_words: 20
+  reasoning_sentences: 1
+  output_format: "JSON only — no markdown fences, no preamble, no text outside the JSON object"
+
+dimensions:
+  - name: fluency
+    question: "Does the translation read naturally and fluently in the target language?"
+    criteria:
+      "1.0": "Perfect, native-level fluency"
+      "0.75": "Good, minor awkwardness"
+      "0.5": "Moderate, noticeably non-native phrasing"
+      "0.25": "Bad, hard to read"
+      "0.0": "Unreadable"
+
+  - name: adequacy
+    question: "Does the translation preserve the meaning of the source text?"
+    criteria:
+      "1.0": "All facts, numbers, entities preserved exactly"
+      "0.75": "Main meaning preserved, minor detail missing"
+      "0.5": "Correct topic, misses a specific detail"
+      "0.25": "Vaguely related, misses core information"
+      "0.0": "Irrelevant or empty"
+
+  - name: overall
+    question: "Considering both fluency and adequacy, how good is this translation overall?"
+    criteria:
+      "1.0": "Perfect translation"
+      "0.75": "Good, minor issues"
+      "0.5": "Moderate quality, noticeable issues"
+      "0.25": "Bad, significant problems"
+      "0.0": "Complete failure"
+
+inputs:
+  required:
+    - source_text
+    - reference_text
+    - candidate_text

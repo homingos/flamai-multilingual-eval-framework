@@ -1,30 +1,23 @@
 """
 src/pipeline/state_machine.py
 ===============================
-A single state machine drives every evaluation run, for one language
-or seventeen. There is no "Phase 3 orchestrator" and "Phase 5
-orchestrator" — there is one pipeline with a stop point.
+State machine for the v2 pointwise evaluation pipeline.
 
 State graph (per language):
 
-    PENDING ─► INFERENCE ─► LIGHT_METRICS ─► MODEL_METRICS ─► JUDGE ─► REPORT ─► DONE
-       │            │              │               │            │        │
-       └────────────┴──────────────┴───────────────┴────────────┴────────┴──► FAILED
+    PENDING ─► SAMPLE ─► INFERENCE ─► JUDGE ─► REPORT ─► DONE
+       │           │           │          │        │
+       └───────────┴───────────┴──────────┴────────┴──► FAILED
 
-Each state is a pure function: (ctx) -> next_state. State functions
-read/write the outputs volume directly via src.pipeline.run helpers
-and call into Modal worker classes passed in via WorkerHandles. No
-state function imports modal_app — that dependency only exists in
-the @app.function wrappers in modal_app.py.
+Key changes from v1:
+- No Gemma-4 baseline: regional LLM is evaluated standalone.
+- SAMPLE state: stratified random sampler runs before inference (200 samples, configurable).
+- LIGHT_METRICS and MODEL_METRICS removed: metrics derived from judge scores only.
+- JUDGE is pointwise: Gemini scores each output 0–1 per rubric dimension.
 
-"Phase 3" = run the state machine for one language, stop_at=LIGHT_METRICS.
-"Phase 4" = run the state machine for one language, stop_at=REPORT,
-            on a language that already reached LIGHT_METRICS.
-"Phase 5" = run the state machine for N languages in parallel, stop_at=REPORT,
-            with a shared Gemma-4 precondition step run once up front.
-
-There's one pipeline. The "phases" are just different (stop_at, fan_out)
-parameters on the same run.
+Each state is a pure function: (ctx, lr) -> bool (success/failure).
+State functions read/write the outputs volume via src.pipeline.run helpers
+and call into Modal worker classes passed via WorkerHandles.
 """
 from __future__ import annotations
 
@@ -42,24 +35,22 @@ from typing import Any, Callable, Optional
 # ---------------------------------------------------------------------------
 
 class State(str, Enum):
-    PENDING        = "pending"
-    INFERENCE      = "inference"
-    LIGHT_METRICS  = "light_metrics"
-    MODEL_METRICS  = "model_metrics"
-    JUDGE          = "judge"
-    REPORT         = "report"
-    DONE           = "done"
-    FAILED         = "failed"
+    PENDING   = "pending"
+    SAMPLE    = "sample"
+    INFERENCE = "inference"
+    JUDGE     = "judge"
+    REPORT    = "report"
+    DONE      = "done"
+    FAILED    = "failed"
 
     @property
     def order(self) -> int:
         return list(State).index(self)
 
 
-# Canonical forward path. FAILED can be reached from anywhere; not part of this list.
 _FORWARD_PATH = [
-    State.PENDING, State.INFERENCE, State.LIGHT_METRICS,
-    State.MODEL_METRICS, State.JUDGE, State.REPORT, State.DONE,
+    State.PENDING, State.SAMPLE, State.INFERENCE,
+    State.JUDGE, State.REPORT, State.DONE,
 ]
 
 
@@ -75,11 +66,9 @@ def _next_state(current: State) -> State:
 @dataclass
 class WorkerHandles:
     """Modal worker classes, passed in by the @app.function wrapper in modal_app.py."""
-    gpu_worker_map:     dict       # {"l4": VLLMWorkerL4, ...}
-    LightMetricWorker:  Any
-    ModelMetricWorker:  Any
-    JudgeWorker:        Any
-    ReportGenerator:    Any
+    gpu_worker_map:  dict   # {"l4": VLLMWorkerL4, ...}
+    JudgeWorker:     Any
+    ReportGenerator: Any
 
 
 # ---------------------------------------------------------------------------
@@ -98,12 +87,12 @@ class LanguageSpec:
 @dataclass
 class LanguageRun:
     """Mutable state for one language as it moves through the pipeline."""
-    spec:          LanguageSpec
-    state:         State = State.PENDING
-    error:         Optional[str] = None
-    started_at:    Optional[datetime] = None
-    finished_at:   Optional[datetime] = None
-    report:        Optional[dict] = None
+    spec:        LanguageSpec
+    state:       State = State.PENDING
+    error:       Optional[str] = None
+    started_at:  Optional[datetime] = None
+    finished_at: Optional[datetime] = None
+    report:      Optional[dict] = None
 
     @property
     def slug(self) -> str:
@@ -111,46 +100,80 @@ class LanguageRun:
 
 
 # ---------------------------------------------------------------------------
-# Run-level context — shared, read-only config for a single state-machine run
+# Run-level context — shared, read-only config for a single run
 # ---------------------------------------------------------------------------
 
 @dataclass
 class RunContext:
-    run_id:       str
-    task:         str
-    limit:        int
-    judge_model:  str
-    judge_limit:  int
-    swap_runs:    int
-    skip_model_metrics: bool
-    handles:      WorkerHandles
+    run_id:      str
+    task:        str
+    n_samples:   int    # stratified sample size (default 200)
+    seed:        int    # random seed for sampler (default 42)
+    judge_model: str
+    handles:     WorkerHandles
 
 
 # ---------------------------------------------------------------------------
-# State transition functions — one per edge in the graph
+# State transition functions
 # ---------------------------------------------------------------------------
-# Each function does the work for entering `lr.state` and returns True on
-# success (caller advances lr.state) or False on failure (caller sets FAILED).
-# Skipping is handled inside each function by checking existing volume state.
+
+def _do_sample(ctx: RunContext, lr: LanguageRun) -> bool:
+    """
+    Runs the stratified random sampler and writes sampled IDs to the volume.
+    Idempotent: skips if sampled_ids file already exists.
+    """
+    from src.pipeline.run import sampled_ids_path
+    from src.pipeline.sampler import sample_stratified
+
+    out_path = sampled_ids_path(ctx.run_id, lr.slug, ctx.task)
+    if os.path.exists(out_path):
+        print(f"[{lr.slug}] SAMPLE — already done, skipping")
+        return True
+
+    samples = sample_stratified(ctx.task, lr.slug, n=ctx.n_samples, seed=ctx.seed)
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+
+    with open(out_path, "w") as f:
+        json.dump([s["id"] for s in samples], f)
+
+    # Stash full sample records so inference can reuse without re-reading
+    lr._sampled_records = samples  # type: ignore[attr-defined]
+    print(f"[{lr.slug}] SAMPLE — {len(samples)} samples selected")
+    return True
+
 
 def _do_inference(ctx: RunContext, lr: LanguageRun) -> bool:
+    """
+    Runs the regional LLM on the sampled subset.
+    Loads sampled IDs from volume, filters full dataset, runs inference.
+    """
     import modal as _modal
+    from src.pipeline.run import sampled_ids_path, regional_output_path
     from src.pipeline.loader import load_samples
-    from src.pipeline.run import gemma_output_path, regional_output_path
 
-    spec = lr.spec
-    reg_path   = regional_output_path(ctx.run_id, spec.slug, ctx.task)
-    gemma_path = gemma_output_path(ctx.run_id, ctx.task)
-
-    if not os.path.exists(gemma_path) or os.path.getsize(gemma_path) == 0:
-        lr.error = f"Gemma-4 outputs missing at {gemma_path} — run gemma4_precondition first"
-        return False
+    spec     = lr.spec
+    reg_path = regional_output_path(ctx.run_id, spec.slug, ctx.task)
 
     if os.path.exists(reg_path) and os.path.getsize(reg_path) > 0:
         print(f"[{spec.slug}] INFERENCE — outputs already exist, skipping")
         return True
 
-    samples = load_samples(ctx.task, spec.slug, limit=ctx.limit)
+    # Load sampled IDs
+    ids_path = sampled_ids_path(ctx.run_id, spec.slug, ctx.task)
+    if not os.path.exists(ids_path):
+        lr.error = f"Sampled IDs file missing at {ids_path} — SAMPLE state must run first"
+        return False
+
+    with open(ids_path) as f:
+        sampled_ids = set(json.load(f))
+
+    all_samples = load_samples(ctx.task, spec.slug)
+    samples     = [s for s in all_samples if s["id"] in sampled_ids]
+
+    if not samples:
+        lr.error = f"No samples matched sampled IDs for {spec.slug}/{ctx.task}"
+        return False
+
     worker_cls = ctx.handles.gpu_worker_map[spec.gpu_preset]
     worker     = worker_cls(model_id=spec.model_id, run_id=ctx.run_id, task=ctx.task)
 
@@ -162,51 +185,21 @@ def _do_inference(ctx: RunContext, lr: LanguageRun) -> bool:
     return True
 
 
-def _do_light_metrics(ctx: RunContext, lr: LanguageRun) -> bool:
-    import modal as _modal
-
-    spec = lr.spec
-    mw = ctx.handles.LightMetricWorker()
-    rh = mw.score.spawn(run_id=ctx.run_id, slug=spec.slug,   task=ctx.task,
-                        language=spec.language, model_id=spec.model_id)
-    gh = mw.score.spawn(run_id=ctx.run_id, slug="baseline",  task=ctx.task,
-                        language=spec.language, model_id="gemma-4-26b")
-
-    reg_scores = rh.get()
-    gh.get()
-    print(f"[{spec.slug}] LIGHT_METRICS — {reg_scores}")
-
-    _modal.Volume.from_name("phase2a-outputs").reload()
-    return True
-
-
-def _do_model_metrics(ctx: RunContext, lr: LanguageRun) -> bool:
-    import modal as _modal
-
-    if ctx.skip_model_metrics:
-        print(f"[{lr.slug}] MODEL_METRICS — skipped by config")
-        return True
-
-    spec = lr.spec
-    mm = ctx.handles.ModelMetricWorker()
-    rh = mm.score.spawn(run_id=ctx.run_id, slug=spec.slug,   task=ctx.task,
-                        language=spec.language, model_id=spec.model_id)
-    gh = mm.score.spawn(run_id=ctx.run_id, slug="baseline",  task=ctx.task,
-                        language=spec.language, model_id="gemma-4-26b")
-
-    print(f"[{spec.slug}] MODEL_METRICS — regional: {rh.get()}  gemma4: {gh.get()}")
-    _modal.Volume.from_name("phase2a-outputs").reload()
-    return True
-
-
 def _do_judge(ctx: RunContext, lr: LanguageRun) -> bool:
+    """
+    Pointwise judge: Gemini scores each output 0–1 per rubric dimension.
+    No Gemma-4 comparison — regional output is evaluated standalone.
+    """
     import modal as _modal
 
     spec     = lr.spec
     verdicts = ctx.handles.JudgeWorker().judge.remote(
-        run_id=ctx.run_id, slug=spec.slug, task=ctx.task, language=spec.language,
-        regional_model_id=spec.model_id, judge_model=ctx.judge_model,
-        swap_runs=ctx.swap_runs, limit=ctx.judge_limit if ctx.judge_limit > 0 else None,
+        run_id=ctx.run_id,
+        slug=spec.slug,
+        task=ctx.task,
+        language=spec.language,
+        regional_model_id=spec.model_id,
+        judge_model=ctx.judge_model,
     )
     print(f"[{spec.slug}] JUDGE — {len(verdicts)} verdicts written")
 
@@ -217,47 +210,44 @@ def _do_judge(ctx: RunContext, lr: LanguageRun) -> bool:
 def _do_report(ctx: RunContext, lr: LanguageRun) -> bool:
     spec   = lr.spec
     report = ctx.handles.ReportGenerator().generate(
-        run_id=ctx.run_id, slug=spec.slug, task=ctx.task,
-        language=spec.language, regional_model_id=spec.model_id,
+        run_id=ctx.run_id,
+        slug=spec.slug,
+        task=ctx.task,
+        language=spec.language,
+        regional_model_id=spec.model_id,
     )
     lr.report = report
 
     cls = report["languages"][spec.slug]["classification"]
-    rat = report["languages"][spec.slug]["classification_rationale"]
-    print(f"[{spec.slug}] REPORT — {cls} | {rat}")
+    avg = report["languages"][spec.slug].get("avg_score", "?")
+    print(f"[{spec.slug}] REPORT — {cls} | avg_score={avg}")
     return True
 
 
 _TRANSITIONS: dict[State, Callable[[RunContext, LanguageRun], bool]] = {
-    State.INFERENCE:     _do_inference,
-    State.LIGHT_METRICS: _do_light_metrics,
-    State.MODEL_METRICS: _do_model_metrics,
-    State.JUDGE:         _do_judge,
-    State.REPORT:        _do_report,
+    State.SAMPLE:     _do_sample,
+    State.INFERENCE:  _do_inference,
+    State.JUDGE:      _do_judge,
+    State.REPORT:     _do_report,
 }
 
 
 # ---------------------------------------------------------------------------
-# Single-language driver — advances one LanguageRun until stop_at or FAILED
+# Single-language driver
 # ---------------------------------------------------------------------------
 
 def advance(ctx: RunContext, lr: LanguageRun, stop_at: State) -> LanguageRun:
     """
     Drives lr forward from its current state to stop_at (inclusive),
     or to FAILED if any transition raises / returns False.
-
-    This is the entire "orchestrator" — Phase 3, 4, and 5 are all just
-    calls to advance() with a different stop_at and a different number
-    of LanguageRun instances driven in parallel.
     """
     lr.started_at = lr.started_at or datetime.now(timezone.utc)
 
     while lr.state != stop_at and lr.state != State.DONE:
-        target = _next_state(lr.state)
+        target        = _next_state(lr.state)
         transition_fn = _TRANSITIONS.get(target)
 
         if transition_fn is None:
-            # DONE has no transition function — just arriving there is enough
             lr.state = target
             continue
 
@@ -268,7 +258,7 @@ def advance(ctx: RunContext, lr: LanguageRun, stop_at: State) -> LanguageRun:
             lr.error = f"{target.value} raised: {exc}"
 
         if not ok:
-            lr.state = State.FAILED
+            lr.state      = State.FAILED
             lr.finished_at = datetime.now(timezone.utc)
             print(f"[{lr.slug}] FAILED at {target.value}: {lr.error}")
             return lr
@@ -280,44 +270,13 @@ def advance(ctx: RunContext, lr: LanguageRun, stop_at: State) -> LanguageRun:
 
 
 # ---------------------------------------------------------------------------
-# Gemma-4 precondition — not a per-language state, a shared run-level gate
-# ---------------------------------------------------------------------------
-
-def ensure_gemma4_baseline(ctx: RunContext, VLLMWorkerA100: Any, all_slugs: list) -> None:
-    """
-    Generates Gemma-4 baseline outputs for every slug in the run.
-    Must be called before any LanguageRun reaches INFERENCE.
-    Idempotent — generate() skips already-completed IDs via checkpoint.
-
-    Each task/slug combination has language-specific sample IDs
-    (inst_arabic_001, trans_greek_0001, etc.), so the judge can only find
-    matching pairs if the baseline was generated for every slug's IDs.
-    Looping over all_slugs ensures full coverage regardless of task.
-    """
-    import modal as _modal
-    from src.pipeline.loader import load_samples
-
-    worker = VLLMWorkerA100(model_id="gemma-4-26b", run_id=ctx.run_id, task=ctx.task)
-    total = 0
-    for slug in all_slugs:
-        samples = load_samples(ctx.task, slug, limit=ctx.limit)
-        print(f"[gemma4] Baseline {slug} — {len(samples)} samples")
-        outputs = worker.generate.remote(samples)
-        total += len(outputs)
-        print(f"[gemma4] Baseline {slug} done — {len(outputs)} new outputs")
-
-    print(f"[gemma4] Baseline complete — {total} total new outputs across {len(all_slugs)} slugs")
-    _modal.Volume.from_name("phase2a-outputs").reload()
-
-
-# ---------------------------------------------------------------------------
-# Multi-language fan-out — this is what "Phase 5" reduces to
+# Multi-language fan-out
 # ---------------------------------------------------------------------------
 
 @dataclass
 class FanOutResult:
-    run_id:  str
-    runs:    dict[str, LanguageRun]   # keyed by slug
+    run_id:    str
+    runs:      dict[str, LanguageRun]
     elapsed_s: float
 
 
@@ -325,28 +284,18 @@ def run_fanout(
     ctx: RunContext,
     specs: list[LanguageSpec],
     stop_at: State,
-    advance_remote_fn: Callable[..., Any],   # spawns advance() in its own container
+    advance_remote_fn: Callable[..., Any],
     poll_interval_s: int = 60,
     max_wait_s: int = 6 * 3600,
     resume_completed: Optional[set] = None,
     resume_report: Optional[dict] = None,
 ) -> FanOutResult:
     """
-    Runs `advance()` for every spec in parallel, one Modal container each,
-    polling until all reach stop_at/FAILED or max_wait_s elapses.
-
-    advance_remote_fn(spec, stop_at) -> a Modal FunctionCall handle (the
-    result of .spawn()) whose .get() returns a LanguageRun-shaped dict.
-    The caller (modal_app.py) supplies this so this module never imports
-    modal_app or references @app.function directly.
-
-    resume_report, if given, is the existing final_report.json dict —
-    used to populate LanguageRun.report for slugs in resume_completed so
-    their classification survives into the final summary instead of being
-    silently dropped.
+    Runs advance() for every spec in parallel, one Modal container each.
+    advance_remote_fn(spec, stop_at) must return a Modal FunctionCall handle.
     """
     resume_completed = resume_completed or set()
-    resume_report     = resume_report or {}
+    resume_report    = resume_report or {}
     start = time.time()
 
     runs:    dict[str, LanguageRun] = {}
@@ -354,9 +303,6 @@ def run_fanout(
 
     for spec in specs:
         if spec.slug in resume_completed:
-            # Carry the already-computed report forward so classification
-            # counts and the markdown summary reflect the real result,
-            # not a placeholder.
             lr = LanguageRun(
                 spec=spec,
                 state=State.DONE,
@@ -365,9 +311,10 @@ def run_fanout(
             )
             runs[spec.slug] = lr
             continue
+
         handle = advance_remote_fn(spec=spec, stop_at=stop_at)
         pending[spec.slug] = (spec, handle)
-        runs[spec.slug] = LanguageRun(spec=spec, started_at=datetime.now(timezone.utc))
+        runs[spec.slug]    = LanguageRun(spec=spec, started_at=datetime.now(timezone.utc))
         print(f"  ↗  {spec.language:<24} {spec.model_id}")
 
     print(f"\n[fanout] {len(pending)} containers spawned, {len(resume_completed)} resumed. Polling...\n")
@@ -378,14 +325,14 @@ def run_fanout(
         for slug, (spec, handle) in list(pending.items()):
             try:
                 result_dict = handle.get(timeout=0)
-                runs[slug] = _dict_to_language_run(spec, result_dict)
+                runs[slug]  = _dict_to_language_run(spec, result_dict)
                 done_slugs.append(slug)
             except TimeoutError:
                 pass
             except Exception as exc:
                 lr = runs[slug]
-                lr.state = State.FAILED
-                lr.error = str(exc)[:200]
+                lr.state      = State.FAILED
+                lr.error      = str(exc)[:200]
                 lr.finished_at = datetime.now(timezone.utc)
                 done_slugs.append(slug)
 
@@ -397,15 +344,14 @@ def run_fanout(
         if pending:
             time.sleep(poll_interval_s)
 
-    # Timeout fallback — block briefly to collect whatever's left
     for slug, (spec, handle) in pending.items():
         try:
             result_dict = handle.get(timeout=30)
-            runs[slug] = _dict_to_language_run(spec, result_dict)
+            runs[slug]  = _dict_to_language_run(spec, result_dict)
         except Exception as exc:
             lr = runs[slug]
-            lr.state = State.FAILED
-            lr.error = f"timeout: {exc}"
+            lr.state      = State.FAILED
+            lr.error      = f"timeout: {exc}"
             lr.finished_at = datetime.now(timezone.utc)
 
     return FanOutResult(run_id=ctx.run_id, runs=runs, elapsed_s=time.time() - start)
@@ -422,22 +368,20 @@ def _dict_to_language_run(spec: LanguageSpec, d: dict) -> LanguageRun:
 
 
 def language_run_to_dict(lr: LanguageRun) -> dict:
-    """Serializes a LanguageRun for crossing the Modal RPC boundary."""
     return {"state": lr.state.value, "error": lr.error, "report": lr.report}
 
 
 def _print_fanout_status(runs: dict[str, LanguageRun], pending: dict) -> None:
-    now = datetime.now(timezone.utc)
+    now        = datetime.now(timezone.utc)
     done_count = sum(1 for lr in runs.values() if lr.state in (State.DONE, State.FAILED))
     print(f"\n[{now.strftime('%H:%M')}] {done_count}/{len(runs)} complete, {len(pending)} running")
 
     for slug, lr in sorted(runs.items()):
         if lr.state in (State.DONE, State.FAILED):
-            icon = "✓" if lr.state == State.DONE else "✗"
-            cls  = ""
+            icon     = "✓" if lr.state == State.DONE else "✗"
+            cls      = ""
             if lr.report:
-                lang_data = lr.report.get("languages", {}).get(slug, {})
-                cls = lang_data.get("classification", "")
+                cls = lr.report.get("languages", {}).get(slug, {}).get("classification", "")
             note = lr.error or cls
             print(f"  {icon} {lr.spec.language:<24} {lr.spec.model_id:<22} {lr.state.value:<14} {note[:50]}")
 

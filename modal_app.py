@@ -1,23 +1,21 @@
 """
-Phase 2A — Modal application entrypoint.
+Phase 2A — Modal application entrypoint (v2: pointwise evaluation).
 
 Worker registrations + one entrypoint. All pipeline logic lives in:
-  src/pipeline/state_machine.py  — the state machine (PENDING→...→DONE/FAILED)
+  src/pipeline/state_machine.py  — state machine (PENDING→SAMPLE→INFERENCE→JUDGE→REPORT→DONE)
   src/pipeline/entrypoints.py    — run_pipeline()
-  src/pipeline/report_render.py  — markdown summary generator
 
-There is one command: run_pipeline. "Phase 3/4/5" don't exist as separate
-commands anymore — they were always the same state machine with a
-different stop point and a different number of languages:
-  --slug tamil --stop-at light_metrics   (old "compare")
-  --slug tamil --stop-at report          (old "phase4")
-  --slug all   --stop-at report          (old "phase5")
+v2 changes:
+  - No Gemma-4 baseline — regional LLM evaluated standalone (pointwise).
+  - --n-samples replaces --limit (stratified random sampling, default 200).
+  - LightMetricWorker and ModelMetricWorker removed from pipeline.
+  - JudgeWorker now pointwise (score 0–1 per dimension, no swap_runs).
 
 Usage:
     modal deploy modal_app.py
-    modal run modal_app.py::run_pipeline --slug greek
-    modal run modal_app.py::run_pipeline --slug greek --stop-at light_metrics
-    modal run modal_app.py::run_pipeline --slug arabic,hebrew,amharic
+    modal run modal_app.py::run_pipeline --slug german
+    modal run modal_app.py::run_pipeline --slug german --task translation --n-samples 200
+    modal run modal_app.py::run_pipeline --slug german,dutch,polish
     modal run modal_app.py::run_pipeline --slug all
 """
 import modal
@@ -25,16 +23,13 @@ from modal_common import (
     build_registry_config,
     env_config,
     judge_image,
-    model_metrics_image,
     registry_image,
     vllm_image,
     VOLUME_MOUNTS,
 )
-from src.workers.inference     import VLLMWorker     as _VLLMWorker
-from src.workers.judge         import JudgeWorker    as _JudgeWorker
-from src.workers.light_metrics import LightMetricWorker as _LightMetricWorker
-from src.workers.model_metrics import ModelMetricWorker as _ModelMetricWorker
-from src.workers.reporter      import ReportGenerator as _ReportGenerator
+from src.workers.inference import VLLMWorker     as _VLLMWorker
+from src.workers.judge     import JudgeWorker    as _JudgeWorker
+from src.workers.reporter  import ReportGenerator as _ReportGenerator
 from src.pipeline.state_machine import LanguageSpec, State, WorkerHandles
 
 APP_NAME = f"flamai-Multilingual-Evaluation-Pipeline-{env_config.env_name}"
@@ -48,19 +43,6 @@ _registry_secret   = modal.Secret.from_name("phase2a-registry-url")
 _auth_secret       = modal.Secret.from_name("phase2a-auth-secrets")
 _judge_secret      = modal.Secret.from_name("phase2a-judge")
 _inference_secrets = [_registry_secret, _auth_secret]
-
-# ---------------------------------------------------------------------------
-# Images
-# ---------------------------------------------------------------------------
-
-metrics_image = (
-    modal.Image.debian_slim(python_version="3.11")
-    .apt_install("curl")
-    .pip_install("sacrebleu", "langdetect", "sentence-transformers", "numpy")
-    .add_local_dir("src",              remote_path="/root/src")
-    .add_local_file("modal_app.py",    remote_path="/root/modal_app.py")
-    .add_local_file("modal_common.py", remote_path="/root/modal_common.py")
-)
 
 # ---------------------------------------------------------------------------
 # Registry (Phase 0/1)
@@ -147,62 +129,41 @@ GPU_WORKER_MAP = {
 
 
 # ---------------------------------------------------------------------------
-# Metric + judge workers
+# Judge worker (pointwise, no swap_runs)
 # ---------------------------------------------------------------------------
-
-@app.cls(image=metrics_image, cpu=2, memory=4096, timeout=600,
-         secrets=[_registry_secret], volumes=VOLUME_MOUNTS)
-class LightMetricWorkerModal(_LightMetricWorker):
-    @modal.method()
-    def score(self, run_id, slug, task, language, model_id=""):
-        return super().score(run_id, slug, task, language, model_id)
-
-
-@app.cls(image=model_metrics_image, gpu="L4", cpu=2, memory=16384, timeout=3600,
-         secrets=[_registry_secret, _auth_secret], volumes=VOLUME_MOUNTS)
-class ModelMetricWorkerModal(_ModelMetricWorker):
-    @modal.method()
-    def score(self, run_id, slug, task, language, model_id=""):
-        return super().score(run_id, slug, task, language, model_id)
-
 
 @app.cls(image=judge_image, cpu=2, memory=2048, timeout=7200,
          secrets=[_judge_secret], volumes=VOLUME_MOUNTS)
 class JudgeWorkerModal(_JudgeWorker):
     @modal.method()
     def judge(self, run_id, slug, task, language, regional_model_id,
-              judge_model="gemini-3.5-flash", swap_runs=2, limit=None):
+              judge_model="gemini-3.5-flash", limit=None):
         return super().judge(
             run_id=run_id, slug=slug, task=task, language=language,
             regional_model_id=regional_model_id, judge_model=judge_model,
-            swap_runs=swap_runs, limit=limit,
+            limit=limit,
         )
 
 
 def _handles() -> WorkerHandles:
-    """Bundles the worker classes for injection into the state machine."""
     return WorkerHandles(
         gpu_worker_map=GPU_WORKER_MAP,
-        LightMetricWorker=LightMetricWorkerModal,
-        ModelMetricWorker=ModelMetricWorkerModal,
         JudgeWorker=JudgeWorkerModal,
         ReportGenerator=_ReportGenerator,
     )
 
 
 # ---------------------------------------------------------------------------
-# Model registry — the 17 regional models
+# Model registry
 # ---------------------------------------------------------------------------
 
 ALL_MODELS = [
-    # Re-run upgraded models — Sarvam-M 24B covers all 4 Indic languages
     LanguageSpec("sarvam-m-tamil",           "Tamil",                "tamil",                "a100_80gb"),
     LanguageSpec("sarvam-m-marathi",         "Marathi",              "marathi",              "a100_80gb"),
     LanguageSpec("sarvam-m-kannada",         "Kannada",              "kannada",              "a100_80gb"),
     LanguageSpec("sarvam-m-gujarati",        "Gujarati",             "gujarati",             "a100_80gb"),
     LanguageSpec("jais-2-8b",                "Arabic",               "arabic",               "l4"),
     LanguageSpec("dictalm-3-nemotron-12b",   "Hebrew",               "hebrew",               "l40s"),
-    # Re-run upgraded — EXAONE-3.5-32B (Polyglot-Ko-12B was a base model, Grade E)
     LanguageSpec("exaone-3-5-32b",           "Korean",               "korean",               "a100_80gb"),
     LanguageSpec("mallam-5b",                "Malay",                "malay",                "l4"),
     LanguageSpec("swahili-gemma-7b",         "Swahili",              "swahili",              "l4"),
@@ -210,12 +171,11 @@ ALL_MODELS = [
     LanguageSpec("lucie-7b",                 "French",               "french",               "l4"),
     LanguageSpec("viking-7b",                "Swedish",              "swedish",              "l4"),
     LanguageSpec("csmpt-7b",                 "Czech",                "czech",                "l4"),
-    # Re-run upgraded — Krikri-8B (same ILSP lab, Llama 3.1, May 2025)
     LanguageSpec("krikri-8b",                "Greek",                "greek",                "l4"),
     LanguageSpec("tucano-2b4",               "Brazilian Portuguese", "brazilian_portuguese", "l4"),
     LanguageSpec("goldfish-mri-39m",         "Māori",                "maori",                "t4"),
     LanguageSpec("goldfish-tpi-125m",        "Tok Pisin",            "tok_pisin",            "t4"),
-    # EuroLLM-22B — EU multilingual expansion (24 languages, tokenizer gate passed)
+    # EuroLLM-22B — EU multilingual expansion (24 languages)
     LanguageSpec("eurollm-22b", "German",     "german",     "a100_80gb"),
     LanguageSpec("eurollm-22b", "Italian",    "italian",    "a100_80gb"),
     LanguageSpec("eurollm-22b", "Portuguese", "portuguese", "a100_80gb"),
@@ -242,55 +202,31 @@ ALL_MODELS = [
     LanguageSpec("eurollm-22b", "Greek",      "greek",      "a100_80gb"),
 ]
 
-BASE_MODELS = {  # no instruct variant — plain-text prompts only
-    "viking-7b", "csmpt-7b",
-    "goldfish-mri-39m", "goldfish-tpi-125m",
-}
+BASE_MODELS = {"viking-7b", "csmpt-7b", "goldfish-mri-39m", "goldfish-tpi-125m"}
 
 
 # ---------------------------------------------------------------------------
-# run_pipeline — the one command. Replaces compare / phase4 / phase5.
-#
-# What used to be three separate commands is now one command with two
-# knobs: which language(s), and how far to run them.
-#   --slug tamil                     → one language
-#   --slug greek,arabic,hebrew       → a few languages, run in parallel
-#   --slug all                       → all 17, run in parallel
-#   --stop-at light_metrics          → inference + light metrics only (old "compare")
-#   --stop-at report                 → full pipeline incl. judge (old "phase4"/"phase5")
+# Internal Modal functions
 # ---------------------------------------------------------------------------
 
-@app.function(image=vllm_image, gpu="A100-80GB", timeout=3600,
-              secrets=_inference_secrets, volumes=VOLUME_MOUNTS)
-def _run_gemma4_baseline(run_id: str, task: str, limit: int, all_slugs: list) -> None:
-    """Thin Modal wrapper so ensure_gemma4_baseline can run as a real container."""
-    from src.pipeline.state_machine import RunContext, ensure_gemma4_baseline
-    ctx = RunContext(run_id=run_id, task=task, limit=limit, judge_model="",
-                      judge_limit=0, swap_runs=0, skip_model_metrics=True, handles=_handles())
-    ensure_gemma4_baseline(ctx, VLLMWorkerA100, all_slugs=all_slugs)
-
-
-@app.function(image=metrics_image, cpu=2, memory=4096, timeout=86400,
+@app.function(image=vllm_image, cpu=2, memory=4096, timeout=86400,
               secrets=[_registry_secret, _judge_secret], volumes=VOLUME_MOUNTS)
 def _run_one_language(run_id: str, model_id: str, language: str, slug: str,
-                      gpu_preset: str, stop_at_value: str, task: str, limit: int,
-                      judge_model: str, judge_limit: int, swap_runs: int,
-                      skip_model_metrics: bool) -> dict:
-    """The container spawned once per language when running more than one."""
+                      gpu_preset: str, stop_at_value: str, task: str,
+                      n_samples: int, seed: int, judge_model: str) -> dict:
+    """Container spawned once per language during fan-out."""
     from src.pipeline.entrypoints import run_single_language_to_state
     spec = LanguageSpec(model_id, language, slug, gpu_preset)
     return run_single_language_to_state(
-        run_id=run_id, spec=spec, stop_at_value=stop_at_value, task=task, limit=limit,
-        judge_model=judge_model, judge_limit=judge_limit, swap_runs=swap_runs,
-        skip_model_metrics=skip_model_metrics, handles=_handles(),
+        run_id=run_id, spec=spec, stop_at_value=stop_at_value, task=task,
+        n_samples=n_samples, seed=seed, judge_model=judge_model, handles=_handles(),
     )
 
 
-@app.function(image=metrics_image, cpu=2, memory=4096, timeout=86400,
+@app.function(image=vllm_image, cpu=2, memory=4096, timeout=86400,
               secrets=[_registry_secret, _judge_secret], volumes=VOLUME_MOUNTS)
-def _run_pipeline(run_id: str, slugs: list, stop_at_value: str, task: str, limit: int,
-                  judge_model: str, judge_limit: int, swap_runs: int,
-                  skip_model_metrics: bool, gemma4_run_id: str = "") -> dict:
+def _run_pipeline(run_id: str, slugs: list, stop_at_value: str, task: str,
+                  n_samples: int, seed: int, judge_model: str) -> dict:
     from src.pipeline.entrypoints import run_pipeline
 
     specs = [s for s in ALL_MODELS if s.slug in slugs] if slugs else ALL_MODELS
@@ -299,56 +235,54 @@ def _run_pipeline(run_id: str, slugs: list, stop_at_value: str, task: str, limit
         return _run_one_language.spawn(
             run_id=run_id, model_id=spec.model_id, language=spec.language,
             slug=spec.slug, gpu_preset=spec.gpu_preset, stop_at_value=stop_at.value,
-            task=task, limit=limit, judge_model=judge_model, judge_limit=judge_limit,
-            swap_runs=swap_runs, skip_model_metrics=skip_model_metrics,
+            task=task, n_samples=n_samples, seed=seed, judge_model=judge_model,
         )
 
     return run_pipeline(
-        run_id=run_id, specs=specs, stop_at=State(stop_at_value), task=task, limit=limit,
-        handles=_handles(), judge_model=judge_model, judge_limit=judge_limit,
-        swap_runs=swap_runs, skip_model_metrics=skip_model_metrics,
-        VLLMWorkerA100=VLLMWorkerA100, advance_remote_fn=_spawn,
-        gemma4_run_id=gemma4_run_id,
+        run_id=run_id, specs=specs, stop_at=State(stop_at_value), task=task,
+        n_samples=n_samples, seed=seed, handles=_handles(), judge_model=judge_model,
+        advance_remote_fn=_spawn,
     )
 
 
+# ---------------------------------------------------------------------------
+# run_pipeline — the one command
+# ---------------------------------------------------------------------------
+
 @app.local_entrypoint()
-def run_pipeline(slug="tamil", model_id="", stop_at="report", task="translation", limit=200,
-                 judge_model="gemini-3.5-flash", judge_limit=50, swap_runs=2,
-                 skip_model_metrics=True, run_id="", gemma4_run_id=""):
+def run_pipeline(slug="all", model_id="", stop_at="report", task="translation",
+                 n_samples=200, seed=42, judge_model="gemini-3.5-flash", run_id=""):
     """
-    Run the evaluation pipeline for one language, a few, or all 17 — to
-    whatever stop point you need. Replaces compare / phase4 / phase5.
+    Run the v2 pointwise evaluation pipeline for one language, a few, or all.
 
     --slug          one slug, comma-separated list, or "all"
-    --stop-at       "light_metrics" (inference + BLEU/chrF only)
-                    "report"        (full pipeline incl. judge — default)
+    --task          "translation" or "instructions"
+    --n-samples     number of stratified samples per run (default 200)
+    --stop-at       "sample" | "inference" | "judge" | "report" (default)
 
     Examples:
-        # One language, full pipeline (old "phase4", run fresh)
-        modal run modal_app.py::run_pipeline --slug greek
+        # One language, full pipeline
+        modal run modal_app.py::run_pipeline --slug german
 
-        # One language, inference + light metrics only (old "compare")
-        modal run modal_app.py::run_pipeline --slug greek --stop-at light_metrics
+        # Just sample + inference (no judge)
+        modal run modal_app.py::run_pipeline --slug german --stop-at inference
 
         # A few languages in parallel
-        modal run modal_app.py::run_pipeline --slug arabic,hebrew,amharic
+        modal run modal_app.py::run_pipeline --slug dutch,polish,romanian
 
-        # All 17 (old "phase5") — prints cost estimate, confirms before launch
+        # All models
         modal run modal_app.py::run_pipeline --slug all
 
-        # Resume an existing run — already-completed languages are skipped
+        # Resume an existing run
         modal run modal_app.py::run_pipeline --slug all --run-id <id>
     """
     from src.pipeline.entrypoints import estimate_cost
     from src.pipeline.run import generate_run_id
 
-    limit              = int(limit)
-    judge_limit        = int(judge_limit)
-    swap_runs          = int(swap_runs)
-    skip_model_metrics = str(skip_model_metrics).lower() not in ("false", "0", "no")
+    n_samples = int(n_samples)
+    seed      = int(seed)
 
-    slugs    = [] if slug == "all" else [s.strip() for s in slug.split(",") if s.strip()]
+    slugs     = [] if slug == "all" else [s.strip() for s in slug.split(",") if s.strip()]
     model_ids = [m.strip() for m in model_id.split(",") if m.strip()] if model_id else []
     specs = [s for s in ALL_MODELS
              if (not slugs or s.slug in slugs)
@@ -358,21 +292,20 @@ def run_pipeline(slug="tamil", model_id="", stop_at="report", task="translation"
               f"{', '.join(s.slug for s in ALL_MODELS)}")
         return
 
-    run_id = run_id or generate_run_id()
+    run_id     = run_id or generate_run_id()
     stop_state = State(stop_at)
 
-    cost = estimate_cost(specs, judge_limit, swap_runs) if stop_state == State.REPORT else None
+    cost = estimate_cost(specs, n_samples) if stop_state == State.DONE else None
 
     print(f"\n{'='*65}\n  RUN PIPELINE — PRE-FLIGHT\n{'='*65}")
     print(f"  Run ID:        {run_id}")
     print(f"  Languages:     {len(specs)}")
+    print(f"  Task:          {task}  |  Samples: {n_samples} (stratified, seed={seed})")
     print(f"  Stop at:       {stop_state.value}")
-    print(f"  Task:          {task}  |  Prompts/model: {limit}")
+    print(f"  Judge:         {judge_model}")
     if cost:
-        print(f"  Judge:         {judge_model}  |  Limit: {judge_limit} prompts/model")
         print(f"\n  ESTIMATED COST:")
         print(f"    Regional inference: ${cost['regional_inference_usd']:.2f}")
-        print(f"    Gemma-4 inference:  ${cost['gemma4_inference_usd']:.2f}")
         print(f"    Judge API:          ${cost['judge_usd']:.2f}  ({cost['total_judge_calls']:,} calls)")
         print(f"    TOTAL:              ~${cost['total_usd']:.2f}")
     print(f"{'='*65}\n  Languages:")
@@ -385,22 +318,24 @@ def run_pipeline(slug="tamil", model_id="", stop_at="report", task="translation"
         input()
 
     print(f"\n  Run ID: {run_id}")
-    print(f"  (Local client will disconnect after ~30min — containers keep running with --detach)\n")
+    print(f"  (Use --detach to disconnect after launch)\n")
 
     _run_pipeline.remote(
-        run_id=run_id, slugs=slugs, stop_at_value=stop_state.value, task=task, limit=limit,
-        judge_model=judge_model, judge_limit=judge_limit, swap_runs=swap_runs,
-        skip_model_metrics=skip_model_metrics, gemma4_run_id=gemma4_run_id,
+        run_id=run_id, slugs=slugs, stop_at_value=stop_state.value, task=task,
+        n_samples=n_samples, seed=seed, judge_model=judge_model,
     )
 
     print(f"\n  Run complete — Run ID: {run_id}")
     print(f"  Check results: modal run modal_app.py::check_run --run-id {run_id}")
 
 
-@app.function(image=metrics_image, cpu=1, memory=512, timeout=60,
+# ---------------------------------------------------------------------------
+# check_run + utilities
+# ---------------------------------------------------------------------------
+
+@app.function(image=vllm_image, cpu=1, memory=512, timeout=60,
               secrets=[_registry_secret], volumes=VOLUME_MOUNTS)
 def _check_run_impl(run_id: str, target_slugs: list) -> str:
-    """Reads run status from the Modal volume and returns a formatted string."""
     import json, os
     from src.pipeline.run import manifest_path
     from src.workers.reporter import load_report
@@ -420,6 +355,7 @@ def _check_run_impl(run_id: str, target_slugs: list) -> str:
         f"Task   : {manifest.get('task', '?')}",
         f"Status : {manifest.get('status', '?')}",
         f"Stop at: {manifest.get('stop_at', '?')}",
+        f"Samples: {manifest.get('n_samples', '?')}",
         f"\nLanguages ({len(langs)}/{len(ALL_MODELS)} completed):",
     ]
 
@@ -429,17 +365,16 @@ def _check_run_impl(run_id: str, target_slugs: list) -> str:
         entry = langs.get(spec.language, {})
         if entry:
             grade = entry.get("classification", "?")
-            win   = entry.get("judge_win_rate")
-            win_s = f"  win={win:.0%}" if win is not None else ""
-            lines.append(f"  ✓  {spec.language:<26} Grade {grade}{win_s}")
+            score = entry.get("avg_score")
+            score_s = f"  avg={score:.2f}" if score is not None else ""
+            lines.append(f"  ✓  {spec.language:<26} Grade {grade}{score_s}")
         else:
             lines.append(f"  …  {spec.language:<26} (running)")
 
     counts = {g: sum(1 for e in langs.values() if e.get("classification") == g)
-              for g in ["A", "B", "C", "D", "E"]}
+              for g in ["A", "B", "C", "D"]}
     if any(counts.values()):
-        lines.append(f"\nGrades: A={counts['A']} B={counts['B']} C={counts['C']} "
-                     f"D={counts['D']} E={counts['E']}")
+        lines.append(f"\nGrades: A={counts['A']} B={counts['B']} C={counts['C']} D={counts['D']}")
     return "\n".join(lines)
 
 
@@ -467,7 +402,7 @@ def check_run(run_id: str = "", slug: str = "all"):
 
     Examples:
         modal run modal_app.py::check_run --run-id 2026-06-23_120000_abc123
-        modal run modal_app.py::check_run --slug greek
+        modal run modal_app.py::check_run --slug german
     """
     target_slugs = (
         [s.strip() for s in slug.split(",") if s.strip()]
